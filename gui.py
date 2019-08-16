@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -9,12 +8,12 @@ from PyQt5.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QStyle,
-    QListView,
     QLineEdit,
     QCheckBox,
     QWidget,
     QAbstractItemView,
-    QListWidget)
+    QListWidget,
+)
 
 
 class MainWindow(QMainWindow):

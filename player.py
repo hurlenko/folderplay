@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import vlc
@@ -14,7 +15,21 @@ class Player(MainWindow):
         self.instance = vlc.Instance()
 
         # Create an empty vlc media player
-        self.mediaplayer = self.instance.media_player_new()
+        self.mediaplayer = vlc.MediaPlayer()
+
+        # self.media_event = self.mediaplayer.event_manager()
+        # self.media_event.event_attach(
+        #     vlc.EventType.MediaPlayerEndReached, self.SongFinished, 1
+        # )
+        # self.media_event.event_attach(
+        #     vlc.EventType.MediaPlayerMediaChanged, self.nextItemSet, 1
+        # )
+        #
+        # logging.getLogger("vlc").setLevel(logging.NOTSET)
+        # logging.getLogger("mpgatofixed32").setLevel(logging.NOTSET)
+        # logging.getLogger("core vout").setLevel(logging.NOTSET)
+
+        self.btnPlay.pressed.connect(self.play)
 
         self.load_media()
 
@@ -24,6 +39,18 @@ class Player(MainWindow):
             if f.suffix in EXTENSIONS_MEDIA:
                 self.lstFiles.addItem(str(f))
 
-        # # medias.sort()
-        # for m in medias:
-        #     self.lstFiles
+    def play(self):
+        x = self.lstFiles.item(1)
+        media = self.instance.media_new(x.text())
+        self.mediaplayer.set_media(media)
+        # media.parse()
+        self.mediaplayer.play()
+
+        # player = vlc.MediaPlayer(x.text())
+        # player.play()
+
+
+    # @vlc.callbackmethod
+    # def SongFinished(self, event, status):
+    #     # print ('item finish : ', self.filelist[self.indicator].name)
+    #     self.indicator += 1
