@@ -13,7 +13,8 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QCheckBox,
     QWidget,
-)
+    QAbstractItemView,
+    QListWidget)
 
 
 class MainWindow(QMainWindow):
@@ -36,8 +37,8 @@ class MainWindow(QMainWindow):
         self.setup_progress_bar()
 
         # File names list view
-        self.lstFiles = QListView()
-        self.setup_files_list_view()
+        self.lstFiles = QListWidget()
+        self.setup_files_list()
 
         # Search box
         self.searchBox = QLineEdit()
@@ -182,30 +183,32 @@ class MainWindow(QMainWindow):
         self.progressBar.setFormat("%v / %m")
         self.progressBar.setToolTip("This is %m a tooltip message.")
 
-    def setup_files_list_view(self):
+    def setup_files_list(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.lstFiles.setSizePolicy(sizePolicy)
+        self.lstFiles.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.lstFiles.setSortingEnabled(True)
 
-        # Add dummy items
-        model = QStandardItemModel(self.lstFiles)
-
-        foods = [
-            "Cookie dough" * 20,  # Must be store-bought
-            "Hummus",  # Must be homemade
-            "Spaghetti",  # Must be saucy
-            "Dal makhani",  # Must be spicy
-            "Chocolate whipped cream",  # Must be plentiful
-        ]
-
-        for food in foods * 10:
-            # Create an item with a caption
-            item = QStandardItem(
-                self.style().standardIcon(QStyle.SP_DialogNoButton), food
-            )
-
-            # Add the item to the model
-            model.appendRow(item)
-        self.lstFiles.setModel(model)
+        # # Add dummy items
+        # model = QStandardItemModel(self.lstFiles)
+        #
+        # foods = [
+        #     "Cookie dough" * 20,  # Must be store-bought
+        #     "Hummus",  # Must be homemade
+        #     "Spaghetti",  # Must be saucy
+        #     "Dal makhani",  # Must be spicy
+        #     "Chocolate whipped cream",  # Must be plentiful
+        # ]
+        #
+        # for food in foods * 10:
+        #     # Create an item with a caption
+        #     item = QStandardItem(
+        #         self.style().standardIcon(QStyle.SP_DialogNoButton), food
+        #     )
+        #
+        #     # Add the item to the model
+        #     model.appendRow(item)
+        # self.lstFiles.setModel(model)
 
     def setup_search_line_edit(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)

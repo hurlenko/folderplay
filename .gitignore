@@ -47,7 +47,6 @@ tmtagsHistory
 # Other files #
 ######################
 *.json
-*.db
 *.pyz
 log.txt
 
