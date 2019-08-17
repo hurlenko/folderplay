@@ -1,11 +1,15 @@
+import logging
+import re
 from pathlib import Path
 
 import vlc
-from PyQt5.QtWidgets import QListWidgetItem, QMenu, QStyle
+from PyQt5.QtWidgets import QListWidgetItem, QMenu, QStyle, QAbstractItemView
 
 from constants import EXTENSIONS_MEDIA
 from gui import MainWindow
 from media import MediaItem
+
+logger = logging.getLogger(__name__)
 
 
 class Player(MainWindow):
@@ -17,6 +21,7 @@ class Player(MainWindow):
 
         # Create an empty vlc media player
         self.mediaplayer = vlc.MediaPlayer()
+        self.filters = [self.hide_regex_not_match, self.hide_watched]
 
         # self.media_event = self.mediaplayer.event_manager()
         # self.media_event.event_attach(
@@ -31,7 +36,9 @@ class Player(MainWindow):
         # logging.getLogger("core vout").setLevel(logging.NOTSET)
 
         self.btnPlay.pressed.connect(self.play)
-        self.chkHideWatched.stateChanged.connect(self.hide_watched)
+        self.chkHideWatched.stateChanged.connect(self.filter_medias)
+        self.chkRegex.stateChanged.connect(self.filter_medias)
+        self.searchBox.textEdited.connect(self.filter_medias)
         self.btnRefresh.pressed.connect(self.load_media)
         self.lstFiles.customContextMenuRequested.connect(
             self.media_context_menu
@@ -39,15 +46,36 @@ class Player(MainWindow):
 
         self.load_media()
 
-    def hide_watched(self):
+    def filter_medias(self):
         total = self.lstFiles.count()
         for i in range(total):
             item = self.lstFiles.item(i)
 
             media: MediaItem = self.lstFiles.itemWidget(item)
-            item.setHidden(
-                self.chkHideWatched.isChecked() and media.is_watched()
-            )
+            hidden = False
+            for f in self.filters:
+                if f(media) is True:
+                    hidden = True
+                    break
+            item.setHidden(hidden)
+        self.init_unwatched()
+
+    def hide_watched(self, media: MediaItem) -> bool:
+        return self.chkHideWatched.isChecked() and media.is_watched()
+
+    def hide_regex_not_match(self, media: MediaItem) -> bool:
+        pattern = self.searchBox.text()
+        if not self.chkRegex.isChecked():
+            pattern = re.escape(pattern)
+        try:
+            pattern = re.compile(pattern, re.IGNORECASE)
+        except re.error as e:
+            logger.warning("Failed to compile regex: %s", e)
+            # Failed pattern should not hide the whole list of medias
+            return False
+
+        found = bool(pattern.search(media.get_title()))
+        return not found
 
     def media_context_menu(self, position):
         # // Create menu and insert some actions
@@ -63,22 +91,24 @@ class Player(MainWindow):
         for item in self.lstFiles.selectedItems():
             media: MediaItem = self.lstFiles.itemWidget(item)
             media.toggle_watched()
-        self.init_unwatched()
+        self.filter_medias()
 
     def load_media(self):
         # https://stackoverflow.com/a/25188862/8014793
         self.lstFiles.clear()
+        medias = []
         for f in self.media_dir.rglob("*"):
             if f.suffix in EXTENSIONS_MEDIA:
-                media = MediaItem(f)
-                item = QListWidgetItem(self.lstFiles)
-                # Set size hint
-                item.setSizeHint(media.sizeHint())
-                # Add QListWidgetItem into QListWidget
-                self.lstFiles.addItem(item)
-                self.lstFiles.setItemWidget(item, media)
-        self.hide_watched()
-        self.init_unwatched()
+                medias.append(MediaItem(f))
+        medias.sort()
+        for m in medias:
+            item = QListWidgetItem(self.lstFiles)
+            # Set size hint
+            item.setSizeHint(m.sizeHint())
+            # Add QListWidgetItem into QListWidget
+            self.lstFiles.addItem(item)
+            self.lstFiles.setItemWidget(item, m)
+        self.filter_medias()
 
     def init_unwatched(self):
         self.lstFiles.clearSelection()
@@ -92,6 +122,9 @@ class Player(MainWindow):
             elif len(self.lstFiles.selectedItems()) == 0:
                 # self.lstFiles.setCurrentItem(item)
                 item.setSelected(True)
+                self.lstFiles.scrollToItem(
+                    item, QAbstractItemView.PositionAtCenter
+                )
 
         self.progressBar.setMaximum(total)
         self.progressBar.setValue(watched)

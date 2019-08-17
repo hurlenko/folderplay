@@ -186,7 +186,7 @@ class MainWindow(QMainWindow):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.lstFiles.setSizePolicy(sizePolicy)
         self.lstFiles.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        self.lstFiles.setSortingEnabled(True)
+        # self.lstFiles.setSortingEnabled(True)
         self.lstFiles.setContextMenuPolicy(Qt.CustomContextMenu)
 
     def setup_search_line_edit(self):
@@ -216,7 +216,7 @@ class ListWidgetItem(QWidget):
         self.duration = QLabel()
 
         self.vlayout = QVBoxLayout()
-        self.vlayout.addStretch(1)
+        self.vlayout.addStretch()
         self.vlayout.setContentsMargins(5, 0, 0, 0)
         self.vlayout.setSpacing(0)
 
@@ -226,11 +226,12 @@ class ListWidgetItem(QWidget):
         self.icon = QLabel()
 
         self.hlayout = QHBoxLayout()
-        self.hlayout.addWidget(self.icon, 0)
-        self.hlayout.addLayout(self.vlayout, 1)
-        self.hlayout.addStretch(1)
+        self.hlayout.addStretch()
         self.hlayout.setContentsMargins(5, 0, 0, 0)
         self.hlayout.setSpacing(0)
+
+        self.hlayout.addWidget(self.icon, 0)
+        self.hlayout.addLayout(self.vlayout, 1)
 
         self.setLayout(self.hlayout)
         # setStyleSheet

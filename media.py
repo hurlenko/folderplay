@@ -64,5 +64,8 @@ class MediaItem(ListWidgetItem):
             return title[len(WATCHED_PREFIX) :]
         return title
 
+    def __lt__(self, other):
+        return self.path.__lt__(other.path)
+
     def __repr__(self):
         return f'<MediaItem "{self.get_title()}" {self.is_watched()}>'
