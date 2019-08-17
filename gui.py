@@ -1,4 +1,5 @@
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QFont
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -13,6 +14,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QAbstractItemView,
     QListWidget,
+    QLabel,
 )
 
 
@@ -28,8 +30,8 @@ class MainWindow(QMainWindow):
         self.btnAdvanced = QPushButton()
         self.setup_advanced_button()
 
-        self.btnReload = QPushButton()
-        self.setup_reload_button()
+        self.btnRefresh = QPushButton()
+        self.setup_refresh_button()
 
         # Progressbar
         self.progressBar = QProgressBar()
@@ -43,8 +45,8 @@ class MainWindow(QMainWindow):
         self.searchBox = QLineEdit()
         self.setup_search_line_edit()
 
-        self.chkShowWatched = QCheckBox()
-        self.setup_show_watched_checkbox()
+        self.chkHideWatched = QCheckBox()
+        self.setup_hide_watched_checkbox()
 
         self.chkRegex = QCheckBox()
         self.setup_regex_checkbox()
@@ -55,15 +57,15 @@ class MainWindow(QMainWindow):
         self.basic_view_widgets = [
             self.btnPlay,
             self.btnAdvanced,
-            self.btnReload,
+            self.btnRefresh,
             self.progressBar,
         ]
 
         self.advanced_view_widgets = [
             self.lstFiles,
             self.searchBox,
-            self.chkShowWatched,
-            self.chkShowWatched,
+            self.chkHideWatched,
+            self.chkHideWatched,
             self.chkRegex,
         ]
 
@@ -75,17 +77,17 @@ class MainWindow(QMainWindow):
 
     def basic_view_layout(self):
         vlayout = QVBoxLayout()
-        vlayout_reload_advanced = QVBoxLayout()
+        vlayout_refresh_advanced = QVBoxLayout()
 
         hlayout = QHBoxLayout()
 
-        widgets = [self.btnAdvanced, self.btnReload]
+        widgets = [self.btnAdvanced, self.btnRefresh]
 
         for w in widgets:
-            vlayout_reload_advanced.addWidget(w)
+            vlayout_refresh_advanced.addWidget(w)
 
         hlayout.addWidget(self.progressBar, 3)
-        hlayout.addLayout(vlayout_reload_advanced)
+        hlayout.addLayout(vlayout_refresh_advanced)
 
         # Button is two times bigger than progressbar
         vlayout.addLayout(hlayout, 1)
@@ -99,7 +101,7 @@ class MainWindow(QMainWindow):
 
         basic_layout = self.basic_view_layout()
 
-        checkboxes = [self.chkShowWatched, self.chkRegex]
+        checkboxes = [self.chkHideWatched, self.chkRegex]
 
         for w in checkboxes:
             hlayout_checkboxes.addWidget(w)
@@ -131,7 +133,6 @@ class MainWindow(QMainWindow):
         else:
             for w in self.advanced_view_widgets:
                 w.hide()
-            self.setFixedSize(self.advanced_view_size)
             self.setFixedSize(self.basic_view_size)
         self.center()
 
@@ -162,14 +163,14 @@ class MainWindow(QMainWindow):
         )
         self.btnAdvanced.clicked.connect(self.toggle_advanced_view)
 
-    def setup_reload_button(self):
+    def setup_refresh_button(self):
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
-        self.btnReload.setSizePolicy(sizePolicy)
-        self.btnReload.setToolTip("Reload")
+        self.btnRefresh.setSizePolicy(sizePolicy)
+        self.btnRefresh.setToolTip("Refresh")
         # Icons
         # https://joekuan.files.wordpress.com/2015/09/screen3.png
-        self.btnReload.setIcon(
+        self.btnRefresh.setIcon(
             self.style().standardIcon(QStyle.SP_BrowserReload)
         )
 
@@ -180,34 +181,13 @@ class MainWindow(QMainWindow):
         self.progressBar.setSizePolicy(sizePolicy)
 
         self.progressBar.setFormat("%v / %m")
-        self.progressBar.setToolTip("This is %m a tooltip message.")
 
     def setup_files_list(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.lstFiles.setSizePolicy(sizePolicy)
         self.lstFiles.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.lstFiles.setSortingEnabled(True)
-
-        # # Add dummy items
-        # model = QStandardItemModel(self.lstFiles)
-        #
-        # foods = [
-        #     "Cookie dough" * 20,  # Must be store-bought
-        #     "Hummus",  # Must be homemade
-        #     "Spaghetti",  # Must be saucy
-        #     "Dal makhani",  # Must be spicy
-        #     "Chocolate whipped cream",  # Must be plentiful
-        # ]
-        #
-        # for food in foods * 10:
-        #     # Create an item with a caption
-        #     item = QStandardItem(
-        #         self.style().standardIcon(QStyle.SP_DialogNoButton), food
-        #     )
-        #
-        #     # Add the item to the model
-        #     model.appendRow(item)
-        # self.lstFiles.setModel(model)
+        self.lstFiles.setContextMenuPolicy(Qt.CustomContextMenu)
 
     def setup_search_line_edit(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -219,9 +199,48 @@ class MainWindow(QMainWindow):
         self.chkRegex.setSizePolicy(sizePolicy)
         self.chkRegex.setText("Regex")
 
-    def setup_show_watched_checkbox(self):
+    def setup_hide_watched_checkbox(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.chkShowWatched.setSizePolicy(sizePolicy)
-        self.chkShowWatched.setText("Show Watched")
+        self.chkHideWatched.setSizePolicy(sizePolicy)
+        self.chkHideWatched.setText("Hide watched")
 
     # endregion Widget setup routine
+
+
+class ListWidgetItem(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.title = QLabel()
+        self.title.setFont(QFont("Times", 12, QFont.Bold))
+
+        self.duration = QLabel()
+
+        self.vlayout = QVBoxLayout()
+        self.vlayout.addStretch(1)
+        self.vlayout.setContentsMargins(5, 0, 0, 0)
+        self.vlayout.setSpacing(0)
+
+        self.vlayout.addWidget(self.title)
+        self.vlayout.addWidget(self.duration)
+
+        self.icon = QLabel()
+
+        self.hlayout = QHBoxLayout()
+        self.hlayout.addWidget(self.icon, 0)
+        self.hlayout.addLayout(self.vlayout, 1)
+        self.hlayout.addStretch(1)
+        self.hlayout.setContentsMargins(5, 0, 0, 0)
+        self.hlayout.setSpacing(0)
+
+        self.setLayout(self.hlayout)
+        # setStyleSheet
+        # self.title.setStyleSheet(
+        #     """
+        #     color: rgb(0, 0, 255);
+        # """
+        # )
+        # self.duration.setStyleSheet(
+        #     """
+        #     color: rgb(255, 0, 0);
+        # """
+        # )
