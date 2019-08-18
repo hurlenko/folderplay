@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QIcon, QPainter
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -15,7 +15,40 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
     QListWidget,
     QLabel,
+    QStyleOptionButton,
+    QGroupBox,
 )
+
+from folderplay.constants import FONT_SIZE
+
+
+class ScalablePushButton(QPushButton):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.pad = 1  # padding between the icon and the button frame
+        self.minSize = 8  # minimum size of the icon
+
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(sizePolicy)
+        # self.setStyleSheet("{ padding: 0; margin: 0; }")
+        # self.setContentsMargins(0,0,0,0)
+        # self.setStyleSheet('QPushButton{margin: 0 0 0 0;}')
+
+    def paintEvent(self, event):
+        qp = QPainter()
+        qp.begin(self)
+        # get default style
+        opt = QStyleOptionButton()
+        self.initStyleOption(opt)
+        # scale icon to button size
+        h = opt.rect.height()
+        w = opt.rect.width()
+        iconSize = max(min(h, w) - 2 * self.pad, self.minSize)
+        opt.iconSize = QSize(iconSize, iconSize)
+        # draw button
+        self.style().drawControl(QStyle.CE_PushButton, opt, qp, self)
+        qp.end()
 
 
 class MainWindow(QMainWindow):
@@ -23,14 +56,14 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
         # Play button
-        self.btnPlay = QPushButton()
+        self.btnPlay = ScalablePushButton()
         self.setup_play_button()
 
         # Advanced view button
-        self.btnAdvanced = QPushButton()
+        self.btnAdvanced = ScalablePushButton()
         self.setup_advanced_button()
 
-        self.btnRefresh = QPushButton()
+        self.btnRefresh = ScalablePushButton()
         self.setup_refresh_button()
 
         # Progressbar
@@ -51,6 +84,9 @@ class MainWindow(QMainWindow):
         self.chkRegex = QCheckBox()
         self.setup_regex_checkbox()
 
+        self.filter_group_box = QGroupBox()
+        self.setup_filter_group_box()
+
         self.advanced_view_size = QSize(1600, 400)
         self.basic_view_size = QSize(600, 250)
 
@@ -67,6 +103,7 @@ class MainWindow(QMainWindow):
             self.chkHideWatched,
             self.chkHideWatched,
             self.chkRegex,
+            self.filter_group_box,
         ]
 
         self.central_widget = QWidget()
@@ -95,23 +132,26 @@ class MainWindow(QMainWindow):
         return vlayout
 
     def advanced_view_layout(self):
-        vlayout = QVBoxLayout()
+        vlayout_left_pane = QVBoxLayout()
+        vlayout_group_box = QVBoxLayout()
         hlayout = QHBoxLayout()
-        hlayout_checkboxes = QHBoxLayout()
 
         basic_layout = self.basic_view_layout()
 
+        hlayout_checkboxes = QHBoxLayout()
         checkboxes = [self.chkHideWatched, self.chkRegex]
-
         for w in checkboxes:
             hlayout_checkboxes.addWidget(w)
 
-        vlayout.addLayout(basic_layout)
-        vlayout.addLayout(hlayout_checkboxes)
+        vlayout_group_box.addLayout(hlayout_checkboxes)
+        vlayout_group_box.addWidget(self.searchBox)
 
-        vlayout.addWidget(self.searchBox)
+        self.filter_group_box.setLayout(vlayout_group_box)
 
-        hlayout.addLayout(vlayout, 1)
+        vlayout_left_pane.addLayout(basic_layout)
+        vlayout_left_pane.addWidget(self.filter_group_box)
+
+        hlayout.addLayout(vlayout_left_pane, 1)
         hlayout.addWidget(self.lstFiles, 2)
 
         return hlayout
@@ -146,10 +186,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("FolderPlay by Hurlenko")
 
     def setup_play_button(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        self.btnPlay.setSizePolicy(sizePolicy)
-        self.btnPlay.setText("Play")
+        # self.btnPlay.setSizePolicy(sizePolicy)
+        # self.btnPlay.setText("Play")
+        icon = QIcon("assets/icons/play.svg")
+        self.btnPlay.setIcon(icon)
 
     def setup_advanced_button(self):
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -158,9 +200,8 @@ class MainWindow(QMainWindow):
         self.btnAdvanced.setToolTip("Advanced options")
         # Icons
         # https://joekuan.files.wordpress.com/2015/09/screen3.png
-        self.btnAdvanced.setIcon(
-            self.style().standardIcon(QStyle.SP_ArrowRight)
-        )
+        self.btnAdvanced.setIcon(QIcon("assets/icons/settings.svg"))
+        # self.btnAdvanced.setIconSize(QSize(24, 24))
         self.btnAdvanced.clicked.connect(self.toggle_advanced_view)
 
     def setup_refresh_button(self):
@@ -170,9 +211,8 @@ class MainWindow(QMainWindow):
         self.btnRefresh.setToolTip("Refresh")
         # Icons
         # https://joekuan.files.wordpress.com/2015/09/screen3.png
-        self.btnRefresh.setIcon(
-            self.style().standardIcon(QStyle.SP_BrowserReload)
-        )
+        self.btnRefresh.setIcon(QIcon("assets/icons/refresh.svg"))
+        # self.btnRefresh.setIconSize(QSize(24, 24))
 
     def setup_progress_bar(self):
         self.progressBar.setValue(24)
@@ -181,6 +221,10 @@ class MainWindow(QMainWindow):
         self.progressBar.setSizePolicy(sizePolicy)
 
         self.progressBar.setFormat("%v / %m")
+        font = self.progressBar.font()
+        font.setPointSize(25)
+        font.setBold(True)
+        self.progressBar.setFont(font)
 
     def setup_files_list(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -204,6 +248,11 @@ class MainWindow(QMainWindow):
         self.chkHideWatched.setSizePolicy(sizePolicy)
         self.chkHideWatched.setText("Hide watched")
 
+    def setup_filter_group_box(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.filter_group_box.setSizePolicy(sizePolicy)
+        self.filter_group_box.setTitle("Filter")
+
     # endregion Widget setup routine
 
 
@@ -211,9 +260,12 @@ class ListWidgetItem(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.title = QLabel()
-        self.title.setFont(QFont("Times", 12, QFont.Bold))
+        # Need to set the font explicitly as `setItemWidget` changes the font
+        # to default (Segoe UI, 9pt)
+        self.title.setFont(QFont("Roboto", FONT_SIZE))
 
         self.duration = QLabel()
+        self.duration.setFont(QFont("Roboto", FONT_SIZE))
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addStretch()

@@ -2,12 +2,13 @@ import logging
 import re
 from pathlib import Path
 
-import vlc
+# import vlc
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QListWidgetItem, QMenu, QStyle, QAbstractItemView
 
-from constants import EXTENSIONS_MEDIA
-from gui import MainWindow
-from media import MediaItem
+from folderplay.constants import EXTENSIONS_MEDIA
+from folderplay.gui import MainWindow
+from folderplay.media import MediaItem
 
 logger = logging.getLogger(__name__)
 
@@ -17,10 +18,10 @@ class Player(MainWindow):
         super().__init__(*args, **kwargs)
         self.media_dir = Path(media_dir)
         # Create a basic vlc instance
-        self.instance = vlc.Instance()
+        # self.instance = vlc.Instance()
 
         # Create an empty vlc media player
-        self.mediaplayer = vlc.MediaPlayer()
+        # self.mediaplayer = vlc.MediaPlayer()
         self.filters = [self.hide_regex_not_match, self.hide_watched]
 
         # self.media_event = self.mediaplayer.event_manager()
@@ -79,9 +80,12 @@ class Player(MainWindow):
 
     def media_context_menu(self, position):
         # // Create menu and insert some actions
-        menu = QMenu()
+        menu = QMenu("Options")
+        font = menu.font()
+        font.setPointSize(10)
+        menu.setFont(font)
         menu.addAction(
-            self.style().standardIcon(QStyle.SP_ArrowRight),
+            QIcon("assets/icons/swap.svg"),
             "Toggle watched",
             self.toggle_media_status,
         )
@@ -141,6 +145,6 @@ class Player(MainWindow):
             return
 
         item = self.lstFiles.itemWidget(selected[0])
-        self.mediaplayer.set_media(item.media)
+        # self.mediaplayer.set_media(item.media)
         self.disable_widgets()
-        self.mediaplayer.play()
+        # self.mediaplayer.play()

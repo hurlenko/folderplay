@@ -3,9 +3,11 @@ import os
 import sys
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFontDatabase, QFont
 from PyQt5.QtWidgets import QApplication
 
-from player import Player
+from folderplay.constants import FONT_SIZE
+from folderplay.player import Player
 
 
 def setup_logging():
@@ -24,10 +26,18 @@ def setup_logging():
 
 def main():
     setup_logging()
+
     QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
     # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+
     app = QApplication(sys.argv)
+
+    QFontDatabase.addApplicationFont("assets/fonts/Roboto/Roboto-Regular.ttf")
+
+    font = QFont("Roboto", FONT_SIZE)
+    QApplication.setFont(font)
+
     app.setStyle("Fusion")
     player = Player(os.getcwd())
     player.show()
