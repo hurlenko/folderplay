@@ -88,7 +88,16 @@ class MainWindow(QMainWindow):
         self.filter_group_box = QGroupBox()
         self.setup_filter_group_box()
 
-        self.advanced_view_size = QSize(1600, 400)
+        self.local_player_group_box = QGroupBox()
+        self.setup_local_player_group_box()
+
+        self.player_label = QLabel()
+        self.setup_player_label()
+
+        self.player_name_label = QLabel()
+        self.setup_player_name_label()
+
+        self.advanced_view_size = QSize(1600, 600)
         self.basic_view_size = QSize(600, 250)
 
         self.basic_view_widgets = [
@@ -105,6 +114,9 @@ class MainWindow(QMainWindow):
             self.chkHideWatched,
             self.chkRegex,
             self.filter_group_box,
+            self.local_player_group_box,
+            self.player_label,
+            self.player_name_label,
         ]
 
         self.central_widget = QWidget()
@@ -144,12 +156,20 @@ class MainWindow(QMainWindow):
         for w in checkboxes:
             hlayout_checkboxes.addWidget(w)
 
+        hlayout_player_labels = QHBoxLayout()
+        player_labels = [self.player_label, self.player_name_label]
+        for w in player_labels:
+            hlayout_player_labels.addWidget(w)
+
+        self.local_player_group_box.setLayout(hlayout_player_labels)
+
         vlayout_group_box.addLayout(hlayout_checkboxes)
         vlayout_group_box.addWidget(self.searchBox)
 
         self.filter_group_box.setLayout(vlayout_group_box)
 
         vlayout_left_pane.addLayout(basic_layout)
+        vlayout_left_pane.addWidget(self.local_player_group_box)
         vlayout_left_pane.addWidget(self.filter_group_box)
 
         hlayout.addLayout(vlayout_left_pane, 1)
@@ -258,6 +278,20 @@ class MainWindow(QMainWindow):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.filter_group_box.setSizePolicy(sizePolicy)
         self.filter_group_box.setTitle("Filter")
+
+    def setup_local_player_group_box(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.local_player_group_box.setSizePolicy(sizePolicy)
+        self.local_player_group_box.setTitle("Player")
+
+    def setup_player_label(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.player_label.setSizePolicy(sizePolicy)
+        self.player_label.setText("Name:")
+
+    def setup_player_name_label(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.player_name_label.setSizePolicy(sizePolicy)
 
     # endregion Widget setup routine
 

@@ -83,6 +83,11 @@ class LocalPlayer(QThread):
     def is_found(self):
         return self.player_path and self.player_path.is_file()
 
+    def name(self) -> str:
+        if self.player_path:
+            return self.player_path.stem
+        return "N/A"
+
     def not_found_warning(self):
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)

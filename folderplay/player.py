@@ -22,6 +22,8 @@ class Player(MainWindow):
         self.local_player.started.connect(self.playback_started)
         self.local_player.finished.connect(self.playback_finished)
 
+        self.player_name_label.setText(self.local_player.name())
+
         self.filters = [self.hide_regex_not_match, self.hide_watched]
 
         self.btnPlay.pressed.connect(self.play)
