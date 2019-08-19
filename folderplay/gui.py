@@ -205,6 +205,7 @@ class MainWindow(QMainWindow):
         self.center()
 
         self.setWindowTitle("FolderPlay by Hurlenko")
+        self.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))
 
     def setup_play_button(self):
         # sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)

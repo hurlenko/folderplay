@@ -44,6 +44,8 @@ exe = EXE(
     strip=False,
     upx=True,
     upx_exclude=[],
+    clean=True,
     runtime_tmpdir=None,
     console=False,
+    icon="assets/icons/icon.ico",
 )

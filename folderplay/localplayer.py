@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 from folderplay.constants import LOCAL_PLAYER_MEDIA_ARG
 from folderplay.media import MediaItem
-from folderplay.utils import is_os_64bit
+from folderplay.utils import get_registry_value
 
 
 class LocalPlayer(QThread):
@@ -57,27 +57,15 @@ class LocalPlayer(QThread):
 
     def _windows_players(self):
         res = []
-        import winreg
 
-        try:
-            access = winreg.KEY_READ
-            if is_os_64bit():
-                access |= winreg.KEY_WOW64_64KEY
-
-            key = winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                r"HKLM\Software\VideoLAN\VLC",
-                0,
-                access,
-            )
-            val, _ = winreg.QueryValueEx(key, "InstallDir")
-            winreg.CloseKey(key)
-        except FileNotFoundError:
-            pass
-        else:
-            if val:
-                res.append(val)
-
+        locations = [
+            ("HKLM", r"Software\VideoLAN\VLC", None),
+            ("HKCU", r"Software\MPC-HC\MPC-HC", "ExePath"),
+        ]
+        for l in locations:
+            player = get_registry_value(*l)
+            if player:
+                res.append(player)
         return res
 
     def is_found(self):

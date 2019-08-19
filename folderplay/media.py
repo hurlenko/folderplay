@@ -5,6 +5,7 @@ from PyQt5.QtGui import QIcon
 
 from folderplay.constants import WATCHED_PREFIX
 from folderplay.gui import ListWidgetItem
+from utils import resource_path
 
 logger = logging.getLogger(__name__)
 
@@ -15,8 +16,10 @@ class MediaItem(ListWidgetItem):
 
         self.path = path
         # self.media = None
-        self.icon_unwatched = QIcon("assets/icons/check_box_blank.svg")
-        self.icon_watched = QIcon("assets/icons/check_box.svg")
+        self.icon_unwatched = QIcon(
+            resource_path("assets/icons/check_box_blank.svg")
+        )
+        self.icon_watched = QIcon(resource_path("assets/icons/check_box.svg"))
 
         self.setup_info()
 

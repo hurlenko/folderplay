@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 
 
@@ -9,4 +10,25 @@ def resource_path(relative_path):
 
 
 def is_os_64bit():
-    return sys.platform.machine().endswith("64")
+    return platform.machine().endswith("64")
+
+
+def get_registry_value(key, path, value_name):
+    import winreg
+
+    try:
+        key = {
+            "HKCU": winreg.HKEY_CURRENT_USER,
+            "HKLM": winreg.HKEY_LOCAL_MACHINE,
+        }[key]
+        access = winreg.KEY_READ
+        if is_os_64bit():
+            access |= winreg.KEY_WOW64_64KEY
+
+        hkey = winreg.OpenKey(key, path, 0, access)
+        val, _ = winreg.QueryValueEx(hkey, value_name)
+        winreg.CloseKey(hkey)
+    except FileNotFoundError:
+        return None
+    else:
+        return val
