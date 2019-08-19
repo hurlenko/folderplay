@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
 )
 
 from folderplay.constants import FONT_SIZE
+from folderplay.utils import resource_path
 
 
 class ScalablePushButton(QPushButton):
@@ -190,7 +191,7 @@ class MainWindow(QMainWindow):
 
         # self.btnPlay.setSizePolicy(sizePolicy)
         # self.btnPlay.setText("Play")
-        icon = QIcon("assets/icons/play.svg")
+        icon = QIcon(resource_path("assets/icons/play.svg"))
         self.btnPlay.setIcon(icon)
 
     def setup_advanced_button(self):
@@ -198,9 +199,12 @@ class MainWindow(QMainWindow):
 
         self.btnAdvanced.setSizePolicy(sizePolicy)
         self.btnAdvanced.setToolTip("Advanced options")
+        self.btnAdvanced.setCheckable(True)
         # Icons
         # https://joekuan.files.wordpress.com/2015/09/screen3.png
-        self.btnAdvanced.setIcon(QIcon("assets/icons/settings.svg"))
+        self.btnAdvanced.setIcon(
+            QIcon(resource_path("assets/icons/settings.svg"))
+        )
         # self.btnAdvanced.setIconSize(QSize(24, 24))
         self.btnAdvanced.clicked.connect(self.toggle_advanced_view)
 
@@ -211,7 +215,9 @@ class MainWindow(QMainWindow):
         self.btnRefresh.setToolTip("Refresh")
         # Icons
         # https://joekuan.files.wordpress.com/2015/09/screen3.png
-        self.btnRefresh.setIcon(QIcon("assets/icons/refresh.svg"))
+        self.btnRefresh.setIcon(
+            QIcon(resource_path("assets/icons/refresh.svg"))
+        )
         # self.btnRefresh.setIconSize(QSize(24, 24))
 
     def setup_progress_bar(self):
@@ -262,10 +268,10 @@ class ListWidgetItem(QWidget):
         self.title = QLabel()
         # Need to set the font explicitly as `setItemWidget` changes the font
         # to default (Segoe UI, 9pt)
-        self.title.setFont(QFont("Roboto", FONT_SIZE))
+        self.title.setFont(QFont("Roboto", FONT_SIZE, QFont.DemiBold))
 
         self.duration = QLabel()
-        self.duration.setFont(QFont("Roboto", FONT_SIZE))
+        self.duration.setFont(QFont("Roboto", FONT_SIZE - 2, italic=True))
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addStretch()

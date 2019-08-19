@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QApplication
 
 from folderplay.constants import FONT_SIZE
 from folderplay.player import Player
+from folderplay.utils import resource_path
 
 
 def setup_logging():
@@ -33,7 +34,9 @@ def main():
 
     app = QApplication(sys.argv)
 
-    QFontDatabase.addApplicationFont("assets/fonts/Roboto/Roboto-Regular.ttf")
+    QFontDatabase.addApplicationFont(
+        resource_path("assets/fonts/Roboto/Roboto-Regular.ttf")
+    )
 
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)

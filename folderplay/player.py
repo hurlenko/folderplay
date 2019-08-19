@@ -2,13 +2,14 @@ import logging
 import re
 from pathlib import Path
 
-# import vlc
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QListWidgetItem, QMenu, QStyle, QAbstractItemView
+from PyQt5.QtWidgets import QListWidgetItem, QMenu, QAbstractItemView
 
 from folderplay.constants import EXTENSIONS_MEDIA
 from folderplay.gui import MainWindow
+from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
+from folderplay.utils import resource_path
 
 logger = logging.getLogger(__name__)
 
@@ -17,24 +18,11 @@ class Player(MainWindow):
     def __init__(self, media_dir: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.media_dir = Path(media_dir)
-        # Create a basic vlc instance
-        # self.instance = vlc.Instance()
+        self.local_player = LocalPlayer()
+        self.local_player.started.connect(self.playback_started)
+        self.local_player.finished.connect(self.playback_finished)
 
-        # Create an empty vlc media player
-        # self.mediaplayer = vlc.MediaPlayer()
         self.filters = [self.hide_regex_not_match, self.hide_watched]
-
-        # self.media_event = self.mediaplayer.event_manager()
-        # self.media_event.event_attach(
-        #     vlc.EventType.MediaPlayerEndReached, self.SongFinished, 1
-        # )
-        # self.media_event.event_attach(
-        #     vlc.EventType.MediaPlayerMediaChanged, self.nextItemSet, 1
-        # )
-        #
-        # logging.getLogger("vlc").setLevel(logging.NOTSET)
-        # logging.getLogger("mpgatofixed32").setLevel(logging.NOTSET)
-        # logging.getLogger("core vout").setLevel(logging.NOTSET)
 
         self.btnPlay.pressed.connect(self.play)
         self.chkHideWatched.stateChanged.connect(self.filter_medias)
@@ -85,7 +73,7 @@ class Player(MainWindow):
         font.setPointSize(10)
         menu.setFont(font)
         menu.addAction(
-            QIcon("assets/icons/swap.svg"),
+            QIcon(resource_path("assets/icons/swap.svg")),
             "Toggle watched",
             self.toggle_media_status,
         )
@@ -124,7 +112,6 @@ class Player(MainWindow):
             if media.is_watched():
                 watched += 1
             elif len(self.lstFiles.selectedItems()) == 0:
-                # self.lstFiles.setCurrentItem(item)
                 item.setSelected(True)
                 self.lstFiles.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
@@ -134,9 +121,14 @@ class Player(MainWindow):
         self.progressBar.setValue(watched)
         self.progressBar.setToolTip(f"{total - watched} left to watch")
 
-    def disable_widgets(self):
+    def playback_started(self):
         for w in self.basic_view_widgets + self.advanced_view_widgets:
             w.setDisabled(True)
+
+    def playback_finished(self):
+        for w in self.basic_view_widgets + self.advanced_view_widgets:
+            w.setEnabled(True)
+        self.toggle_media_status()
 
     def play(self):
         self.init_unwatched()
@@ -144,7 +136,9 @@ class Player(MainWindow):
         if len(selected) == 0:
             return
 
-        item = self.lstFiles.itemWidget(selected[0])
-        # self.mediaplayer.set_media(item.media)
-        self.disable_widgets()
-        # self.mediaplayer.play()
+        media = self.lstFiles.itemWidget(selected[0])
+        if self.local_player.is_found():
+            self.local_player.set_media(media)
+            self.local_player.start()
+        else:
+            self.local_player.not_found_warning()
