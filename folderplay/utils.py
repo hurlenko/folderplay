@@ -13,6 +13,18 @@ def is_os_64bit():
     return platform.machine().endswith("64")
 
 
+def is_linux():
+    return sys.platform == "linux" or sys.platform == "linux2"
+
+
+def is_macos():
+    return sys.platform == "darwin"
+
+
+def is_windows():
+    return sys.platform == "win32"
+
+
 def get_registry_value(key, path, value_name):
     import winreg
 

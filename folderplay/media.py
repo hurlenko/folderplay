@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 
 from folderplay.constants import WATCHED_PREFIX
 from folderplay.gui import ListWidgetItem
-from utils import resource_path
+from folderplay.utils import resource_path
 
 logger = logging.getLogger(__name__)
 

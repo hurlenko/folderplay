@@ -2,8 +2,15 @@ import logging
 import re
 from pathlib import Path
 
+from PyQt5.QtCore import QFileInfo
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QListWidgetItem, QMenu, QAbstractItemView
+from PyQt5.QtWidgets import (
+    QListWidgetItem,
+    QMenu,
+    QAbstractItemView,
+    QDialog,
+    QMessageBox,
+)
 
 from folderplay.constants import EXTENSIONS_MEDIA
 from folderplay.gui import MainWindow
@@ -19,14 +26,14 @@ class Player(MainWindow):
         super().__init__(*args, **kwargs)
         self.media_dir = Path(media_dir)
         self.local_player = LocalPlayer()
+        self.update_player_info()
         self.local_player.started.connect(self.playback_started)
         self.local_player.finished.connect(self.playback_finished)
-
-        self.player_name_label.setText(self.local_player.name())
 
         self.filters = [self.hide_regex_not_match, self.hide_watched]
 
         self.btnPlay.pressed.connect(self.play)
+        self.btn_change_player.pressed.connect(self.select_new_player)
         self.chkHideWatched.stateChanged.connect(self.filter_medias)
         self.chkRegex.stateChanged.connect(self.filter_medias)
         self.searchBox.textEdited.connect(self.filter_medias)
@@ -36,6 +43,9 @@ class Player(MainWindow):
         )
 
         self.load_media()
+
+    def update_player_info(self):
+        self.player_name_label.setText(self.local_player.name())
 
     def filter_medias(self):
         total = self.lstFiles.count()
@@ -80,6 +90,23 @@ class Player(MainWindow):
             self.toggle_media_status,
         )
         menu.exec_(self.lstFiles.mapToGlobal(position))
+
+    def select_new_player(self):
+        if self.player_open_dialog.exec_() == QDialog.Accepted:
+            files = self.player_open_dialog.selectedFiles()
+            if len(files) > 0:
+                file_path = files[0]
+                file_info = QFileInfo(file_path)
+                if not file_info or not file_info.isExecutable():
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Warning)
+                    msg.setText("File must be an executable binary")
+                    msg.setWindowTitle("Invalid file")
+                    msg.setStandardButtons(QMessageBox.Ok)
+                    msg.exec_()
+                else:
+                    self.local_player.set_player(file_path)
+                    self.update_player_info()
 
     def toggle_media_status(self):
         for item in self.lstFiles.selectedItems():

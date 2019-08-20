@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QPainter
 from PyQt5.QtWidgets import (
@@ -17,10 +19,11 @@ from PyQt5.QtWidgets import (
     QLabel,
     QStyleOptionButton,
     QGroupBox,
+    QFileDialog,
 )
 
 from folderplay.constants import FONT_SIZE
-from folderplay.utils import resource_path
+from folderplay.utils import resource_path, is_linux, is_windows, is_macos
 
 
 class ScalablePushButton(QPushButton):
@@ -88,6 +91,7 @@ class MainWindow(QMainWindow):
         self.filter_group_box = QGroupBox()
         self.setup_filter_group_box()
 
+        # Local player box
         self.local_player_group_box = QGroupBox()
         self.setup_local_player_group_box()
 
@@ -96,6 +100,12 @@ class MainWindow(QMainWindow):
 
         self.player_name_label = QLabel()
         self.setup_player_name_label()
+
+        self.btn_change_player = ScalablePushButton()
+        self.setup_change_player_button()
+
+        self.player_open_dialog = QFileDialog()
+        self.setup_player_open_dialog()
 
         self.advanced_view_size = QSize(1600, 600)
         self.basic_view_size = QSize(600, 250)
@@ -157,7 +167,11 @@ class MainWindow(QMainWindow):
             hlayout_checkboxes.addWidget(w)
 
         hlayout_player_labels = QHBoxLayout()
-        player_labels = [self.player_label, self.player_name_label]
+        player_labels = [
+            self.player_label,
+            self.player_name_label,
+            self.btn_change_player,
+        ]
         for w in player_labels:
             hlayout_player_labels.addWidget(w)
 
@@ -221,12 +235,9 @@ class MainWindow(QMainWindow):
         self.btnAdvanced.setSizePolicy(sizePolicy)
         self.btnAdvanced.setToolTip("Advanced options")
         self.btnAdvanced.setCheckable(True)
-        # Icons
-        # https://joekuan.files.wordpress.com/2015/09/screen3.png
         self.btnAdvanced.setIcon(
             QIcon(resource_path("assets/icons/settings.svg"))
         )
-        # self.btnAdvanced.setIconSize(QSize(24, 24))
         self.btnAdvanced.clicked.connect(self.toggle_advanced_view)
 
     def setup_refresh_button(self):
@@ -234,12 +245,18 @@ class MainWindow(QMainWindow):
 
         self.btnRefresh.setSizePolicy(sizePolicy)
         self.btnRefresh.setToolTip("Refresh")
-        # Icons
-        # https://joekuan.files.wordpress.com/2015/09/screen3.png
         self.btnRefresh.setIcon(
             QIcon(resource_path("assets/icons/refresh.svg"))
         )
-        # self.btnRefresh.setIconSize(QSize(24, 24))
+
+    def setup_change_player_button(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+
+        self.btn_change_player.setSizePolicy(sizePolicy)
+        self.btn_change_player.setToolTip("Change player")
+        self.btn_change_player.setIcon(
+            QIcon(resource_path("assets/icons/folder_open.svg"))
+        )
 
     def setup_progress_bar(self):
         self.progressBar.setValue(24)
@@ -293,6 +310,32 @@ class MainWindow(QMainWindow):
     def setup_player_name_label(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.player_name_label.setSizePolicy(sizePolicy)
+
+    def setup_player_open_dialog(self):
+        directory = None
+        if is_linux():
+            directory = "/usr/bin"
+        elif is_windows():
+            directory = os.getenv("ProgramFiles")
+            self.player_open_dialog.setNameFilter("Executable Files (*.exe)")
+        elif is_macos():
+            directory = "/usr/bin"
+
+        self.player_open_dialog.setWindowTitle("Select new player")
+        self.player_open_dialog.setDirectory(directory)
+        self.player_open_dialog.setMinimumSize(
+            QApplication.desktop().size() / 2
+        )
+        self.player_open_dialog.setFileMode(QFileDialog.ExistingFile)
+        self.player_open_dialog.setViewMode(QFileDialog.Detail)
+        self.player_open_dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        self.player_open_dialog.setOptions(
+            QFileDialog.DontUseNativeDialog
+            | QFileDialog.ReadOnly
+            | QFileDialog.HideNameFilterDetails
+        )
+        # self.player_open_dialog.setFilter(QDir.Executable)
+        self.player_open_dialog.adjustSize()
 
     # endregion Widget setup routine
 

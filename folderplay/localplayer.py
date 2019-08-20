@@ -2,7 +2,6 @@ import os
 import shlex
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 from PyQt5.QtCore import QThread
@@ -10,7 +9,7 @@ from PyQt5.QtWidgets import QMessageBox
 
 from folderplay.constants import LOCAL_PLAYER_MEDIA_ARG
 from folderplay.media import MediaItem
-from folderplay.utils import get_registry_value
+from folderplay.utils import get_registry_value, is_linux, is_macos, is_windows
 
 
 class LocalPlayer(QThread):
@@ -39,6 +38,9 @@ class LocalPlayer(QThread):
 
     def set_media(self, media: MediaItem):
         self.media = media
+
+    def set_player(self, path: str):
+        self.player_path = Path(path)
 
     def run(self):
         subprocess.run(self.command())
@@ -90,11 +92,11 @@ class LocalPlayer(QThread):
 
     def find_local_player(self):
         players = []
-        if sys.platform == "linux" or sys.platform == "linux2":
+        if is_linux():
             players = self._linux_players()
-        elif sys.platform == "darwin":
+        elif is_macos():
             players = self._darwin_players()
-        elif sys.platform == "win32":
+        elif is_windows():
             players = self._windows_players()
 
         for p in players:
