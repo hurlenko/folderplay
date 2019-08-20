@@ -157,15 +157,23 @@ class Player(MainWindow):
     def playback_finished(self):
         for w in self.basic_view_widgets + self.advanced_view_widgets:
             w.setEnabled(True)
-        self.toggle_media_status()
+        self.local_player.media.toggle_watched()
+        self.filter_medias()
+
+    def get_first_unwatched(self):
+        total = self.lstFiles.count()
+        for i in range(total):
+            item = self.lstFiles.item(i)
+            media: MediaItem = self.lstFiles.itemWidget(item)
+            if media.is_watched():
+                return media
+        return None
 
     def play(self):
-        self.init_unwatched()
-        selected = self.lstFiles.selectedItems()
-        if len(selected) == 0:
+        media = self.get_first_unwatched()
+        if not media:
             return
 
-        media = self.lstFiles.itemWidget(selected[0])
         if self.local_player.is_found():
             self.local_player.set_media(media)
             self.local_player.start()
