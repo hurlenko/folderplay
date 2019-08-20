@@ -9,7 +9,13 @@ from PyQt5.QtWidgets import QMessageBox
 
 from folderplay.constants import LOCAL_PLAYER_MEDIA_ARG
 from folderplay.media import MediaItem
-from folderplay.utils import get_registry_value, is_linux, is_macos, is_windows
+from folderplay.utils import (
+    get_registry_value,
+    is_linux,
+    is_macos,
+    is_windows,
+    message_box,
+)
 
 
 class LocalPlayer(QThread):
@@ -79,16 +85,15 @@ class LocalPlayer(QThread):
         return "N/A"
 
     def not_found_warning(self):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText("No local players were found")
-        msg.setInformativeText(
-            "FolderPlay was unable to find any local players.\n"
-            "You can configure your local player in the advanced view."
+        message_box(
+            title="Local player not found",
+            text=(
+                "FolderPlay was unable to find any local players.\n"
+                "You can configure your local player in the advanced view."
+            ),
+            icon=QMessageBox.Warning,
+            buttons=QMessageBox.Ok,
         )
-        msg.setWindowTitle("Local player not found")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
 
     def find_local_player(self):
         players = []

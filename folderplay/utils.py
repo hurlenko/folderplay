@@ -2,6 +2,9 @@ import os
 import platform
 import sys
 
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMessageBox
+
 
 def resource_path(relative_path):
     if hasattr(sys, "_MEIPASS"):
@@ -44,3 +47,13 @@ def get_registry_value(key, path, value_name):
         return None
     else:
         return val
+
+
+def message_box(title, text, icon, buttons):
+    msg = QMessageBox()
+    msg.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))
+    msg.setIcon(icon)
+    msg.setText(text)
+    msg.setWindowTitle(title)
+    msg.setStandardButtons(buttons)
+    return msg.exec_()

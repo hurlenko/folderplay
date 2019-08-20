@@ -10,13 +10,14 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
     QDialog,
     QMessageBox,
+    QAction,
 )
 
 from folderplay.constants import EXTENSIONS_MEDIA
 from folderplay.gui import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
-from folderplay.utils import resource_path
+from folderplay.utils import resource_path, message_box
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class Player(MainWindow):
 
         self.filters = [self.hide_regex_not_match, self.hide_watched]
 
-        self.btnPlay.pressed.connect(self.play)
+        self.btnPlay.pressed.connect(self.play_button_pressed)
         self.btn_change_player.pressed.connect(self.select_new_player)
         self.chkHideWatched.stateChanged.connect(self.filter_medias)
         self.chkRegex.stateChanged.connect(self.filter_medias)
@@ -84,11 +85,23 @@ class Player(MainWindow):
         font = menu.font()
         font.setPointSize(10)
         menu.setFont(font)
-        menu.addAction(
+
+        toggle_watched = QAction(
             QIcon(resource_path("assets/icons/swap.svg")),
             "Toggle watched",
-            self.toggle_media_status,
+            self,
         )
+        toggle_watched.triggered.connect(self.toggle_media_status)
+        delete = QAction(
+            QIcon(resource_path("assets/icons/delete_forever.svg")),
+            "Delete from filesystem",
+            self,
+        )
+        delete.triggered.connect(self.delete_media_from_filesystem)
+        menu.addSection(f"Edit list ({len(self.lstFiles.selectedItems())})")
+        menu.addAction(toggle_watched)
+        menu.addAction(delete)
+
         menu.exec_(self.lstFiles.mapToGlobal(position))
 
     def select_new_player(self):
@@ -98,12 +111,12 @@ class Player(MainWindow):
                 file_path = files[0]
                 file_info = QFileInfo(file_path)
                 if not file_info or not file_info.isExecutable():
-                    msg = QMessageBox()
-                    msg.setIcon(QMessageBox.Warning)
-                    msg.setText("File must be an executable binary")
-                    msg.setWindowTitle("Invalid file")
-                    msg.setStandardButtons(QMessageBox.Ok)
-                    msg.exec_()
+                    message_box(
+                        title="Invalid file",
+                        text="File must be an executable binary",
+                        icon=QMessageBox.Warning,
+                        buttons=QMessageBox.Ok,
+                    )
                 else:
                     self.local_player.set_player(file_path)
                     self.update_player_info()
@@ -113,6 +126,30 @@ class Player(MainWindow):
             media: MediaItem = self.lstFiles.itemWidget(item)
             media.toggle_watched()
         self.filter_medias()
+
+    def delete_media_from_filesystem(self):
+        medias = self.lstFiles.selectedItems()
+        lines = []
+        for i, item in enumerate(medias, 1):
+            m = self.lstFiles.itemWidget(item)
+            lines.append(f"  {i}. {m.get_title()}")
+        msg = "\n".join(lines)
+        status = message_box(
+            title="Confirm deletion",
+            text=f"You are about to delete {len(medias)} files\n\n{msg}",
+            icon=QMessageBox.Warning,
+            buttons=QMessageBox.Ok | QMessageBox.Cancel,
+        )
+        if status == QMessageBox.Ok:
+            for item in medias:
+                media: MediaItem = self.lstFiles.itemWidget(item)
+                try:
+                    media.path.unlink()
+                except OSError:
+                    logger.error(f"Unable to delete file {media.path}")
+                self.lstFiles.takeItem(self.lstFiles.row(item))
+
+            self.filter_medias()
 
     def load_media(self):
         # https://stackoverflow.com/a/25188862/8014793
@@ -165,17 +202,19 @@ class Player(MainWindow):
         for i in range(total):
             item = self.lstFiles.item(i)
             media: MediaItem = self.lstFiles.itemWidget(item)
-            if media.is_watched():
+            if not media.is_watched():
                 return media
         return None
 
-    def play(self):
-        media = self.get_first_unwatched()
-        if not media:
-            return
-
+    def play_media(self, media: MediaItem):
         if self.local_player.is_found():
             self.local_player.set_media(media)
             self.local_player.start()
         else:
             self.local_player.not_found_warning()
+
+    def play_button_pressed(self):
+        media = self.get_first_unwatched()
+        if not media:
+            return
+        self.play_media(media)

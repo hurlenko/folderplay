@@ -322,6 +322,9 @@ class MainWindow(QMainWindow):
             directory = "/usr/bin"
 
         self.player_open_dialog.setWindowTitle("Select new player")
+        self.player_open_dialog.setWindowIcon(
+            QIcon(resource_path("assets/icons/icon.ico"))
+        )
         self.player_open_dialog.setDirectory(directory)
         self.player_open_dialog.setMinimumSize(
             QApplication.desktop().size() / 2
