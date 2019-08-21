@@ -1,0 +1,54 @@
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-latest'
+      python.version: '3.7'
+    mac:
+      imageName: 'macos-latest'
+      python.version: '3.7'
+    windows:
+      imageName: 'windows-latest'
+      python.version: '3.7'
+
+trigger:
+  tags:
+    include:
+      - '*'
+
+pool:
+  vmImage: '$(imageName)'
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+    displayName: 'Using Python $(python.version)'
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - script: |
+      python -m PyInstaller folderplay.spec
+    displayName: 'Building pyinstaller'
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: '$(Build.SourcesDirectory)/dist'
+      contents: '*'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: GithubRelease@0
+    displayName: 'Create GitHub Release'
+    inputs:
+      gitHubConnection: 'folderplay'
+      repositoryName: '$(Build.Repository.Name)'
+      action: 'edit'
+      target: '$(build.sourceVersion)'
+      tagSource: 'Git tag'
+      tag: '$(tagName)'
+      assets: '$(Build.ArtifactStagingDirectory)/*'
+      assetUploadMode: 'replace'
+      addChangeLog: true

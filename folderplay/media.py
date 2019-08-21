@@ -33,7 +33,7 @@ class MediaItem(ListWidgetItem):
         media_info = MediaInfo.parse(self.path)
         for track in media_info.tracks:
             if track.track_type == "Video":
-                self.duration = track.duration // 1000
+                self.duration = int(float(track.duration)) // 1000
                 self.width = track.width
                 self.height = track.height
             elif track.track_type == "General":
