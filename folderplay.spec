@@ -38,7 +38,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="FolderPlay",
+    name="folderplay",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

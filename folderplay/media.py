@@ -58,6 +58,14 @@ class MediaItem(ListWidgetItem):
             self.path = new_path
             self.setup_info()
 
+    def set_watched(self):
+        if not self.is_watched():
+            self.toggle_watched()
+
+    def set_unwatched(self):
+        if self.is_watched():
+            self.toggle_watched()
+
     def get_title(self):
         title = self.path.name
         if self.is_watched():
