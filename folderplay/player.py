@@ -1,3 +1,4 @@
+import datetime
 import logging
 import re
 from pathlib import Path
@@ -16,7 +17,12 @@ from PyQt5.QtWidgets import (
 )
 
 from folderplay import __version__ as about
-from folderplay.constants import EXTENSIONS_MEDIA, SettingsKeys
+from folderplay.constants import (
+    EXTENSIONS_MEDIA,
+    SettingsKeys,
+    NOT_AVAILABLE,
+    FINISHED,
+)
 from folderplay.gui import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
@@ -197,7 +203,7 @@ class Player(MainWindow):
                     self.local_player.set_player(file_path)
                     self.update_player_info()
 
-    def set_media_status_watched(self, set_watched: bool):
+    def set_media_watch_status(self, set_watched: bool):
         for item in self.lstFiles.selectedItems():
             media: MediaItem = self.lstFiles.itemWidget(item)
             if set_watched:
@@ -262,6 +268,10 @@ class Player(MainWindow):
 
     def init_unwatched(self):
         self.lstFiles.clearSelection()
+        self.grp_current_media.setTitle(FINISHED)
+        self.lbl_movie_info.setText(NOT_AVAILABLE)
+        self.lbl_finishes.setText(NOT_AVAILABLE)
+
         total = self.lstFiles.count()
         watched = 0
         for i in range(total):
@@ -271,6 +281,16 @@ class Player(MainWindow):
                 watched += 1
             elif len(self.lstFiles.selectedItems()) == 0:
                 item.setSelected(True)
+                self.lbl_movie_info.setText(media.get_short_info())
+                self.grp_current_media.setTitle(media.get_title()[:30])
+                if media.duration is not None:
+                    now = datetime.datetime.now()
+                    finishes = now + datetime.timedelta(seconds=media.duration)
+                    finishes = finishes.strftime("%H:%M:%S")
+                else:
+                    finishes = "N/A"
+                self.lbl_finishes.setText(finishes)
+
                 self.lstFiles.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
                 )

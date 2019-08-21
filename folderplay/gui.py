@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
     QFileDialog,
 )
 
-from folderplay.constants import FONT_SIZE
+from folderplay.constants import FONT_SIZE, NOT_AVAILABLE, FINISHED
 from folderplay.utils import resource_path, is_linux, is_windows, is_macos
 
 
@@ -107,14 +107,29 @@ class MainWindow(QMainWindow):
         self.player_open_dialog = QFileDialog()
         self.setup_player_open_dialog()
 
-        self.advanced_view_size = QSize(1600, 600)
-        self.basic_view_size = QSize(600, 250)
+        self.grp_current_media = QGroupBox()
+        self.setup_current_media_group_box()
+
+        self.lbl_finishes = QLabel()
+        self.setup_finishes_label()
+        self.lbl_movie_info = QLabel()
+        self.setup_movie_info_label()
+
+        self.lbl_finishes_key = QLabel()
+        self.setup_finishes_key_label()
+        self.lbl_movie_info_key = QLabel()
+        self.setup_movie_info_key_label()
 
         self.basic_view_widgets = [
             self.btnPlay,
             self.btnAdvanced,
             self.btnRefresh,
             self.progressBar,
+            self.lbl_movie_info_key,
+            self.lbl_movie_info,
+            self.lbl_finishes_key,
+            self.lbl_finishes,
+            self.grp_current_media,
         ]
 
         self.advanced_view_widgets = [
@@ -129,6 +144,9 @@ class MainWindow(QMainWindow):
             self.player_name_label,
         ]
 
+        self.advanced_view_size = QSize(1600, 800)
+        self.basic_view_size = QSize(600, 450)
+
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
 
@@ -141,16 +159,30 @@ class MainWindow(QMainWindow):
 
         hlayout = QHBoxLayout()
 
-        widgets = [self.btnAdvanced, self.btnRefresh]
+        hlayout_media = QHBoxLayout()
+        vlayout_media_left = QVBoxLayout()
+        vlayout_media_right = QVBoxLayout()
 
+        widgets = [self.btnAdvanced, self.btnRefresh]
         for w in widgets:
             vlayout_refresh_advanced.addWidget(w)
+
+        for w in (self.lbl_finishes_key, self.lbl_movie_info_key):
+            vlayout_media_left.addWidget(w)
+
+        for w in (self.lbl_finishes, self.lbl_movie_info):
+            vlayout_media_right.addWidget(w)
+
+        hlayout_media.addLayout(vlayout_media_left)
+        hlayout_media.addLayout(vlayout_media_right)
+        self.grp_current_media.setLayout(hlayout_media)
 
         hlayout.addWidget(self.progressBar, 3)
         hlayout.addLayout(vlayout_refresh_advanced)
 
         # Button is two times bigger than progressbar
         vlayout.addLayout(hlayout, 1)
+        vlayout.addWidget(self.grp_current_media, 1)
         vlayout.addWidget(self.btnPlay, 2)
         return vlayout
 
@@ -310,6 +342,33 @@ class MainWindow(QMainWindow):
     def setup_player_name_label(self):
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.player_name_label.setSizePolicy(sizePolicy)
+        self.player_name_label.setText(NOT_AVAILABLE)
+
+    def setup_current_media_group_box(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.grp_current_media.setSizePolicy(sizePolicy)
+        self.grp_current_media.setTitle(FINISHED)
+
+    def setup_finishes_label(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lbl_finishes.setSizePolicy(sizePolicy)
+        self.lbl_finishes.setText(NOT_AVAILABLE)
+
+    def setup_movie_info_label(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lbl_movie_info.setSizePolicy(sizePolicy)
+        self.lbl_movie_info.setText(NOT_AVAILABLE)
+
+
+    def setup_finishes_key_label(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.lbl_finishes_key.setSizePolicy(sizePolicy)
+        self.lbl_finishes_key.setText("Ends:")
+
+    def setup_movie_info_key_label(self):
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.lbl_movie_info_key.setSizePolicy(sizePolicy)
+        self.lbl_movie_info_key.setText("Info:")
 
     def setup_player_open_dialog(self):
         directory = None
@@ -351,8 +410,8 @@ class ListWidgetItem(QWidget):
         # to default (Segoe UI, 9pt)
         self.title.setFont(QFont("Roboto", FONT_SIZE, QFont.DemiBold))
 
-        self.duration = QLabel()
-        self.duration.setFont(QFont("Roboto", FONT_SIZE - 2, italic=True))
+        self.info = QLabel()
+        self.info.setFont(QFont("Roboto", FONT_SIZE - 2))
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addStretch()
@@ -360,7 +419,7 @@ class ListWidgetItem(QWidget):
         self.vlayout.setSpacing(0)
 
         self.vlayout.addWidget(self.title)
-        self.vlayout.addWidget(self.duration)
+        self.vlayout.addWidget(self.info)
 
         self.icon = QLabel()
 
@@ -373,14 +432,3 @@ class ListWidgetItem(QWidget):
         self.hlayout.addLayout(self.vlayout, 1)
 
         self.setLayout(self.hlayout)
-        # setStyleSheet
-        # self.title.setStyleSheet(
-        #     """
-        #     color: rgb(0, 0, 255);
-        # """
-        # )
-        # self.duration.setStyleSheet(
-        #     """
-        #     color: rgb(255, 0, 0);
-        # """
-        # )

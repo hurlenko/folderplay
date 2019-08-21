@@ -1,3 +1,4 @@
+import datetime
 import os
 import platform
 import sys
@@ -57,3 +58,19 @@ def message_box(title, text, icon, buttons):
     msg.setWindowTitle(title)
     msg.setStandardButtons(buttons)
     return msg.exec_()
+
+
+def format_size(num, suffix="B"):
+    try:
+        num = float(num)
+    except (ValueError, TypeError):
+        num = 0
+    for unit in ["", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"]:
+        if abs(num) < 1024.0:
+            return "%3.1f%s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f%s%s" % (num, "Yi", suffix)
+
+
+def format_duration(seconds):
+    return str(datetime.timedelta(seconds=seconds))

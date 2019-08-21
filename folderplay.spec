@@ -2,6 +2,11 @@
 # https://blog.aaronhktan.com/posts/2018/05/14/pyqt5-pyinstaller-executable#22-customizing-the-spec-file
 from pathlib import Path
 
+from folderplay import __version__ as about
+
+
+# here = os.path.abspath(os.path.dirname(__file__))
+
 
 def list_dir(directory, pattern="*"):
     directory = Path(directory)
@@ -14,7 +19,6 @@ def list_dir(directory, pattern="*"):
 
 
 block_cipher = None
-
 
 a = Analysis(
     ["folderplay/__main__.py"],
@@ -38,11 +42,11 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="folderplay",
+    name=f"{about.__title__}.{about.__version__}",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
-    upx=True,
+    upx=False,
     upx_exclude=[],
     clean=True,
     runtime_tmpdir=None,
