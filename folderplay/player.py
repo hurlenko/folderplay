@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 
 import click
-from PyQt5.QtCore import QFileInfo
+from PyQt5.QtCore import QFileInfo, QSettings
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QListWidgetItem,
@@ -15,7 +15,8 @@ from PyQt5.QtWidgets import (
     QApplication,
 )
 
-from folderplay.constants import EXTENSIONS_MEDIA
+from folderplay import __version__ as about
+from folderplay.constants import EXTENSIONS_MEDIA, SettingsKeys
 from folderplay.gui import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
@@ -28,8 +29,14 @@ class Player(MainWindow):
     def __init__(self, media_dir: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.media_dir = Path(media_dir)
+        self.settings = QSettings(
+            self.media_dir.joinpath(
+                f"{about.__title__}.{about.__version__}.ini"
+            ).as_posix(),
+            QSettings.IniFormat,
+        )
         self.local_player = LocalPlayer()
-        self.update_player_info()
+
         self.local_player.started.connect(self.playback_started)
         self.local_player.finished.connect(self.playback_finished)
 
@@ -44,8 +51,40 @@ class Player(MainWindow):
         self.lstFiles.customContextMenuRequested.connect(
             self.media_context_menu
         )
-
         self.load_media()
+        self.read_settings()
+
+    def read_settings(self):
+        local_player_path = self.settings.value(SettingsKeys.PLAYER_PATH)
+        if local_player_path:
+            self.local_player.set_player(local_player_path)
+        else:
+            self.local_player.find_local_player()
+        if not self.local_player.is_found():
+            self.local_player.not_found_warning()
+
+        self.chkHideWatched.setChecked(
+            self.settings.value(SettingsKeys.HIDE_WATCHED, False, type=bool)
+        )
+        is_advanced = self.settings.value(
+            SettingsKeys.ADVANCED, False, type=bool
+        )
+        if is_advanced:
+            self.toggle_advanced_view()
+        self.update_player_info()
+
+    def closeEvent(self, event):
+        if self.local_player.is_found():
+            self.settings.setValue(
+                SettingsKeys.PLAYER_PATH, str(self.local_player.player_path)
+            )
+        self.settings.setValue(
+            SettingsKeys.HIDE_WATCHED, self.chkHideWatched.isChecked()
+        )
+        self.settings.setValue(
+            SettingsKeys.ADVANCED, self.size() == self.advanced_view_size
+        )
+        return super().closeEvent(event)
 
     def update_player_info(self):
         self.player_name_label.setText(self.local_player.name())
@@ -82,7 +121,7 @@ class Player(MainWindow):
         return not found
 
     def media_context_menu(self, position):
-        # // Create menu and insert some actions
+        # Create menu and insert some actions
         menu = QMenu("Options")
         font = menu.font()
         font.setPointSize(10)

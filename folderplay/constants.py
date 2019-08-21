@@ -136,3 +136,9 @@ LOCAL_PLAYER_MEDIA_ARG = "<media_path>"
 
 WATCHED_PREFIX = "-"
 FONT_SIZE = 12
+
+
+class SettingsKeys:
+    PLAYER_PATH = "player_path"
+    HIDE_WATCHED = "hide_watched"
+    ADVANCED = "advanced"

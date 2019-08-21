@@ -19,15 +19,11 @@ from folderplay.utils import (
 
 
 class LocalPlayer(QThread):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, path: Path = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.player_path = None
+        self.player_path = path
         self.args = None
         self.media = None
-
-        self.find_local_player()
-        if not self.is_found():
-            self.not_found_warning()
 
     def command(self):
         command = [str(self.player_path)]

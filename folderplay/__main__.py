@@ -3,7 +3,7 @@ import os
 import sys
 
 import click
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QFileInfo
 from PyQt5.QtGui import QFontDatabase, QFont
 from PyQt5.QtWidgets import QApplication
 
@@ -29,6 +29,15 @@ def setup_logging():
     )
 
 
+def validate_player(ctx, param, value):
+    if not value:
+        return value
+    file_info = QFileInfo(value)
+    if not file_info or not file_info.isExecutable():
+        raise click.BadParameter("Player must an executable")
+    return value
+
+
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)
 @click.option(
@@ -41,7 +50,18 @@ def setup_logging():
     metavar="<directory>",
     help="Working directory",
 )
-def main(workdir):
+@click.option(
+    "--player",
+    "-p",
+    "player_path",
+    type=click.Path(
+        exists=True, dir_okay=False, readable=True, resolve_path=True
+    ),
+    metavar="<path>",
+    help="Host player binary",
+    callback=validate_player,
+)
+def main(workdir, player_path):
     setup_logging()
 
     QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
@@ -60,6 +80,9 @@ def main(workdir):
     app.setStyle("Fusion")
     player = Player(workdir)
     player.show()
+    if player_path:
+        player.local_player.set_player(player_path)
+        player.update_player_info()
     sys.exit(app.exec_())
 
 

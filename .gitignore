@@ -49,6 +49,7 @@ tmtagsHistory
 *.json
 *.pyz
 log.txt
+*.ini
 
 # Directories #
 ######################
@@ -57,4 +58,3 @@ venv/
 *build/
 dist/
 *.egg-info
-packaging/pythonzip_root/lazagne/config.py
