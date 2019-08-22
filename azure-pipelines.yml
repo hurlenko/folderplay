@@ -11,9 +11,10 @@ strategy:
       python.version: '3.7'
 
 trigger:
-  tags:
+  branches:
     include:
-      - '*'
+    - master
+
 
 pool:
   vmImage: '$(imageName)'
@@ -35,6 +36,7 @@ steps:
     displayName: 'Building pyinstaller'
 
   - task: CopyFiles@2
+    displayName: 'Copying built binaries'
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)/dist'
       contents: '*'
@@ -45,10 +47,10 @@ steps:
     inputs:
       gitHubConnection: 'folderplay'
       repositoryName: '$(Build.Repository.Name)'
-      action: 'edit'
-      target: '$(build.sourceVersion)'
-      tagSource: 'Git tag'
-      tag: '$(tagName)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
+      tagSource: 'auto'
       assets: '$(Build.ArtifactStagingDirectory)/*'
       assetUploadMode: 'replace'
       addChangeLog: true
+      isDraft: true
