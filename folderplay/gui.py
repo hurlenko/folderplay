@@ -419,7 +419,7 @@ class ListWidgetItem(QWidget):
         self.vlayout.setSpacing(0)
 
         self.vlayout.addWidget(self.title)
-        self.vlayout.addWidget(self.info)
+        # self.vlayout.addWidget(self.info)
 
         self.icon = QLabel()
 

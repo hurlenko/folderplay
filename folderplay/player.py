@@ -76,7 +76,7 @@ class Player(MainWindow):
             SettingsKeys.ADVANCED, False, type=bool
         )
         if is_advanced:
-            self.toggle_advanced_view()
+            self.btnAdvanced.click()
         self.update_player_info()
 
     def closeEvent(self, event):
@@ -281,6 +281,7 @@ class Player(MainWindow):
                 watched += 1
             elif len(self.lstFiles.selectedItems()) == 0:
                 item.setSelected(True)
+                media.parse_media_info()
                 self.lbl_movie_info.setText(media.get_short_info())
                 self.grp_current_media.setTitle(media.get_title()[:30])
                 if media.duration is not None:

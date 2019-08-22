@@ -18,7 +18,7 @@ def is_os_64bit():
 
 
 def is_linux():
-    return sys.platform == "linux" or sys.platform == "linux2"
+    return sys.platform in ("linux", "linux2")
 
 
 def is_macos():
