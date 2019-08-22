@@ -88,7 +88,7 @@ class Player(MainWindow):
             SettingsKeys.HIDE_WATCHED, self.chkHideWatched.isChecked()
         )
         self.settings.setValue(
-            SettingsKeys.ADVANCED, self.size() == self.advanced_view_size
+            SettingsKeys.ADVANCED, self.btnAdvanced.isChecked()
         )
         return super().closeEvent(event)
 
@@ -178,12 +178,12 @@ class Player(MainWindow):
         copy_path.triggered.connect(lambda: self.copy_item_path(menu_media))
 
         menu.addSection(f"Selected: {len(self.lstFiles.selectedItems())}")
+        menu.addAction(play)
         menu.addAction(mark_watched)
         menu.addAction(mark_unwatched)
-        menu.addAction(delete)
         menu.addAction(reveal_on_filesystem)
-        menu.addAction(play)
         menu.addAction(copy_path)
+        menu.addAction(delete)
         menu.exec_(self.lstFiles.mapToGlobal(position))
 
     def select_new_player(self):
@@ -295,10 +295,10 @@ class Player(MainWindow):
                 self.lstFiles.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
                 )
-
         self.progressBar.setMaximum(total)
         self.progressBar.setValue(watched)
         self.progressBar.setToolTip(f"{total - watched} left to watch")
+        self.lstFiles.setFocus()
 
     def playback_started(self):
         for w in self.basic_view_widgets + self.advanced_view_widgets:

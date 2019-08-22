@@ -2,6 +2,8 @@
 # https://blog.aaronhktan.com/posts/2018/05/14/pyqt5-pyinstaller-executable#22-customizing-the-spec-file
 from pathlib import Path
 
+from pymediainfo import MediaInfo
+
 from folderplay import __version__ as about
 from folderplay import utils
 
@@ -33,12 +35,16 @@ def generate_filename():
     return "-".join(name_parts)
 
 
+def get_binaries():
+    return [(MediaInfo._get_library()._name, ".")]
+
+
 block_cipher = None
 
 a = Analysis(
     ["folderplay/__main__.py"],
     pathex=[],
-    binaries=[],
+    binaries=[*get_binaries()],
     datas=[*list_dir("./assets")],
     hiddenimports=[],
     hookspath=[],

@@ -54,7 +54,7 @@ class MediaItem(ListWidgetItem):
         icon = self.icon_unwatched
         if self.is_watched():
             icon = self.icon_watched
-        self.icon.setPixmap(icon.pixmap(44, 44))
+        self.icon.setPixmap(icon.pixmap(30, 30))
 
     def is_watched(self):
         return self.path.name.startswith(WATCHED_PREFIX)
