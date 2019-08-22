@@ -3,9 +3,7 @@
 from pathlib import Path
 
 from folderplay import __version__ as about
-
-
-# here = os.path.abspath(os.path.dirname(__file__))
+from folderplay import utils
 
 
 def list_dir(directory, pattern="*"):
@@ -16,6 +14,23 @@ def list_dir(directory, pattern="*"):
             rel_path = f.relative_to(directory.parent)
             res.append((rel_path.as_posix(), rel_path.parent.as_posix()))
     return res
+
+
+def generate_filename():
+    name_parts = [about.__title__, about.__version__]
+    if utils.is_linux():
+        name_parts.append("linux")
+    elif utils.is_windows():
+        name_parts.append("windows")
+    elif utils.is_macos():
+        name_parts.append("darwin")
+
+    if utils.is_os_64bit():
+        name_parts.append("amd64")
+    else:
+        name_parts.append("386")
+
+    return "-".join(name_parts)
 
 
 block_cipher = None
@@ -42,7 +57,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name=f"{about.__title__}.{about.__version__}",
+    name=generate_filename(),
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

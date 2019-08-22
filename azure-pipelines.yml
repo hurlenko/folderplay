@@ -13,7 +13,11 @@ strategy:
 trigger:
   tags:
     include:
-      - '*'
+    - *
+  branches:
+    include:
+    - master
+
 
 pool:
   vmImage: '$(imageName)'
@@ -35,6 +39,7 @@ steps:
     displayName: 'Building pyinstaller'
 
   - task: CopyFiles@2
+    displayName: 'Copying built binaries'
     inputs:
       sourceFolder: '$(Build.SourcesDirectory)/dist'
       contents: '*'
@@ -45,10 +50,10 @@ steps:
     inputs:
       gitHubConnection: 'folderplay'
       repositoryName: '$(Build.Repository.Name)'
-      action: 'edit'
-      target: '$(build.sourceVersion)'
+      action: 'create'
+      target: '$(Build.SourceVersion)'
       tagSource: 'Git tag'
-      tag: '$(tagName)'
       assets: '$(Build.ArtifactStagingDirectory)/*'
       assetUploadMode: 'replace'
       addChangeLog: true
+      isDraft: true

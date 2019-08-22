@@ -17,7 +17,6 @@ class MediaItem(ListWidgetItem):
 
         self.path = path
 
-        # self.media = None
         self.icon_unwatched = QIcon(
             resource_path("assets/icons/check_box_blank.svg")
         )
@@ -26,7 +25,7 @@ class MediaItem(ListWidgetItem):
         self.duration = None
         self.width = None
         self.height = None
-        self.parse_media_info()
+        # self.parse_media_info()
         self.setup_info()
 
     def parse_media_info(self):
@@ -51,11 +50,10 @@ class MediaItem(ListWidgetItem):
 
     def setup_info(self):
         self.title.setText(self.get_title())
-        self.info.setText(self.get_short_info())
+        # self.info.setText(self.get_short_info())
         icon = self.icon_unwatched
         if self.is_watched():
             icon = self.icon_watched
-        # QIcon("filepath.svg").pixmap(QSize())
         self.icon.setPixmap(icon.pixmap(44, 44))
 
     def is_watched(self):
