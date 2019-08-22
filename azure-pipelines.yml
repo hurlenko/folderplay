@@ -1,9 +1,7 @@
 name: $(Build.SourceBranch)-$(date:yyyyMMdd)$(rev:.r)
 
-trigger:
-  branches:
-    include:
-      - master
+# Trigger for pull requests only
+trigger: none
 
 jobs:
   - job: build_artifacts
@@ -31,6 +29,11 @@ jobs:
         displayName: 'Use Python $(python.version)'
 
       - script: |
+          sudo apt install -qq -y libmediainfo-dev
+        condition: eq(variables['Agent.OS'], 'Linux')
+        displayName: 'Install libmediainfo-dev'
+
+      - script: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
         displayName: 'Install dependencies'
@@ -50,7 +53,6 @@ jobs:
     condition: succeeded()
 
     steps:
-      - checkout: none #skip checking out the default repository resource
       - task: DownloadBuildArtifacts@0
         displayName: 'Download Build Artifacts'
         inputs:
