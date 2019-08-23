@@ -12,23 +12,19 @@
 
 **folderplay** is a small tool that helps you remember watched tv episodes. Its goal is to resume playback from the episode you left off with a single button press. It doesn't use any integrated players so you can still use your favourite one.
 
-## Basic view
-
-![image](https://user-images.githubusercontent.com/18035960/63596332-adff6000-c5c3-11e9-9174-0c3b5a75d48f.png)
-
-## Advanced view
-
-![image](https://user-images.githubusercontent.com/18035960/63596754-9ecce200-c5c4-11e9-8012-8ce539e36470.png)
+Basic view             |  Advanced view
+:-------------------------:|:-------------------------:
+![image](https://user-images.githubusercontent.com/18035960/63596332-adff6000-c5c3-11e9-9174-0c3b5a75d48f.png "Basic view") | ![image](https://user-images.githubusercontent.com/18035960/63596754-9ecce200-c5c4-11e9-8012-8ce539e36470.png "Advanced view")
 
 ## 🚩 Table of Contents
 
-- [Features](#features)
+- [Features](#-features)
 - [Installation](#-installation)
   - [Compiled binary](#using-precompiled-binaries)
   - [PyPi](#using-pypi)
 - [Usage](#-usage)
 - [Building](#-building)
-- [Command line interface](#command-line-interface)
+- [Command line interface](#%EF%B8%8F-command-line-interface)
 
 ## 🎨 Features
 
@@ -102,7 +98,7 @@ Or create an executable (will be save inside of the `dist` directory)
 python -m PyInstaller folderplay.spec
 ```
 
-## Command line interface
+## 🖥️ Command line interface
 
 Currently `folderplay` supports these commands
 

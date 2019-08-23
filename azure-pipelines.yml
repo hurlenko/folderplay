@@ -1,7 +1,13 @@
 name: $(Build.SourceBranch)-$(date:yyyyMMdd)$(rev:.r)
 
-# Trigger for pull requests only
-trigger: none
+trigger:
+  branches:
+    include:
+      - master
+      - develop
+  tags:
+    include:
+      - '*'
 
 jobs:
   - job: build_artifacts
@@ -28,10 +34,16 @@ jobs:
           architecture: 'x64'
         displayName: 'Use Python $(python.version)'
 
-      - script: |
-          sudo apt install -qq -y libmediainfo-dev
-        condition: eq(variables['Agent.OS'], 'Linux')
-        displayName: 'Install libmediainfo-dev'
+#      - script: |
+#          sudo apt-get update -y
+#          sudo apt-get install -y patchelf python3-pyqt5
+#          sudo /sbin/ldconfig -v
+#          echo kekekke
+#          dpkg -S $(/sbin/ldconfig -p | awk 'NR>1 { print $NF }') 2>/dev/null | sed 's/\: .*$//' | sort -u
+#          echo "Installed after update"
+#          sudo apt list -a --installed "libqt*"
+#        condition: eq(variables['Agent.OS'], 'Linux')
+#        displayName: 'Install linux dependencies'
 
       - script: |
           python -m pip install --upgrade pip
@@ -42,15 +54,26 @@ jobs:
           python -m PyInstaller folderplay.spec
         displayName: 'Build pyinstaller'
 
+#      - script: |
+#          pip install staticx
+#          cd $(Build.SourcesDirectory)/dist
+#          FOLDERPLAY=`ls -1 *`
+#          TEMPFILE=tmp
+#          mv $FOLDERPLAY $TEMPFILE
+#          staticx --strip --loglevel=INFO $TEMPFILE $FOLDERPLAY
+#        condition: eq(variables['Agent.OS'], 'Linux')
+#        displayName: 'Create static linux binary'
+
       - task: PublishBuildArtifacts@1
         inputs:
           artifactName: 'drop'
           pathtoPublish: '$(Build.SourcesDirectory)/dist'
 
-  - job: 'github_release'
+  - job: 'version_release'
     displayName: 'Create GitHub release'
     dependsOn: build_artifacts
-    condition: succeeded()
+    # Release only when new version is pushed
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
     steps:
       - task: DownloadBuildArtifacts@0
