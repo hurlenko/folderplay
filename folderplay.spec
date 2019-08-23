@@ -51,7 +51,6 @@ def get_binaries():
         for line in process.stdout.splitlines():
             if libname in line:
                 libname = line.split(">")[-1].strip()
-                print(libname)
                 break
         else:
             raise RuntimeError(f"{libname} was not found")
