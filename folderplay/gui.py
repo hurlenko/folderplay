@@ -233,7 +233,7 @@ class MainWindow(QMainWindow):
         self.move(frameGm.topLeft())
 
     def toggle_advanced_view(self):
-        self.adjustSize()
+        # self.adjustSize()
 
         if not self.btnAdvanced.isChecked():
             for w in self.advanced_view_widgets:
@@ -252,7 +252,6 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(self.advanced_view_layout())
         # self.setFixedSize(self.advanced_view_size)
         self.toggle_advanced_view()
-        self.center()
 
         self.setWindowTitle("FolderPlay by Hurlenko")
         self.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))

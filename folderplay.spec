@@ -1,8 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 # https://blog.aaronhktan.com/posts/2018/05/14/pyqt5-pyinstaller-executable#22-customizing-the-spec-file
+import sys
 from pathlib import Path
-
-from pymediainfo import MediaInfo
 
 from folderplay import __version__ as about
 from folderplay import utils
@@ -27,16 +26,35 @@ def generate_filename():
     elif utils.is_macos():
         name_parts.append("darwin")
 
-    if utils.is_os_64bit():
-        name_parts.append("amd64")
+    if sys.maxsize > 2**32:
+        name_parts.append("x64")
     else:
-        name_parts.append("386")
+        name_parts.append("x86")
 
     return "-".join(name_parts)
 
 
 def get_binaries():
-    return [(MediaInfo._get_library()._name, ".")]
+    from pymediainfo import MediaInfo
+
+    libname = MediaInfo._get_library()._name
+    # On linux libname is just a filename of the shared library located
+    # somewhere on the filesystem so we need to find this file ourselves
+    # (Not sure if this is the best approach)
+    if not Path(libname).is_absolute():
+        # return []
+        import subprocess
+
+        process = subprocess.run(
+            ["ldconfig", "-p"], capture_output=True, check=True, text=True
+        )
+        for line in process.stdout.splitlines():
+            if libname in line:
+                libname = line.split(">")[-1].strip()
+                break
+        else:
+            raise RuntimeError(f"{libname} was not found")
+    return [(libname, ".")]
 
 
 block_cipher = None

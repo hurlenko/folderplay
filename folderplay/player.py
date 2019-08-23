@@ -214,6 +214,8 @@ class Player(MainWindow):
 
     def delete_media_from_filesystem(self):
         medias = self.lstFiles.selectedItems()
+        if not medias:
+            return
         lines = []
         for i, item in enumerate(medias, 1):
             m = self.lstFiles.itemWidget(item)
@@ -243,11 +245,13 @@ class Player(MainWindow):
             click.launch(str(media.path), locate=True)
 
     def play_selected_item(self, media: MediaItem):
-        self.play_media(media)
+        if media:
+            self.play_media(media)
 
     def copy_item_path(self, media: MediaItem):
-        cb = QApplication.clipboard()
-        cb.setText(str(media.path))
+        if media:
+            cb = QApplication.clipboard()
+            cb.setText(str(media.path))
 
     def load_media(self):
         # https://stackoverflow.com/a/25188862/8014793

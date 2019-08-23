@@ -29,6 +29,11 @@ jobs:
         displayName: 'Use Python $(python.version)'
 
       - script: |
+          sudo apt install -qq -y libmediainfo-dev
+        condition: eq(variables['Agent.OS'], 'Linux')
+        displayName: 'Install libmediainfo-dev'
+
+      - script: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
         displayName: 'Install dependencies'
