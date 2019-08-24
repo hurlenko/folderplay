@@ -1,6 +1,5 @@
 altgraph==0.16.1
 Click==7.0
-PyInstaller==3.5
 pymediainfo==4.0
 PyQt5==5.13.0
 PyQt5-sip==4.19.18

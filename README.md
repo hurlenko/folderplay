@@ -21,7 +21,7 @@ Basic view             |  Advanced view
 - [Features](#-features)
 - [Installation](#-installation)
   - [Compiled binary](#using-precompiled-binaries)
-  - [PyPi](#using-pypi)
+  - [Via PIP](#using-pypi)
 - [Usage](#-usage)
 - [Building](#-building)
 - [Command line interface](#%EF%B8%8F-command-line-interface)
