@@ -144,7 +144,7 @@ class MainWindow(QMainWindow):
             self.player_name_label,
         ]
 
-        self.advanced_view_size = QSize(1600, 800)
+        self.advanced_view_size = QSize(1600, 600)
         self.basic_view_size = QSize(600, 450)
 
         self.central_widget = QWidget()
@@ -177,13 +177,13 @@ class MainWindow(QMainWindow):
         hlayout_media.addLayout(vlayout_media_right)
         self.grp_current_media.setLayout(hlayout_media)
 
-        hlayout.addWidget(self.progressBar, 3)
+        hlayout.addWidget(self.progressBar)
         hlayout.addLayout(vlayout_refresh_advanced)
 
         # Button is two times bigger than progressbar
-        vlayout.addLayout(hlayout, 1)
-        vlayout.addWidget(self.grp_current_media, 1)
-        vlayout.addWidget(self.btnPlay, 2)
+        vlayout.addLayout(hlayout)
+        vlayout.addWidget(self.grp_current_media)
+        vlayout.addWidget(self.btnPlay)
         return vlayout
 
     def advanced_view_layout(self):
@@ -233,22 +233,25 @@ class MainWindow(QMainWindow):
         self.move(frameGm.topLeft())
 
     def toggle_advanced_view(self):
-        if self.size() == self.basic_view_size:
-            for w in self.advanced_view_widgets:
-                w.show()
-            self.setFixedSize(self.advanced_view_size)
-        else:
+        # self.adjustSize()
+
+        if not self.btnAdvanced.isChecked():
             for w in self.advanced_view_widgets:
                 w.hide()
-            self.setFixedSize(self.basic_view_size)
+            self.setFixedWidth(self.basic_view_size.width())
+        else:
+            for w in self.advanced_view_widgets:
+                w.show()
+            self.setFixedWidth(self.advanced_view_size.width())
+
+        self.adjustSize()
         self.center()
 
     # region Widget setup routine
     def setup_main_window(self):
         self.central_widget.setLayout(self.advanced_view_layout())
-        self.setFixedSize(self.advanced_view_size)
+        # self.setFixedSize(self.advanced_view_size)
         self.toggle_advanced_view()
-        self.center()
 
         self.setWindowTitle("FolderPlay by Hurlenko")
         self.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))
@@ -258,8 +261,13 @@ class MainWindow(QMainWindow):
 
         # self.btnPlay.setSizePolicy(sizePolicy)
         # self.btnPlay.setText("Play")
+        # font = self.btnPlay.font()
+        # font.setPointSize(25)
+        # font.setBold(True)
+        # self.btnPlay.setFont(font)
         icon = QIcon(resource_path("assets/icons/play.svg"))
         self.btnPlay.setIcon(icon)
+        self.btnPlay.setIconSize(QSize(100, 100))
 
     def setup_advanced_button(self):
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -359,7 +367,6 @@ class MainWindow(QMainWindow):
         self.lbl_movie_info.setSizePolicy(sizePolicy)
         self.lbl_movie_info.setText(NOT_AVAILABLE)
 
-
     def setup_finishes_key_label(self):
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.lbl_finishes_key.setSizePolicy(sizePolicy)
@@ -410,21 +417,24 @@ class ListWidgetItem(QWidget):
         # to default (Segoe UI, 9pt)
         self.title.setFont(QFont("Roboto", FONT_SIZE, QFont.DemiBold))
 
+        self.title.setAlignment(Qt.AlignVCenter)
+
         self.info = QLabel()
         self.info.setFont(QFont("Roboto", FONT_SIZE - 2))
 
         self.vlayout = QVBoxLayout()
-        self.vlayout.addStretch()
+        # self.vlayout.addStretch()
         self.vlayout.setContentsMargins(5, 0, 0, 0)
         self.vlayout.setSpacing(0)
 
         self.vlayout.addWidget(self.title)
+        self.vlayout.setAlignment(Qt.AlignVCenter)
         # self.vlayout.addWidget(self.info)
 
         self.icon = QLabel()
 
         self.hlayout = QHBoxLayout()
-        self.hlayout.addStretch()
+        # self.hlayout.addStretch()
         self.hlayout.setContentsMargins(5, 0, 0, 0)
         self.hlayout.setSpacing(0)
 

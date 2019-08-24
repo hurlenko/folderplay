@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 # https://blog.aaronhktan.com/posts/2018/05/14/pyqt5-pyinstaller-executable#22-customizing-the-spec-file
+import sys
 from pathlib import Path
 
 from folderplay import __version__ as about
@@ -25,12 +26,41 @@ def generate_filename():
     elif utils.is_macos():
         name_parts.append("darwin")
 
-    if utils.is_os_64bit():
-        name_parts.append("amd64")
+    if sys.maxsize > 2 ** 32:
+        name_parts.append("x64")
     else:
-        name_parts.append("386")
+        name_parts.append("x86")
 
     return "-".join(name_parts)
+
+
+def get_binaries():
+    # On linux libname is just a filename of the shared library located
+    # somewhere on the filesystem so we need to find this file ourselves
+    # (Not sure if this is the best approach)
+    libs = []
+    if utils.is_linux():  # Path(libname).is_absolute()
+        return []
+        # import subprocess
+        #
+        # process = subprocess.run(
+        #     ["ldconfig", "-p"], capture_output=True, check=True, text=True
+        # )
+        # for line in process.stdout.splitlines():
+        #     if libname in line:
+        #         path = Path(line.split(">")[-1].strip()).resolve()
+        #         libs.append((path.as_posix(), libname))
+        #         break
+        # else:
+        #     raise RuntimeError(f"{libname} was not found")
+    else:
+        from pymediainfo import MediaInfo
+
+        libname = MediaInfo._get_library()._name
+        libs.append((libname, "."))
+
+    print(libs)
+    return libs
 
 
 block_cipher = None
@@ -38,7 +68,7 @@ block_cipher = None
 a = Analysis(
     ["folderplay/__main__.py"],
     pathex=[],
-    binaries=[],
+    binaries=[*get_binaries()],
     datas=[*list_dir("./assets")],
     hiddenimports=[],
     hookspath=[],
@@ -68,3 +98,13 @@ exe = EXE(
     console=False,
     icon="assets/icons/icon.ico",
 )
+# coll = COLLECT(
+#     exe,
+#     a.binaries,
+#     a.zipfiles,
+#     a.datas,
+#     strip=False,
+#     upx=False,
+#     upx_exclude=[],
+#     name="__main__",
+# )
