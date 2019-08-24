@@ -88,7 +88,7 @@ exe = EXE(
     a.datas,
     [],
     name=generate_filename(),
-    debug=False,
+    debug=True,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,

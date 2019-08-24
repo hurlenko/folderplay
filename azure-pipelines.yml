@@ -1,6 +1,5 @@
 name: $(Build.SourceBranch)-$(date:yyyyMMdd)$(rev:.r)
 
-# Trigger for pull requests only
 trigger:
   branches:
     include:
@@ -35,6 +34,17 @@ jobs:
           architecture: 'x64'
         displayName: 'Use Python $(python.version)'
 
+#      - script: |
+#          sudo apt-get update -y
+#          sudo apt-get install -y patchelf python3-pyqt5
+#          sudo /sbin/ldconfig -v
+#          echo kekekke
+#          dpkg -S $(/sbin/ldconfig -p | awk 'NR>1 { print $NF }') 2>/dev/null | sed 's/\: .*$//' | sort -u
+#          echo "Installed after update"
+#          sudo apt list -a --installed "libqt*"
+#        condition: eq(variables['Agent.OS'], 'Linux')
+#        displayName: 'Install linux dependencies'
+
       - script: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
@@ -44,17 +54,15 @@ jobs:
           python -m PyInstaller folderplay.spec
         displayName: 'Build pyinstaller'
 
-      - script: |
-          sudo apt-get update -y
-          sudo apt install -qq -y ldd readelf objcopy patchelf
-          pip install staticx
-          cd $(Build.SourcesDirectory)/dist
-          FOLDERPLAY=`ls -1 *`
-          TEMPFILE=tmp
-          mv $FOLDERPLAY $TEMPFILE
-          staticx --strip --loglevel=INFO $TEMPFILE $FOLDERPLAY
-        condition: eq(variables['Agent.OS'], 'Linux')
-        displayName: 'Create static linux binary'
+#      - script: |
+#          pip install staticx
+#          cd $(Build.SourcesDirectory)/dist
+#          FOLDERPLAY=`ls -1 *`
+#          TEMPFILE=tmp
+#          mv $FOLDERPLAY $TEMPFILE
+#          staticx --strip --loglevel=INFO $TEMPFILE $FOLDERPLAY
+#        condition: eq(variables['Agent.OS'], 'Linux')
+#        displayName: 'Create static linux binary'
 
       - task: PublishBuildArtifacts@1
         inputs:
