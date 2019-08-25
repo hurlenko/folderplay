@@ -14,7 +14,7 @@
 
 Basic view             |  Advanced view
 :-------------------------:|:-------------------------:
-![image](https://user-images.githubusercontent.com/18035960/63596332-adff6000-c5c3-11e9-9174-0c3b5a75d48f.png "Basic view") | ![image](https://user-images.githubusercontent.com/18035960/63596754-9ecce200-c5c4-11e9-8012-8ce539e36470.png "Advanced view")
+![image](https://user-images.githubusercontent.com/18035960/63596332-adff6000-c5c3-11e9-9174-0c3b5a75d48f.png "Basic view") | ![image](https://user-images.githubusercontent.com/18035960/63641510-83430380-c6b8-11e9-9b16-ee562b2835d9.png "Advanced view")
 
 ## 🚩 Table of Contents
 
@@ -32,7 +32,7 @@ Basic view             |  Advanced view
 - Play with your favoure video player
 - Filter and search your playlist
 - Displays general media info
-- Supports basic [command line interface](#command-line-interface)
+- Supports basic [command line interface](#%EF%B8%8F-command-line-interface)
 - Minimalistic GUI
 - No dependencies
 - No installation required - the whole program is a single executable file

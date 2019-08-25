@@ -17,6 +17,15 @@ with open("README.md", "r", "utf-8") as f:
 with open("requirements.txt", "r", "utf-8") as f:
     requires = f.readlines()
 
+
+def package_files(directory):
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join("..", path, filename))
+    return paths
+
+
 setup(
     name=about["__title__"],
     version=about["__version__"],
@@ -26,8 +35,8 @@ setup(
     author=about["__author__"],
     url=about["__url__"],
     packages=["folderplay"],
-    include_package_data=True,
-    package_dir={"folderplay": "folderplay"},
+    # package_dir={"folderplay": "folderplay"},
+    package_data={"folderplay": package_files("folderplay/assets")},
     python_requires=">=3.6",
     install_requires=requires,
     license=about["__license__"],
@@ -35,6 +44,7 @@ setup(
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: Implementation :: CPython",
     ],
