@@ -1,7 +1,8 @@
+import logging
 import os
 
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QFont, QIcon, QPainter
+from PyQt5.QtGui import QFont, QIcon, QPainter, QFontMetrics
 from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
@@ -22,8 +23,15 @@ from PyQt5.QtWidgets import (
     QFileDialog,
 )
 
-from folderplay.constants import FONT_SIZE, NOT_AVAILABLE, FINISHED
+from folderplay.constants import (
+    FONT_SIZE,
+    NOT_AVAILABLE,
+    FINISHED,
+    MAX_MOVIE_TITLE_LENGTH,
+)
 from folderplay.utils import resource_path, is_linux, is_windows, is_macos
+
+logger = logging.getLogger(__name__)
 
 
 class ScalablePushButton(QPushButton):
@@ -144,8 +152,11 @@ class MainWindow(QMainWindow):
             self.lbl_player_name,
         ]
 
-        self.advanced_view_size = QSize(1600, 600)
-        self.basic_view_size = QSize(600, 450)
+        self.advanced_view_size = 1600
+        self.basic_view_size = (
+            self.grp_current_media.fontMetrics().averageCharWidth()
+            * (MAX_MOVIE_TITLE_LENGTH + 5)
+        )
 
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
@@ -238,11 +249,11 @@ class MainWindow(QMainWindow):
         if not self.btn_advanced.isChecked():
             for w in self.advanced_view_widgets:
                 w.hide()
-            self.setFixedWidth(self.basic_view_size.width())
+            self.setFixedWidth(self.basic_view_size)
         else:
             for w in self.advanced_view_widgets:
                 w.show()
-            self.setFixedWidth(self.advanced_view_size.width())
+            self.setFixedWidth(self.advanced_view_size)
 
         self.adjustSize()
         self.center()
@@ -354,7 +365,11 @@ class MainWindow(QMainWindow):
 
     def setup_current_media_group_box(self):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+
         self.grp_current_media.setSizePolicy(size_policy)
+        # fm = QFontMetrics(self.grp_current_media.font())
+        # fm.horizontalAdvance('lolkek')
+        # item.setFixedWidth(fm.width(item.text()))
         self.grp_current_media.setTitle(FINISHED)
 
     def setup_finishes_label(self):

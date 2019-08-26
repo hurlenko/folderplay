@@ -96,4 +96,6 @@ class MediaItem(ListWidgetItem):
         return self.path.__lt__(other.path)
 
     def __repr__(self):
-        return '<MediaItem "{}" {}>'.format(self.get_title(), self.is_watched())
+        return '<MediaItem "{}" ({})>'.format(
+            self.get_title(), "watched" and self.is_watched() or "unwatched"
+        )

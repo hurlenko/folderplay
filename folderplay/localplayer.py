@@ -1,3 +1,4 @@
+import logging
 import os
 import shlex
 import shutil
@@ -16,6 +17,8 @@ from folderplay.utils import (
     is_windows,
     message_box,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class LocalPlayer(QThread):
@@ -36,12 +39,15 @@ class LocalPlayer(QThread):
         else:
             args = [media_path]
         command.extend(args)
+        logger.info("Player command line: {}".format(command))
         return command
 
     def set_media(self, media: MediaItem):
+        logger.info("Setting media: {}".format(media))
         self.media = media
 
     def set_player(self, path: str):
+        logger.info("Setting player: {}".format(path))
         self.player_path = Path(path)
 
     def run(self):
@@ -56,6 +62,7 @@ class LocalPlayer(QThread):
         for p in players:
             bin_path = shutil.which(p)
             if bin_path:
+                logger.info("Found linux player: {}".format(bin_path))
                 res.append(bin_path)
         return res
 
@@ -69,6 +76,7 @@ class LocalPlayer(QThread):
         for l in locations:
             player = get_registry_value(*l)
             if player:
+                logger.info("Found windows player: {}".format(player))
                 res.append(player)
         return res
 
@@ -103,5 +111,9 @@ class LocalPlayer(QThread):
         for p in players:
             p = Path(p.format(**os.environ))
             if p.is_file():
+                logger.info("Setting player to: {}".format(p))
                 self.player_path = p
                 return
+
+    def __repr__(self):
+        return "<LocalPLayer {}, {}>".format(self.player_path, self.media)
