@@ -5,7 +5,7 @@ from PyQt5.QtGui import QIcon
 from pymediainfo import MediaInfo
 
 from folderplay.constants import WATCHED_PREFIX
-from folderplay.gui import ListWidgetItem
+from folderplay.gui.listwidget import ListWidgetItem
 from folderplay.utils import resource_path, format_size, format_duration
 
 logger = logging.getLogger(__name__)

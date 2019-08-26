@@ -22,9 +22,8 @@ from folderplay.constants import (
     SettingsKeys,
     NOT_AVAILABLE,
     FINISHED,
-    MAX_MOVIE_TITLE_LENGTH,
 )
-from folderplay.gui import MainWindow
+from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
 from folderplay.utils import resource_path, message_box
@@ -49,12 +48,14 @@ class Player(MainWindow):
 
         self.filters = [self.hide_regex_not_match, self.hide_watched]
 
-        self.btn_play.pressed.connect(self.play_button_pressed)
+        self.basic_view_widget.btn_play.pressed.connect(
+            self.play_button_pressed
+        )
         self.btn_change_player.pressed.connect(self.select_new_player)
         self.chk_hide_watched.stateChanged.connect(self.filter_medias)
         self.chk_regex.stateChanged.connect(self.filter_medias)
         self.txt_search_box.textEdited.connect(self.filter_medias)
-        self.btn_refresh.pressed.connect(self.load_media)
+        self.basic_view_widget.btn_refresh.pressed.connect(self.load_media)
         self.lst_files.customContextMenuRequested.connect(
             self.media_context_menu
         )
@@ -85,7 +86,7 @@ class Player(MainWindow):
         )
         if is_advanced:
             logger.info("Switching to advanced view")
-            self.btn_advanced.click()
+            self.basic_view_widget.btn_advanced.click()
         self.update_player_info()
 
     def closeEvent(self, event):
@@ -100,7 +101,8 @@ class Player(MainWindow):
             SettingsKeys.HIDE_WATCHED, self.chk_hide_watched.isChecked()
         )
         self.settings.setValue(
-            SettingsKeys.ADVANCED, self.btn_advanced.isChecked()
+            SettingsKeys.ADVANCED,
+            self.basic_view_widget.btn_advanced.isChecked(),
         )
         return super().closeEvent(event)
 
@@ -305,9 +307,9 @@ class Player(MainWindow):
 
     def init_unwatched(self):
         self.lst_files.clearSelection()
-        self.grp_current_media.setTitle(FINISHED)
-        self.lbl_movie_info.setText(NOT_AVAILABLE)
-        self.lbl_finishes.setText(NOT_AVAILABLE)
+        self.basic_view_widget.grp_current_media.setTitle(FINISHED)
+        self.basic_view_widget.lbl_movie_info_value.setText(NOT_AVAILABLE)
+        self.basic_view_widget.lbl_finishes_value.setText(NOT_AVAILABLE)
 
         total = self.lst_files.count()
         logger.info("Initializing {} media".format(total))
@@ -321,9 +323,17 @@ class Player(MainWindow):
                 item.setSelected(True)
                 media.parse_media_info()
                 logger.info("Setting current media to {}".format(media))
-                self.lbl_movie_info.setText(media.get_short_info())
-                self.grp_current_media.setTitle(
-                    media.get_title()[:MAX_MOVIE_TITLE_LENGTH]
+                self.basic_view_widget.lbl_movie_info_value.setText(
+                    media.get_short_info()
+                )
+                # metrics = self.grp_current_media.fontMetrics()
+                # elided = metrics.elidedText(
+                #     media.get_title(),
+                #     Qt.ElideRight,
+                #     self.grp_current_media.width(),
+                # )
+                self.basic_view_widget.grp_current_media.setTitle(
+                    media.get_title()
                 )
                 if media.duration is not None:
                     now = datetime.datetime.now()
@@ -331,24 +341,26 @@ class Player(MainWindow):
                     finishes = finishes.strftime("%H:%M:%S")
                 else:
                     finishes = "N/A"
-                self.lbl_finishes.setText(finishes)
+                self.basic_view_widget.lbl_finishes_value.setText(finishes)
 
                 self.lst_files.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
                 )
         logger.info("Medias watched {}".format(watched))
-        self.pbr_watched.setMaximum(total)
-        self.pbr_watched.setValue(watched)
-        self.pbr_watched.setToolTip("{} left to watch".format(total - watched))
+        self.basic_view_widget.pbr_watched.setMaximum(total)
+        self.basic_view_widget.pbr_watched.setValue(watched)
+        self.basic_view_widget.pbr_watched.setToolTip(
+            "{} left to watch".format(total - watched)
+        )
 
     def playback_started(self):
         logger.info("Disabling widgets")
-        for w in self.basic_view_widgets + self.advanced_view_widgets:
+        for w in self.basic_view_widget.widgets + self.advanced_view_widgets:
             w.setDisabled(True)
 
     def playback_finished(self):
         logger.info("Enabling widgets")
-        for w in self.basic_view_widgets + self.advanced_view_widgets:
+        for w in self.basic_view_widget.widgets + self.advanced_view_widgets:
             w.setEnabled(True)
         self.local_player.media.set_watched()
         self.filter_medias()
