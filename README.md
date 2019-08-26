@@ -1,13 +1,12 @@
 # folderplay
 
 [![Latest Github release](https://img.shields.io/github/release/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/releases/latest)
-![Python](https://img.shields.io/badge/python-v3.7+-blue.svg)
-<!-- [![PyPI version](https://img.shields.io/pypi/v/edlib.svg)](https://pypi.python.org/pypi/edlib) -->
+[![PyPI version](https://img.shields.io/pypi/v/folderplay.svg)](https://pypi.python.org/pypi/edlib)
+
+![Python](https://img.shields.io/badge/python-v3.5+-blue.svg)
 [![Build Status](https://dev.azure.com/hurlenko/folderplay/_apis/build/status/hurlenko.folderplay?branchName=master)](https://dev.azure.com/hurlenko/folderplay/_build/latest?definitionId=1&branchName=master)
-![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)
 [![GitHub Issues](https://img.shields.io/github/issues/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/issues)
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/pulls)
-![Contributions welcome](https://img.shields.io/badge/contributions-welcome-default.svg)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **folderplay** is a small tool that helps you remember watched tv episodes. Its goal is to resume playback from the episode you left off with a single button press. It doesn't use any integrated players so you can still use your favourite one.
@@ -19,9 +18,8 @@ Basic view             |  Advanced view
 ## 🚩 Table of Contents
 
 - [Features](#-features)
+- [How it works](#how-it-works)
 - [Installation](#-installation)
-  - [Compiled binary](#using-precompiled-binaries)
-  - [Via PIP](#using-pypi)
 - [Usage](#-usage)
 - [Building](#-building)
 - [Command line interface](#%EF%B8%8F-command-line-interface)
@@ -40,19 +38,19 @@ Basic view             |  Advanced view
 
 ## 💾 Installation
 
-### Using precompiled binaries
+[Precompiled binaries](https://github.com/hurlenko/folderplay/releases) are available for MacOS and Windows systems.
 
-Just go to the [releases](https://github.com/hurlenko/folderplay/releases) page and download the latest version for your platform.
-
-### Using PyPi
-
-Use following command to download the latest version from PyPi:
+You can also install `folderplay` using `pip`:
 
 ```bash
 pip install folderplay
 ```
 
-Note, currently only `python3.7` is supported.
+If you're on Linux, you have to additionally install `libmediainfo-dev`. For Debian-based systems it's as simple as running
+
+```bash
+sudo apt-get install libmediainfo-dev
+```
 
 ## 📙 Usage
 
