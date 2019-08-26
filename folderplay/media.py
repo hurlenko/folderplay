@@ -45,7 +45,7 @@ class MediaItem(ListWidgetItem):
         if self.size is not None:
             res.append(format_size(self.size))
         if all((self.width, self.height)):
-            res.append(f"{self.width}x{self.height}")
+            res.append("{}x{}".format(self.width, self.height))
         return ", ".join(res)
 
     def setup_info(self):
@@ -96,4 +96,4 @@ class MediaItem(ListWidgetItem):
         return self.path.__lt__(other.path)
 
     def __repr__(self):
-        return f'<MediaItem "{self.get_title()}" {self.is_watched()}>'
+        return '<MediaItem "{}" {}>'.format(self.get_title(), self.is_watched())

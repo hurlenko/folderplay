@@ -14,9 +14,6 @@ jobs:
     displayName: 'Build Artifacts'
     strategy:
       matrix:
-        linux:
-          imageName: 'ubuntu-latest'
-          python.version: '3.7'
         mac:
           imageName: 'macos-latest'
           python.version: '3.7'
@@ -34,35 +31,14 @@ jobs:
           architecture: 'x64'
         displayName: 'Use Python $(python.version)'
 
-#      - script: |
-#          sudo apt-get update -y
-#          sudo apt-get install -y patchelf python3-pyqt5
-#          sudo /sbin/ldconfig -v
-#          echo kekekke
-#          dpkg -S $(/sbin/ldconfig -p | awk 'NR>1 { print $NF }') 2>/dev/null | sed 's/\: .*$//' | sort -u
-#          echo "Installed after update"
-#          sudo apt list -a --installed "libqt*"
-#        condition: eq(variables['Agent.OS'], 'Linux')
-#        displayName: 'Install linux dependencies'
-
       - script: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
         displayName: 'Install dependencies'
 
       - script: |
           python -m PyInstaller folderplay.spec
         displayName: 'Build pyinstaller'
-
-#      - script: |
-#          pip install staticx
-#          cd $(Build.SourcesDirectory)/dist
-#          FOLDERPLAY=`ls -1 *`
-#          TEMPFILE=tmp
-#          mv $FOLDERPLAY $TEMPFILE
-#          staticx --strip --loglevel=INFO $TEMPFILE $FOLDERPLAY
-#        condition: eq(variables['Agent.OS'], 'Linux')
-#        displayName: 'Create static linux binary'
 
       - task: PublishBuildArtifacts@1
         inputs:
@@ -70,9 +46,9 @@ jobs:
           pathtoPublish: '$(Build.SourcesDirectory)/dist'
 
   - job: 'version_release'
-    displayName: 'Create GitHub release'
+    displayName: 'Publish new release'
     dependsOn: build_artifacts
-    # Release only when new version is pushed
+    # Release only when new tag is pushed
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
     steps:
@@ -83,7 +59,7 @@ jobs:
           downloadPath: '$(Build.ArtifactStagingDirectory)'
 
       - task: GithubRelease@0
-        displayName: 'Create release'
+        displayName: 'Create Github release'
         inputs:
           gitHubConnection: 'folderplay'
           repositoryName: '$(Build.Repository.Name)'
@@ -94,3 +70,24 @@ jobs:
           assetUploadMode: 'replace'
           addChangeLog: true
           isDraft: true
+
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.7'
+          architecture: 'x64'
+        displayName: 'Use Python 3.7'
+
+      - script: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+        displayName: 'Install dependencies'
+
+      - task: TwineAuthenticate@1
+        displayName: "Twine Authenticate"
+        inputs:
+          pythonUploadServiceConnection: "pypi"
+
+      - script: |
+          python setup.py sdist bdist_wheel
+          python -m twine upload -r "pypi" --config-file $(PYPIRC_PATH) dist/*
+        displayName: "Upload new release to PyPI"

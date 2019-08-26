@@ -33,8 +33,8 @@ class ScalablePushButton(QPushButton):
         self.pad = 1  # padding between the icon and the button frame
         self.minSize = 8  # minimum size of the icon
 
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setSizePolicy(size_policy)
         # self.setStyleSheet("{ padding: 0; margin: 0; }")
         # self.setContentsMargins(0,0,0,0)
         # self.setStyleSheet('QPushButton{margin: 0 0 0 0;}')
@@ -48,8 +48,8 @@ class ScalablePushButton(QPushButton):
         # scale icon to button size
         h = opt.rect.height()
         w = opt.rect.width()
-        iconSize = max(min(h, w) - 2 * self.pad, self.minSize)
-        opt.iconSize = QSize(iconSize, iconSize)
+        icon_size = max(min(h, w) - 2 * self.pad, self.minSize)
+        opt.iconSize = QSize(icon_size, icon_size)
         # draw button
         self.style().drawControl(QStyle.CE_PushButton, opt, qp, self)
         qp.end()
@@ -60,51 +60,51 @@ class MainWindow(QMainWindow):
         super().__init__(*args, **kwargs)
 
         # Play button
-        self.btnPlay = ScalablePushButton()
+        self.btn_play = ScalablePushButton()
         self.setup_play_button()
 
         # Advanced view button
-        self.btnAdvanced = ScalablePushButton()
+        self.btn_advanced = ScalablePushButton()
         self.setup_advanced_button()
 
-        self.btnRefresh = ScalablePushButton()
+        self.btn_refresh = ScalablePushButton()
         self.setup_refresh_button()
 
         # Progressbar
-        self.progressBar = QProgressBar()
+        self.pbr_watched = QProgressBar()
         self.setup_progress_bar()
 
         # File names list view
-        self.lstFiles = QListWidget()
+        self.lst_files = QListWidget()
         self.setup_files_list()
 
         # Search box
-        self.searchBox = QLineEdit()
+        self.txt_search_box = QLineEdit()
         self.setup_search_line_edit()
 
-        self.chkHideWatched = QCheckBox()
+        self.chk_hide_watched = QCheckBox()
         self.setup_hide_watched_checkbox()
 
-        self.chkRegex = QCheckBox()
+        self.chk_regex = QCheckBox()
         self.setup_regex_checkbox()
 
-        self.filter_group_box = QGroupBox()
+        self.grp_filters = QGroupBox()
         self.setup_filter_group_box()
 
         # Local player box
-        self.local_player_group_box = QGroupBox()
+        self.grp_selected_player = QGroupBox()
         self.setup_local_player_group_box()
 
-        self.player_label = QLabel()
+        self.lbl_player = QLabel()
         self.setup_player_label()
 
-        self.player_name_label = QLabel()
+        self.lbl_player_name = QLabel()
         self.setup_player_name_label()
 
         self.btn_change_player = ScalablePushButton()
         self.setup_change_player_button()
 
-        self.player_open_dialog = QFileDialog()
+        self.dlg_select_player = QFileDialog()
         self.setup_player_open_dialog()
 
         self.grp_current_media = QGroupBox()
@@ -121,10 +121,10 @@ class MainWindow(QMainWindow):
         self.setup_movie_info_key_label()
 
         self.basic_view_widgets = [
-            self.btnPlay,
-            self.btnAdvanced,
-            self.btnRefresh,
-            self.progressBar,
+            self.btn_play,
+            self.btn_advanced,
+            self.btn_refresh,
+            self.pbr_watched,
             self.lbl_movie_info_key,
             self.lbl_movie_info,
             self.lbl_finishes_key,
@@ -133,15 +133,15 @@ class MainWindow(QMainWindow):
         ]
 
         self.advanced_view_widgets = [
-            self.lstFiles,
-            self.searchBox,
-            self.chkHideWatched,
-            self.chkHideWatched,
-            self.chkRegex,
-            self.filter_group_box,
-            self.local_player_group_box,
-            self.player_label,
-            self.player_name_label,
+            self.lst_files,
+            self.txt_search_box,
+            self.chk_hide_watched,
+            self.chk_hide_watched,
+            self.chk_regex,
+            self.grp_filters,
+            self.grp_selected_player,
+            self.lbl_player,
+            self.lbl_player_name,
         ]
 
         self.advanced_view_size = QSize(1600, 600)
@@ -163,7 +163,7 @@ class MainWindow(QMainWindow):
         vlayout_media_left = QVBoxLayout()
         vlayout_media_right = QVBoxLayout()
 
-        widgets = [self.btnAdvanced, self.btnRefresh]
+        widgets = [self.btn_advanced, self.btn_refresh]
         for w in widgets:
             vlayout_refresh_advanced.addWidget(w)
 
@@ -177,13 +177,13 @@ class MainWindow(QMainWindow):
         hlayout_media.addLayout(vlayout_media_right)
         self.grp_current_media.setLayout(hlayout_media)
 
-        hlayout.addWidget(self.progressBar)
+        hlayout.addWidget(self.pbr_watched)
         hlayout.addLayout(vlayout_refresh_advanced)
 
-        # Button is two times bigger than progressbar
+        # Button is two times bigger than pbr_watched
         vlayout.addLayout(hlayout)
         vlayout.addWidget(self.grp_current_media)
-        vlayout.addWidget(self.btnPlay)
+        vlayout.addWidget(self.btn_play)
         return vlayout
 
     def advanced_view_layout(self):
@@ -194,48 +194,48 @@ class MainWindow(QMainWindow):
         basic_layout = self.basic_view_layout()
 
         hlayout_checkboxes = QHBoxLayout()
-        checkboxes = [self.chkHideWatched, self.chkRegex]
+        checkboxes = [self.chk_hide_watched, self.chk_regex]
         for w in checkboxes:
             hlayout_checkboxes.addWidget(w)
 
         hlayout_player_labels = QHBoxLayout()
         player_labels = [
-            self.player_label,
-            self.player_name_label,
+            self.lbl_player,
+            self.lbl_player_name,
             self.btn_change_player,
         ]
         for w in player_labels:
             hlayout_player_labels.addWidget(w)
 
-        self.local_player_group_box.setLayout(hlayout_player_labels)
+        self.grp_selected_player.setLayout(hlayout_player_labels)
 
         vlayout_group_box.addLayout(hlayout_checkboxes)
-        vlayout_group_box.addWidget(self.searchBox)
+        vlayout_group_box.addWidget(self.txt_search_box)
 
-        self.filter_group_box.setLayout(vlayout_group_box)
+        self.grp_filters.setLayout(vlayout_group_box)
 
         vlayout_left_pane.addLayout(basic_layout)
-        vlayout_left_pane.addWidget(self.local_player_group_box)
-        vlayout_left_pane.addWidget(self.filter_group_box)
+        vlayout_left_pane.addWidget(self.grp_selected_player)
+        vlayout_left_pane.addWidget(self.grp_filters)
 
         hlayout.addLayout(vlayout_left_pane, 1)
-        hlayout.addWidget(self.lstFiles, 2)
+        hlayout.addWidget(self.lst_files, 2)
 
         return hlayout
 
     def center(self):
-        frameGm = self.frameGeometry()
+        frame_gm = self.frameGeometry()
         screen = QApplication.desktop().screenNumber(
             QApplication.desktop().cursor().pos()
         )
-        centerPoint = QApplication.desktop().screenGeometry(screen).center()
-        frameGm.moveCenter(centerPoint)
-        self.move(frameGm.topLeft())
+        center_point = QApplication.desktop().screenGeometry(screen).center()
+        frame_gm.moveCenter(center_point)
+        self.move(frame_gm.topLeft())
 
     def toggle_advanced_view(self):
         # self.adjustSize()
 
-        if not self.btnAdvanced.isChecked():
+        if not self.btn_advanced.isChecked():
             for w in self.advanced_view_widgets:
                 w.hide()
             self.setFixedWidth(self.basic_view_size.width())
@@ -259,122 +259,122 @@ class MainWindow(QMainWindow):
     def setup_play_button(self):
         # sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
-        # self.btnPlay.setSizePolicy(sizePolicy)
-        # self.btnPlay.setText("Play")
-        # font = self.btnPlay.font()
+        # self.btn_play.setSizePolicy(sizePolicy)
+        # self.btn_play.setText("Play")
+        # font = self.btn_play.font()
         # font.setPointSize(25)
         # font.setBold(True)
-        # self.btnPlay.setFont(font)
+        # self.btn_play.setFont(font)
         icon = QIcon(resource_path("assets/icons/play.svg"))
-        self.btnPlay.setIcon(icon)
-        self.btnPlay.setIconSize(QSize(100, 100))
+        self.btn_play.setIcon(icon)
+        self.btn_play.setIconSize(QSize(100, 100))
 
     def setup_advanced_button(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
-        self.btnAdvanced.setSizePolicy(sizePolicy)
-        self.btnAdvanced.setToolTip("Advanced options")
-        self.btnAdvanced.setCheckable(True)
-        self.btnAdvanced.setIcon(
+        self.btn_advanced.setSizePolicy(size_policy)
+        self.btn_advanced.setToolTip("Advanced options")
+        self.btn_advanced.setCheckable(True)
+        self.btn_advanced.setIcon(
             QIcon(resource_path("assets/icons/settings.svg"))
         )
-        self.btnAdvanced.clicked.connect(self.toggle_advanced_view)
+        self.btn_advanced.clicked.connect(self.toggle_advanced_view)
 
     def setup_refresh_button(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
-        self.btnRefresh.setSizePolicy(sizePolicy)
-        self.btnRefresh.setToolTip("Refresh")
-        self.btnRefresh.setIcon(
+        self.btn_refresh.setSizePolicy(size_policy)
+        self.btn_refresh.setToolTip("Refresh")
+        self.btn_refresh.setIcon(
             QIcon(resource_path("assets/icons/refresh.svg"))
         )
 
     def setup_change_player_button(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
-        self.btn_change_player.setSizePolicy(sizePolicy)
+        self.btn_change_player.setSizePolicy(size_policy)
         self.btn_change_player.setToolTip("Change player")
         self.btn_change_player.setIcon(
             QIcon(resource_path("assets/icons/folder_open.svg"))
         )
 
     def setup_progress_bar(self):
-        self.progressBar.setValue(24)
-        # Allow progressbar to expand to take up all space in layout
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.progressBar.setSizePolicy(sizePolicy)
+        self.pbr_watched.setValue(24)
+        # Allow pbr_watched to expand to take up all space in layout
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.pbr_watched.setSizePolicy(size_policy)
 
-        self.progressBar.setFormat("%v / %m")
-        font = self.progressBar.font()
+        self.pbr_watched.setFormat("%v / %m")
+        font = self.pbr_watched.font()
         font.setPointSize(25)
         font.setBold(True)
-        self.progressBar.setFont(font)
+        self.pbr_watched.setFont(font)
 
     def setup_files_list(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.lstFiles.setSizePolicy(sizePolicy)
-        self.lstFiles.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        # self.lstFiles.setSortingEnabled(True)
-        self.lstFiles.setContextMenuPolicy(Qt.CustomContextMenu)
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lst_files.setSizePolicy(size_policy)
+        self.lst_files.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        # self.lst_files.setSortingEnabled(True)
+        self.lst_files.setContextMenuPolicy(Qt.CustomContextMenu)
 
     def setup_search_line_edit(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.searchBox.setSizePolicy(sizePolicy)
-        self.searchBox.setPlaceholderText("Search...")
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.txt_search_box.setSizePolicy(size_policy)
+        self.txt_search_box.setPlaceholderText("Search...")
 
     def setup_regex_checkbox(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.chkRegex.setSizePolicy(sizePolicy)
-        self.chkRegex.setText("Regex")
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.chk_regex.setSizePolicy(size_policy)
+        self.chk_regex.setText("Regex")
 
     def setup_hide_watched_checkbox(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.chkHideWatched.setSizePolicy(sizePolicy)
-        self.chkHideWatched.setText("Hide watched")
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.chk_hide_watched.setSizePolicy(size_policy)
+        self.chk_hide_watched.setText("Hide watched")
 
     def setup_filter_group_box(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.filter_group_box.setSizePolicy(sizePolicy)
-        self.filter_group_box.setTitle("Filter")
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.grp_filters.setSizePolicy(size_policy)
+        self.grp_filters.setTitle("Filter")
 
     def setup_local_player_group_box(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.local_player_group_box.setSizePolicy(sizePolicy)
-        self.local_player_group_box.setTitle("Player")
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.grp_selected_player.setSizePolicy(size_policy)
+        self.grp_selected_player.setTitle("Player")
 
     def setup_player_label(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.player_label.setSizePolicy(sizePolicy)
-        self.player_label.setText("Name:")
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lbl_player.setSizePolicy(size_policy)
+        self.lbl_player.setText("Name:")
 
     def setup_player_name_label(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.player_name_label.setSizePolicy(sizePolicy)
-        self.player_name_label.setText(NOT_AVAILABLE)
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lbl_player_name.setSizePolicy(size_policy)
+        self.lbl_player_name.setText(NOT_AVAILABLE)
 
     def setup_current_media_group_box(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.grp_current_media.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.grp_current_media.setSizePolicy(size_policy)
         self.grp_current_media.setTitle(FINISHED)
 
     def setup_finishes_label(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.lbl_finishes.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lbl_finishes.setSizePolicy(size_policy)
         self.lbl_finishes.setText(NOT_AVAILABLE)
 
     def setup_movie_info_label(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.lbl_movie_info.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.lbl_movie_info.setSizePolicy(size_policy)
         self.lbl_movie_info.setText(NOT_AVAILABLE)
 
     def setup_finishes_key_label(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        self.lbl_finishes_key.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.lbl_finishes_key.setSizePolicy(size_policy)
         self.lbl_finishes_key.setText("Ends:")
 
     def setup_movie_info_key_label(self):
-        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
-        self.lbl_movie_info_key.setSizePolicy(sizePolicy)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
+        self.lbl_movie_info_key.setSizePolicy(size_policy)
         self.lbl_movie_info_key.setText("Info:")
 
     def setup_player_open_dialog(self):
@@ -383,28 +383,26 @@ class MainWindow(QMainWindow):
             directory = "/usr/bin"
         elif is_windows():
             directory = os.getenv("ProgramFiles")
-            self.player_open_dialog.setNameFilter("Executable Files (*.exe)")
+            self.dlg_select_player.setNameFilter("Executable Files (*.exe)")
         elif is_macos():
             directory = "/usr/bin"
 
-        self.player_open_dialog.setWindowTitle("Select new player")
-        self.player_open_dialog.setWindowIcon(
+        self.dlg_select_player.setWindowTitle("Select new player")
+        self.dlg_select_player.setWindowIcon(
             QIcon(resource_path("assets/icons/icon.ico"))
         )
-        self.player_open_dialog.setDirectory(directory)
-        self.player_open_dialog.setMinimumSize(
-            QApplication.desktop().size() / 2
-        )
-        self.player_open_dialog.setFileMode(QFileDialog.ExistingFile)
-        self.player_open_dialog.setViewMode(QFileDialog.Detail)
-        self.player_open_dialog.setAcceptMode(QFileDialog.AcceptOpen)
-        self.player_open_dialog.setOptions(
+        self.dlg_select_player.setDirectory(directory)
+        self.dlg_select_player.setMinimumSize(QApplication.desktop().size() / 2)
+        self.dlg_select_player.setFileMode(QFileDialog.ExistingFile)
+        self.dlg_select_player.setViewMode(QFileDialog.Detail)
+        self.dlg_select_player.setAcceptMode(QFileDialog.AcceptOpen)
+        self.dlg_select_player.setOptions(
             QFileDialog.DontUseNativeDialog
             | QFileDialog.ReadOnly
             | QFileDialog.HideNameFilterDetails
         )
-        # self.player_open_dialog.setFilter(QDir.Executable)
-        self.player_open_dialog.adjustSize()
+        # self.dlg_select_player.setFilter(QDir.Executable)
+        self.dlg_select_player.adjustSize()
 
     # endregion Widget setup routine
 

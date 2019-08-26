@@ -7,13 +7,16 @@ from folderplay import __version__ as about
 from folderplay import utils
 
 
-def list_dir(directory, pattern="*"):
-    directory = Path(directory)
+def list_dir(src_dir, dst_dir, pattern="*"):
+    src_dir = Path(src_dir)
+    dst_dir = Path(dst_dir)
     res = []
-    for f in directory.rglob(pattern):
+    for f in src_dir.rglob(pattern):
         if f.is_file():
-            rel_path = f.relative_to(directory.parent)
-            res.append((rel_path.as_posix(), rel_path.parent.as_posix()))
+            rel_path = f.relative_to(src_dir)
+            res.append(
+                (f.as_posix(), dst_dir.joinpath(rel_path).parent.as_posix())
+            )
     return res
 
 
@@ -69,7 +72,7 @@ a = Analysis(
     ["folderplay/__main__.py"],
     pathex=[],
     binaries=[*get_binaries()],
-    datas=[*list_dir("./assets")],
+    datas=[*list_dir("folderplay/assets", "assets")],
     hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
@@ -88,7 +91,7 @@ exe = EXE(
     a.datas,
     [],
     name=generate_filename(),
-    debug=True,
+    debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
@@ -96,7 +99,7 @@ exe = EXE(
     clean=True,
     runtime_tmpdir=None,
     console=False,
-    icon="assets/icons/icon.ico",
+    icon="folderplay/assets/icons/icon.ico",
 )
 # coll = COLLECT(
 #     exe,

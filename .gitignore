@@ -55,6 +55,7 @@ log.txt
 ######################
 extra/
 venv/
+.venv/
 *build/
 dist/
 *.egg-info
