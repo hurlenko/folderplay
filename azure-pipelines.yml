@@ -25,7 +25,7 @@ jobs:
         windows32:
           imageName: 'windows-latest'
           python.version: '3.7'
-          python.architecture: 'x32'
+          python.architecture: 'x86'
 
     pool:
       vmImage: '$(imageName)'

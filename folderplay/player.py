@@ -51,12 +51,18 @@ class Player(MainWindow):
         self.basic_view_widget.btn_play.pressed.connect(
             self.play_button_pressed
         )
-        self.btn_change_player.pressed.connect(self.select_new_player)
-        self.chk_hide_watched.stateChanged.connect(self.filter_medias)
-        self.chk_regex.stateChanged.connect(self.filter_medias)
-        self.txt_search_box.textEdited.connect(self.filter_medias)
+        self.settings_widget.btn_change_player.pressed.connect(
+            self.select_new_player
+        )
+        self.settings_widget.chk_hide_watched.stateChanged.connect(
+            self.filter_medias
+        )
+        self.settings_widget.chk_regex.stateChanged.connect(self.filter_medias)
+        self.settings_widget.txt_search_box.textEdited.connect(
+            self.filter_medias
+        )
         self.basic_view_widget.btn_refresh.pressed.connect(self.load_media)
-        self.lst_files.customContextMenuRequested.connect(
+        self.lst_media.customContextMenuRequested.connect(
             self.media_context_menu
         )
         self.load_media()
@@ -78,7 +84,7 @@ class Player(MainWindow):
             logger.warning("Host player not found")
             self.local_player.not_found_warning()
 
-        self.chk_hide_watched.setChecked(
+        self.settings_widget.chk_hide_watched.setChecked(
             self.settings.value(SettingsKeys.HIDE_WATCHED, False, type=bool)
         )
         is_advanced = self.settings.value(
@@ -87,6 +93,8 @@ class Player(MainWindow):
         if is_advanced:
             logger.info("Switching to advanced view")
             self.basic_view_widget.btn_advanced.click()
+        else:
+            self.reset()
         self.update_player_info()
 
     def closeEvent(self, event):
@@ -98,7 +106,8 @@ class Player(MainWindow):
                 SettingsKeys.PLAYER_PATH, str(self.local_player.player_path)
             )
         self.settings.setValue(
-            SettingsKeys.HIDE_WATCHED, self.chk_hide_watched.isChecked()
+            SettingsKeys.HIDE_WATCHED,
+            self.settings_widget.chk_hide_watched.isChecked(),
         )
         self.settings.setValue(
             SettingsKeys.ADVANCED,
@@ -107,17 +116,17 @@ class Player(MainWindow):
         return super().closeEvent(event)
 
     def update_player_info(self):
-        self.lbl_player_name.setText(self.local_player.name())
+        self.settings_widget.lbl_player_name.setText(self.local_player.name())
 
     def filter_medias(self):
-        total = self.lst_files.count()
+        total = self.lst_media.count()
         items_hidden = 0
         logger.info("Filtering {} medias".format(total))
 
         for i in range(total):
-            item = self.lst_files.item(i)
+            item = self.lst_media.item(i)
 
-            media = self.lst_files.itemWidget(item)
+            media = self.lst_media.itemWidget(item)
             is_hidden = False
             for f in self.filters:
                 if f(media) is True:
@@ -129,11 +138,14 @@ class Player(MainWindow):
         self.init_unwatched()
 
     def hide_watched(self, media: MediaItem) -> bool:
-        return self.chk_hide_watched.isChecked() and media.is_watched()
+        return (
+            self.settings_widget.chk_hide_watched.isChecked()
+            and media.is_watched()
+        )
 
     def hide_regex_not_match(self, media: MediaItem) -> bool:
-        pattern = self.txt_search_box.text()
-        if not self.chk_regex.isChecked():
+        pattern = self.settings_widget.txt_search_box.text()
+        if not self.settings_widget.chk_regex.isChecked():
             pattern = re.escape(pattern)
         try:
             pattern = re.compile(pattern, re.IGNORECASE)
@@ -150,8 +162,8 @@ class Player(MainWindow):
         font = menu.font()
         font.setPointSize(10)
         menu.setFont(font)
-        menu_item = self.lst_files.itemAt(position)
-        menu_media = self.lst_files.itemWidget(menu_item)
+        menu_item = self.lst_media.itemAt(position)
+        menu_media = self.lst_media.itemWidget(menu_item)
         logger.info("Creating context menu")
 
         mark_watched = QAction(
@@ -197,7 +209,7 @@ class Player(MainWindow):
         copy_path.triggered.connect(lambda: self.copy_item_path(menu_media))
 
         menu.addSection(
-            "Selected: {}".format(len(self.lst_files.selectedItems()))
+            "Selected: {}".format(len(self.lst_media.selectedItems()))
         )
         menu.addAction(play)
         menu.addAction(mark_watched)
@@ -205,12 +217,12 @@ class Player(MainWindow):
         menu.addAction(reveal_on_filesystem)
         menu.addAction(copy_path)
         menu.addAction(delete)
-        menu.exec_(self.lst_files.mapToGlobal(position))
+        menu.exec_(self.lst_media.mapToGlobal(position))
 
     def select_new_player(self):
         logger.info("Selecting new player")
-        if self.dlg_select_player.exec_() == QDialog.Accepted:
-            files = self.dlg_select_player.selectedFiles()
+        if self.settings_widget.dlg_select_player.exec_() == QDialog.Accepted:
+            files = self.settings_widget.dlg_select_player.selectedFiles()
             if len(files) > 0:
                 file_path = files[0]
                 file_info = QFileInfo(file_path)
@@ -230,8 +242,8 @@ class Player(MainWindow):
     def set_media_watch_status(self, set_watched: bool):
         logger.info("Updating media status to {}".format(set_watched))
 
-        for item in self.lst_files.selectedItems():
-            media = self.lst_files.itemWidget(item)
+        for item in self.lst_media.selectedItems():
+            media = self.lst_media.itemWidget(item)
             if set_watched:
                 media.set_watched()
             else:
@@ -240,12 +252,12 @@ class Player(MainWindow):
 
     def delete_media_from_filesystem(self):
         logger.info("Deleting medias")
-        medias = self.lst_files.selectedItems()
+        medias = self.lst_media.selectedItems()
         if not medias:
             return
         lines = []
         for i, item in enumerate(medias, 1):
-            m = self.lst_files.itemWidget(item)
+            m = self.lst_media.itemWidget(item)
             lines.append("  {}. {}".format(i, m.get_title()))
         msg = "\n".join(lines)
         status = message_box(
@@ -259,20 +271,20 @@ class Player(MainWindow):
         logger.info("{} files to be deleted".format(len(medias)))
         if status == QMessageBox.Ok:
             for item in medias:
-                media = self.lst_files.itemWidget(item)
+                media = self.lst_media.itemWidget(item)
                 try:
                     media.path.unlink()
                 except OSError:
                     logger.error("Unable to delete file {}".format(media.path))
-                self.lst_files.takeItem(self.lst_files.row(item))
+                self.lst_media.takeItem(self.lst_media.row(item))
 
             self.filter_medias()
 
     def reveal_on_filesystem(self):
-        medias = self.lst_files.selectedItems()
+        medias = self.lst_media.selectedItems()
         logger.info("Opening file location for {} files".format(medias))
         for item in medias:
-            media = self.lst_files.itemWidget(item)
+            media = self.lst_media.itemWidget(item)
             click.launch(str(media.path), locate=True)
 
     def play_selected_item(self, media: MediaItem):
@@ -288,7 +300,7 @@ class Player(MainWindow):
 
     def load_media(self):
         # https://stackoverflow.com/a/25188862/8014793
-        self.lst_files.clear()
+        self.lst_media.clear()
         medias = []
         logger.info("Loading media from filesystem: {}".format(self.media_dir))
         for f in self.media_dir.rglob("*"):
@@ -297,41 +309,35 @@ class Player(MainWindow):
         medias.sort()
         logger.info("{} medias found ".format(len(medias)))
         for m in medias:
-            item = QListWidgetItem(self.lst_files)
+            item = QListWidgetItem(self.lst_media)
             # Set size hint
             item.setSizeHint(m.sizeHint())
             # Add QListWidgetItem into QListWidget
-            self.lst_files.addItem(item)
-            self.lst_files.setItemWidget(item, m)
+            self.lst_media.addItem(item)
+            self.lst_media.setItemWidget(item, m)
         self.filter_medias()
 
     def init_unwatched(self):
-        self.lst_files.clearSelection()
+        self.lst_media.clearSelection()
         self.basic_view_widget.grp_current_media.setTitle(FINISHED)
         self.basic_view_widget.lbl_movie_info_value.setText(NOT_AVAILABLE)
         self.basic_view_widget.lbl_finishes_value.setText(NOT_AVAILABLE)
 
-        total = self.lst_files.count()
+        total = self.lst_media.count()
         logger.info("Initializing {} media".format(total))
         watched = 0
         for i in range(total):
-            item = self.lst_files.item(i)
-            media = self.lst_files.itemWidget(item)
+            item = self.lst_media.item(i)
+            media = self.lst_media.itemWidget(item)
             if media.is_watched():
                 watched += 1
-            elif len(self.lst_files.selectedItems()) == 0:
+            elif len(self.lst_media.selectedItems()) == 0:
                 item.setSelected(True)
                 media.parse_media_info()
                 logger.info("Setting current media to {}".format(media))
                 self.basic_view_widget.lbl_movie_info_value.setText(
                     media.get_short_info()
                 )
-                # metrics = self.grp_current_media.fontMetrics()
-                # elided = metrics.elidedText(
-                #     media.get_title(),
-                #     Qt.ElideRight,
-                #     self.grp_current_media.width(),
-                # )
                 self.basic_view_widget.grp_current_media.setTitle(
                     media.get_title()
                 )
@@ -343,7 +349,7 @@ class Player(MainWindow):
                     finishes = "N/A"
                 self.basic_view_widget.lbl_finishes_value.setText(finishes)
 
-                self.lst_files.scrollToItem(
+                self.lst_media.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
                 )
         logger.info("Medias watched {}".format(watched))
@@ -355,22 +361,26 @@ class Player(MainWindow):
 
     def playback_started(self):
         logger.info("Disabling widgets")
-        for w in self.basic_view_widget.widgets + self.advanced_view_widgets:
-            w.setDisabled(True)
+        self.setDisabled(True)
+        # self.basic_view_widget.setDisabled(True)
+        # self.settings_widget.setDisabled(True)
+        # self.lst_media.setDisabled(True)
 
     def playback_finished(self):
         logger.info("Enabling widgets")
-        for w in self.basic_view_widget.widgets + self.advanced_view_widgets:
-            w.setEnabled(True)
+        self.setEnabled(True)
+        # self.basic_view_widget.setEnabled(True)
+        # self.settings_widget.setEnabled(True)
+        # self.lst_media.setEnabled(True)
         self.local_player.media.set_watched()
         self.filter_medias()
 
     def get_first_unwatched(self):
         logger.info("Getting first unwatched media")
-        total = self.lst_files.count()
+        total = self.lst_media.count()
         for i in range(total):
-            item = self.lst_files.item(i)
-            media = self.lst_files.itemWidget(item)
+            item = self.lst_media.item(i)
+            media = self.lst_media.itemWidget(item)
             if not media.is_watched():
                 logger.info("Found: {}".format(media))
                 return media
