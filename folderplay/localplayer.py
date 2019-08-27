@@ -54,7 +54,11 @@ class LocalPlayer(QThread):
         subprocess.run(self.command())
 
     def _darwin_players(self):
-        return []
+        players = [
+            "/Applications/VLC.app/Contents/MacOS/VLC",
+            "/Applications/QuickTime Player.app/Contents/MacOS/QuickTime Player",
+        ]
+        return players
 
     def _linux_players(self):
         players = ["vlc", "totem"]

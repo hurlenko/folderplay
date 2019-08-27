@@ -15,14 +15,14 @@ jobs:
     strategy:
       matrix:
         mac:
-          imageName: 'macos-latest'
+          imageName: 'macOS-10.13'
           python.version: '3.7'
           python.architecture: 'x64'
         windows64:
           imageName: 'windows-latest'
           python.version: '3.7'
           python.architecture: 'x64'
-        windows32:
+        windows86:
           imageName: 'windows-latest'
           python.version: '3.7'
           python.architecture: 'x86'
