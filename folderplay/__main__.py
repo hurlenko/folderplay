@@ -3,7 +3,7 @@ import os
 import sys
 
 import click
-from PyQt5.QtCore import Qt, QFileInfo
+from PyQt5.QtCore import Qt, QFileInfo, QCoreApplication
 from PyQt5.QtGui import QFontDatabase, QFont
 from PyQt5.QtWidgets import QApplication
 
@@ -64,9 +64,12 @@ def validate_player(ctx, param, value):
 def main(workdir, player_path):
     setup_logging()
 
-    QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
-    # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
+    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
+    # QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
     # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
+    # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     app = QApplication(sys.argv)
 

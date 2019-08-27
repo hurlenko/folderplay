@@ -17,9 +17,15 @@ jobs:
         mac:
           imageName: 'macos-latest'
           python.version: '3.7'
-        windows:
+          python.architecture: 'x64'
+        windows64:
           imageName: 'windows-latest'
           python.version: '3.7'
+          python.architecture: 'x64'
+        windows32:
+          imageName: 'windows-latest'
+          python.version: '3.7'
+          python.architecture: 'x86'
 
     pool:
       vmImage: '$(imageName)'
@@ -28,7 +34,7 @@ jobs:
       - task: UsePythonVersion@0
         inputs:
           versionSpec: '$(python.version)'
-          architecture: 'x64'
+          architecture: '$(python.architecture)'
         displayName: 'Use Python $(python.version)'
 
       - script: |

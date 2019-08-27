@@ -1,7 +1,7 @@
 # folderplay
 
 [![Latest Github release](https://img.shields.io/github/release/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/releases/latest)
-[![PyPI version](https://img.shields.io/pypi/v/folderplay.svg)](https://pypi.python.org/pypi/edlib)
+[![PyPI version](https://img.shields.io/pypi/v/folderplay.svg)](https://pypi.python.org/pypi/folderplay)
 
 ![Python](https://img.shields.io/badge/python-v3.5+-blue.svg)
 [![Build Status](https://dev.azure.com/hurlenko/folderplay/_apis/build/status/hurlenko.folderplay?branchName=master)](https://dev.azure.com/hurlenko/folderplay/_build/latest?definitionId=1&branchName=master)
@@ -18,7 +18,7 @@ Basic view             |  Advanced view
 ## 🚩 Table of Contents
 
 - [Features](#-features)
-- [How it works](#how-it-works)
+- [How it works](#-how-it-works)
 - [Installation](#-installation)
 - [Usage](#-usage)
 - [Building](#-building)
@@ -35,6 +35,10 @@ Basic view             |  Advanced view
 - No dependencies
 - No installation required - the whole program is a single executable file
 - Cross platform - supports all three major platforms (Windows, MacOS, Linux) thanks to `python` and `pyqt`
+
+## ⚙️ How it works
+
+`folderplay` scans for known extensions in the current working directory and all subdirectories. It marks the files as `watched` or `unwatched` by checking for a specific prefix in the filename. It also searches for a list of predefined players for current operating systems. If the application can't find one, it will throw a warning and will ask you to select the player. When you hit the play button `folderplay` spawns a new process with the selected player, freezes the UI and waits for the process to exit. When the playes process exits `folderplay` will rename the media file by prepending a prefix to its filename to mark it as watched.
 
 ## 💾 Installation
 
@@ -54,7 +58,7 @@ sudo apt-get install libmediainfo-dev
 
 ## 📙 Usage
 
-Simply drop the executable into the directory where you media resides and run it. The application will scan all directories and subdirectories for known extensions.
+Simply drop the executable into the directory where your media resides and run it. The application will scan all directories and subdirectories for known extensions.
 
 By default the app runs in `basic` view mode. You can toggle to the more advanced view by pressing the gear button. From there you can select the video player to use (`folderplay` will try to search for existing video players and will warn you on start up if it didn't find one).
 
