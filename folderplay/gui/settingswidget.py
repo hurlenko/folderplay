@@ -13,10 +13,10 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
-from constants import NOT_AVAILABLE
-from gui.button import ScalablePushButton
-from gui.label import ElidedLabel
-from utils import resource_path, is_windows, is_macos, is_linux
+from folderplay.constants import NOT_AVAILABLE
+from folderplay.gui.button import ScalablePushButton
+from folderplay.gui.label import ElidedLabel
+from folderplay.utils import resource_path, is_windows, is_macos, is_linux
 
 
 class SettingsWidget(QWidget):

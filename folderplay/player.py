@@ -9,11 +9,11 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QListWidgetItem,
     QMenu,
-    QAbstractItemView,
     QDialog,
     QMessageBox,
     QAction,
     QApplication,
+    QAbstractItemView,
 )
 
 from folderplay import __version__ as about
@@ -65,8 +65,83 @@ class Player(MainWindow):
         self.lst_media.customContextMenuRequested.connect(
             self.media_context_menu
         )
+        self.lst_media.doubleClicked.connect(self.play_selected_item)
+
+        self.act_mark_watched = None
+        self.act_mark_unwatched = None
+        self.act_delete = None
+        self.act_reveal_on_filesystem = None
+        self.act_play = None
+        self.act_copy_path = None
+
+        self.setup_actions()
         self.load_media()
         self.read_settings()
+
+    def setup_actions(self):
+        # Mark watched action
+        self.act_mark_watched = QAction(
+            QIcon(resource_path("assets/icons/visibility.svg")),
+            "Mark watched",
+            self,
+        )
+        self.act_mark_watched.triggered.connect(
+            lambda: self.set_media_watch_status(True)
+        )
+        self.act_mark_watched.setShortcut("Space")
+        self.act_mark_watched.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_mark_watched)
+
+        # Mark Unwatched action
+        self.act_mark_unwatched = QAction(
+            QIcon(resource_path("assets/icons/visibility_off.svg")),
+            "Mark unwatched",
+            self,
+        )
+        self.act_mark_unwatched.triggered.connect(
+            lambda: self.set_media_watch_status(False)
+        )
+        self.act_mark_unwatched.setShortcut("Ctrl+Space")
+        self.act_mark_unwatched.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_mark_unwatched)
+
+        self.act_delete = QAction(
+            QIcon(resource_path("assets/icons/delete_forever.svg")),
+            "Delete from filesystem",
+            self,
+        )
+        self.act_delete.triggered.connect(self.delete_media_from_filesystem)
+        self.act_delete.setShortcut("Del")
+        self.act_delete.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_delete)
+
+        self.act_reveal_on_filesystem = QAction(
+            QIcon(resource_path("assets/icons/folder.svg")),
+            "Reveal on filesystem",
+            self,
+        )
+        self.act_reveal_on_filesystem.triggered.connect(
+            self.reveal_on_filesystem
+        )
+        self.act_reveal_on_filesystem.setShortcut("O")
+        self.act_reveal_on_filesystem.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_reveal_on_filesystem)
+
+        self.act_play = QAction(
+            QIcon(resource_path("assets/icons/play_circle.svg")), "Play", self
+        )
+        self.act_play.triggered.connect(self.play_selected_item)
+        self.act_play.setShortcut("Return")
+        self.act_play.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_play)
+
+        self.act_copy_path = QAction(
+            QIcon(resource_path("assets/icons/copy.svg")), "Copy path", self
+        )
+        self.act_copy_path.triggered.connect(self.copy_item_path)
+        self.act_copy_path.setShortcut("Ctrl+C")
+        self.act_copy_path.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_copy_path)
 
     def read_settings(self):
         logger.info("Loading settings")
@@ -159,64 +234,16 @@ class Player(MainWindow):
     def media_context_menu(self, position):
         # Create menu and insert some actions
         menu = QMenu("Options")
-        font = menu.font()
-        font.setPointSize(10)
-        menu.setFont(font)
-        menu_item = self.lst_media.itemAt(position)
-        menu_media = self.lst_media.itemWidget(menu_item)
         logger.info("Creating context menu")
-
-        mark_watched = QAction(
-            QIcon(resource_path("assets/icons/visibility.svg")),
-            "Mark watched",
-            self,
-        )
-        mark_watched.triggered.connect(
-            lambda: self.set_media_watch_status(True)
-        )
-
-        mark_unwatched = QAction(
-            QIcon(resource_path("assets/icons/visibility_off.svg")),
-            "Mark unwatched",
-            self,
-        )
-        mark_unwatched.triggered.connect(
-            lambda: self.set_media_watch_status(False)
-        )
-
-        delete = QAction(
-            QIcon(resource_path("assets/icons/delete_forever.svg")),
-            "Delete from filesystem",
-            self,
-        )
-        delete.triggered.connect(self.delete_media_from_filesystem)
-
-        reveal_on_filesystem = QAction(
-            QIcon(resource_path("assets/icons/folder.svg")),
-            "Reveal on filesystem",
-            self,
-        )
-        reveal_on_filesystem.triggered.connect(self.reveal_on_filesystem)
-
-        play = QAction(
-            QIcon(resource_path("assets/icons/play_circle.svg")), "Play", self
-        )
-        play.triggered.connect(lambda: self.play_selected_item(menu_media))
-
-        copy_path = QAction(
-            QIcon(resource_path("assets/icons/copy.svg")), "Copy path", self
-        )
-        copy_path.triggered.connect(lambda: self.copy_item_path(menu_media))
-
         menu.addSection(
             "Selected: {}".format(len(self.lst_media.selectedItems()))
         )
-        menu.addAction(play)
-        menu.addAction(mark_watched)
-        menu.addAction(mark_unwatched)
-        menu.addAction(reveal_on_filesystem)
-        menu.addAction(copy_path)
-        menu.addAction(delete)
+        menu.addAction(self.act_play)
+        menu.addAction(self.act_mark_watched)
+        menu.addAction(self.act_mark_unwatched)
+        menu.addAction(self.act_reveal_on_filesystem)
+        menu.addAction(self.act_copy_path)
+        menu.addAction(self.act_delete)
         menu.exec_(self.lst_media.mapToGlobal(position))
 
     def select_new_player(self):
@@ -287,16 +314,14 @@ class Player(MainWindow):
             media = self.lst_media.itemWidget(item)
             click.launch(str(media.path), locate=True)
 
-    def play_selected_item(self, media: MediaItem):
-        logger.info("Playing media {}".format(media))
-        if media:
-            self.play_media(media)
-
-    def copy_item_path(self, media: MediaItem):
-        logger.info("Getting media path {}".format(media))
-        if media:
+    def copy_item_path(self):
+        logger.info("Getting media path")
+        medias = self.lst_media.selectedItems()
+        if medias:
+            media = self.lst_media.itemWidget(medias[0])
             cb = QApplication.clipboard()
             cb.setText(str(media.path))
+            logger.info("{} copied to the clipboard".format(media))
 
     def load_media(self):
         # https://stackoverflow.com/a/25188862/8014793
@@ -316,9 +341,23 @@ class Player(MainWindow):
             self.lst_media.addItem(item)
             self.lst_media.setItemWidget(item, m)
         self.filter_medias()
+        self.highlight_first_unwatched()
+
+    def highlight_first_unwatched(self):
+        self.lst_media.clearSelection()
+
+        total = self.lst_media.count()
+        for i in range(total):
+            item = self.lst_media.item(i)
+            media = self.lst_media.itemWidget(item)
+            if not media.is_watched():
+                item.setSelected(True)
+                self.lst_media.scrollToItem(
+                    item, QAbstractItemView.PositionAtCenter
+                )
+                return
 
     def init_unwatched(self):
-        self.lst_media.clearSelection()
         self.basic_view_widget.grp_current_media.setTitle(FINISHED)
         self.basic_view_widget.lbl_movie_info_value.setText(NOT_AVAILABLE)
         self.basic_view_widget.lbl_finishes_value.setText(NOT_AVAILABLE)
@@ -326,13 +365,14 @@ class Player(MainWindow):
         total = self.lst_media.count()
         logger.info("Initializing {} media".format(total))
         watched = 0
+        unwatched_initialized = False
         for i in range(total):
             item = self.lst_media.item(i)
             media = self.lst_media.itemWidget(item)
             if media.is_watched():
                 watched += 1
-            elif len(self.lst_media.selectedItems()) == 0:
-                item.setSelected(True)
+            elif not unwatched_initialized:
+                unwatched_initialized = True
                 media.parse_media_info()
                 logger.info("Setting current media to {}".format(media))
                 self.basic_view_widget.lbl_movie_info_value.setText(
@@ -341,17 +381,13 @@ class Player(MainWindow):
                 self.basic_view_widget.grp_current_media.setTitle(
                     media.get_title()
                 )
+                finishes = NOT_AVAILABLE
                 if media.duration is not None:
                     now = datetime.datetime.now()
                     finishes = now + datetime.timedelta(seconds=media.duration)
                     finishes = finishes.strftime("%H:%M:%S")
-                else:
-                    finishes = "N/A"
                 self.basic_view_widget.lbl_finishes_value.setText(finishes)
 
-                self.lst_media.scrollToItem(
-                    item, QAbstractItemView.PositionAtCenter
-                )
         logger.info("Medias watched {}".format(watched))
         self.basic_view_widget.pbr_watched.setMaximum(total)
         self.basic_view_widget.pbr_watched.setValue(watched)
@@ -362,20 +398,15 @@ class Player(MainWindow):
     def playback_started(self):
         logger.info("Disabling widgets")
         self.setDisabled(True)
-        # self.basic_view_widget.setDisabled(True)
-        # self.settings_widget.setDisabled(True)
-        # self.lst_media.setDisabled(True)
 
     def playback_finished(self):
         logger.info("Enabling widgets")
         self.setEnabled(True)
-        # self.basic_view_widget.setEnabled(True)
-        # self.settings_widget.setEnabled(True)
-        # self.lst_media.setEnabled(True)
         self.local_player.media.set_watched()
         self.filter_medias()
+        self.highlight_first_unwatched()
 
-    def get_first_unwatched(self):
+    def get_first_unwatched(self) -> MediaItem:
         logger.info("Getting first unwatched media")
         total = self.lst_media.count()
         for i in range(total):
@@ -386,6 +417,14 @@ class Player(MainWindow):
                 return media
         logger.warning("No unwatched media found")
         return None
+
+    def play_selected_item(self):
+        logger.info("Getting media")
+        medias = self.lst_media.selectedItems()
+        if medias:
+            media = self.lst_media.itemWidget(medias[0])
+            logger.info("Playing media {}".format(media))
+            self.play_media(media)
 
     def play_media(self, media: MediaItem):
         if self.local_player.is_found():

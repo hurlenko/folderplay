@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
 from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
 from folderplay.gui.basicviewwidget import BasicViewWidget
 from folderplay.utils import resource_path
-from gui.settingswidget import SettingsWidget
+from folderplay.gui.settingswidget import SettingsWidget
 
 
 class MainWindow(QMainWindow):
