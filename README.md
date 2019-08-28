@@ -42,9 +42,11 @@ Basic view             |  Advanced view
 
 ## 💾 Installation
 
-[Precompiled binaries](https://github.com/hurlenko/folderplay/releases) are available for MacOS and Windows systems.
+Prebuilt binaries for macOS and Windows can be downloaded from the [GitHub releases page](https://github.com/hurlenko/folderplay/releases).
 
-You can also install `folderplay` using `pip`:
+:warning: Note that the binaries were not thoroughly tested across different platforms and might not work correctly.
+
+The recommended installation method is using `pip`:
 
 ```bash
 pip install folderplay
