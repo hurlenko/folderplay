@@ -1,7 +1,7 @@
 import os
 from codecs import open
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -34,7 +34,7 @@ setup(
     long_description_content_type="text/markdown",
     author=about["__author__"],
     url=about["__url__"],
-    packages=["folderplay"],
+    packages=find_packages(),
     package_data={"folderplay": package_files("folderplay/assets")},
     python_requires=">=3.5",
     install_requires=requires,
