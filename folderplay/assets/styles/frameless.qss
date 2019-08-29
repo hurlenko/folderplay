@@ -12,11 +12,11 @@
 }
 
 #btnClose, #btnRestore, #btnMaximize, #btnMinimize {
-  min-width: 14px;
-  min-height: 14px;
-  max-width: 14px;
-  max-height: 14px;
-  border-radius: 7px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  border-radius: 8px;
   margin: 4px;
 }
 

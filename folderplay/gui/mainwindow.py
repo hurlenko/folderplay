@@ -16,11 +16,14 @@ from folderplay.gui.basicviewwidget import BasicViewWidget
 from folderplay.gui.qtmodern import ModernWindow
 from folderplay.gui.settingswidget import SettingsWidget
 from folderplay.utils import resource_path
+from folderplay.gui import styles
 
 
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setWindowTitle("FolderPlay by Hurlenko")
+        self.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
 
         self.basic_view_widget = BasicViewWidget(self)
         self.basic_view_widget.btn_advanced.clicked.connect(
@@ -28,20 +31,24 @@ class MainWindow(QMainWindow):
         )
 
         self.settings_widget = SettingsWidget(self)
+        self.settings_widget.hide()
 
         # Media list
         self.lst_media = QListWidget(self)
         self.setup_files_list()
 
+        # Left Pane
         self.left_pane = QWidget(self)
         self.left_pane.setLayout(self.left_pane_layout())
         self.left_pane.layout().setContentsMargins(0, 0, 0, 0)
         self.left_pane.layout().setSpacing(0)
 
+        # Right pane
         self.right_pane = QWidget(self)
         self.right_pane.setLayout(self.right_pane_layout())
         self.right_pane.layout().setContentsMargins(0, 0, 0, 0)
         self.right_pane.layout().setSpacing(0)
+        self.right_pane.hide()
 
         average_char_width = self.fontMetrics().averageCharWidth()
         self.left_pane_width = average_char_width * (MAX_MOVIE_TITLE_LENGTH + 5)
@@ -50,14 +57,19 @@ class MainWindow(QMainWindow):
         self.left_pane.setFixedWidth(self.left_pane_width)
         self.right_pane.setFixedWidth(self.right_pane_width)
 
-        self.central_widget = ModernWindow(self)
-        self.setCentralWidget(self.central_widget)
-        self.central_widget.windowContent.layout().addLayout(
-            self.advanced_view_layout()
-        )
+        if True:
+            self.central_widget = ModernWindow(self)
+            self.central_widget.windowContent.setLayout(
+                self.advanced_view_layout()
+            )
+            styles.dark(QApplication.instance())
 
-        # Main window
-        self.setup_main_window()
+        else:
+            # QApplication.instance().setStyle("Fusion")
+
+            self.central_widget = QWidget(self)
+            self.central_widget.setLayout(self.advanced_view_layout())
+        self.setCentralWidget(self.central_widget)
 
     def left_pane_layout(self):
         layout = QVBoxLayout()
@@ -103,14 +115,15 @@ class MainWindow(QMainWindow):
         self.adjustSize()
         # https://stackoverflow.com/a/30472749/8014793
         # self.setFixedSize(self.layout().sizeHint())
-        self.setFixedSize(self.central_widget.windowContent.sizeHint())
-        self.center()
+        # self.central_widget.adjustSize()
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
 
-    def setup_main_window(self):
-        self.settings_widget.hide()
-        self.right_pane.hide()
-        self.setWindowTitle("FolderPlay by Hurlenko")
-        self.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
+        self.central_widget.adjustSize()
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
+        self.setFixedSize(self.layout().sizeHint())
+
+        # self.setFixedSize(self.central_widget.sizeHint())
+        self.center()
 
     def setup_play_button(self):
         icon = QIcon(resource_path("icons/play.svg"))

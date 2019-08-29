@@ -74,9 +74,6 @@ def main(workdir, player_path):
     # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     app = QApplication(sys.argv)
-
-    styles.dark(app)
-
     QFontDatabase.addApplicationFont(
         resource_path("fonts/Roboto/Roboto-Regular.ttf")
     )
@@ -84,7 +81,6 @@ def main(workdir, player_path):
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)
 
-    # app.setStyle("Fusion")
     player = Player(workdir)
 
     # mw = ModernWindow(player)

@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QSize
+from PyQt5.QtCore import QSize, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget,
@@ -97,7 +97,7 @@ class BasicViewWidget(QWidget):
         # Allow pbr_watched to expand to take up all space in layout
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.pbr_watched.setSizePolicy(size_policy)
-
+        self.pbr_watched.setAlignment(Qt.AlignHCenter)
         self.pbr_watched.setFormat("%v / %m")
         font = self.pbr_watched.font()
         font.setPointSize(25)
