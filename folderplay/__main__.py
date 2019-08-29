@@ -75,7 +75,7 @@ def main(workdir, player_path):
 
     app = QApplication(sys.argv)
 
-    styles.light(app)
+    styles.dark(app)
 
     QFontDatabase.addApplicationFont(
         resource_path("fonts/Roboto/Roboto-Regular.ttf")
@@ -87,10 +87,10 @@ def main(workdir, player_path):
     # app.setStyle("Fusion")
     player = Player(workdir)
 
-    mw = ModernWindow(player)
-    mw.show()
+    # mw = ModernWindow(player)
+    # mw.show()
 
-    # player.show()
+    player.show()
     if player_path:
         player.local_player.set_player(player_path)
         player.update_player_info()

@@ -54,26 +54,27 @@ class ModernWindow(QWidget):
             parent (QWidget, optional): Parent widget.
     """
 
-    def __init__(self, w, parent=None):
+    def __init__(self, parent):
         QWidget.__init__(self, parent)
 
-        self._w = w
+        self._w = parent
         self.setupUi()
 
         contentLayout = QHBoxLayout()
-        contentLayout.setContentsMargins(0, 0, 0, 0)
-        contentLayout.addWidget(w)
+        # contentLayout.setContentsMargins(0, 0, 0, 0)
+        # contentLayout.addWidget(w)
 
         self.windowContent.setLayout(contentLayout)
 
-        self.setWindowTitle(w.windowTitle())
-        self.setGeometry(w.geometry())
+        # self.setWindowTitle(parent.windowTitle())
+        # self.setGeometry(parent.geometry())
 
         self.installEventFilter(self)
 
         # Adding attribute to clean up the parent window
         # when the child is closed
         self._w.setAttribute(Qt.WA_DeleteOnClose, True)
+        # self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         # self._w.destroyed.connect(self.__child_was_closed)
 
     def setupUi(self):
@@ -83,12 +84,12 @@ class ModernWindow(QWidget):
 
         self.windowFrame = QWidget(self)
         self.windowFrame.setObjectName("windowFrame")
-        # self.windowFrame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.windowFrame.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.vboxFrame = QVBoxLayout(self.windowFrame)
         self.vboxFrame.setContentsMargins(0, 0, 0, 0)
 
-        self.titleBar = WindowDragger(self, self.windowFrame)
+        self.titleBar = WindowDragger(self._w, self.windowFrame)
         self.titleBar.setObjectName("titleBar")
         self.titleBar.setSizePolicy(
             QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
@@ -130,16 +131,17 @@ class ModernWindow(QWidget):
         self.vboxFrame.addWidget(self.titleBar)
 
         self.windowContent = QWidget(self.windowFrame)
+        self.windowContent.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.vboxFrame.addWidget(self.windowContent)
 
         self.vboxWindow.addWidget(self.windowFrame)
 
         # set window flags
-        # self.setWindowFlags(
-        #     Qt.Window | Qt.FramelessWindowHint | Qt.WindowSystemMenuHint
-        # )
-
+        self._w.setWindowFlags(
+            Qt.Window | Qt.FramelessWindowHint | Qt.WindowSystemMenuHint
+        )
         self.setAttribute(Qt.WA_TranslucentBackground)
+        self._w.setAttribute(Qt.WA_TranslucentBackground)
 
         # set stylesheet
         with open(resource_path("styles/frameless.qss")) as stylesheet:
@@ -154,13 +156,13 @@ class ModernWindow(QWidget):
     #     self._w = None
     #     self.close()
 
-    def eventFilter(self, source, event):
-        if event.type() == QEvent.Close:
-            if not self._w:
-                return True
-            return self._w.close()
-
-        return QWidget.eventFilter(self, source, event)
+    # def eventFilter(self, source, event):
+    #     if event.type() == QEvent.Close:
+    #         if not self._w:
+    #             return True
+    #         return self._w.close()
+    #
+    #     return QWidget.eventFilter(self, source, event)
 
     def setWindowTitle(self, title):
         """ Set window title.
@@ -174,7 +176,7 @@ class ModernWindow(QWidget):
 
     @pyqtSlot()
     def on_btnMinimize_clicked(self):
-        self.setWindowState(Qt.WindowMinimized)
+        self._w.setWindowState(Qt.WindowMinimized)
 
     @pyqtSlot()
     def on_btnRestore_clicked(self):
@@ -192,7 +194,7 @@ class ModernWindow(QWidget):
 
     @pyqtSlot()
     def on_btnClose_clicked(self):
-        self.close()
+        self._w.close()
 
     # @pyqtSlot()
     # def on_titleBar_doubleClicked(self):

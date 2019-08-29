@@ -13,8 +13,9 @@ from PyQt5.QtWidgets import (
 
 from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
 from folderplay.gui.basicviewwidget import BasicViewWidget
-from folderplay.utils import resource_path
+from folderplay.gui.qtmodern import ModernWindow
 from folderplay.gui.settingswidget import SettingsWidget
+from folderplay.utils import resource_path
 
 
 class MainWindow(QMainWindow):
@@ -49,9 +50,11 @@ class MainWindow(QMainWindow):
         self.left_pane.setFixedWidth(self.left_pane_width)
         self.right_pane.setFixedWidth(self.right_pane_width)
 
-        self.central_widget = QWidget(self)
+        self.central_widget = ModernWindow(self)
         self.setCentralWidget(self.central_widget)
-        self.central_widget.setLayout(self.advanced_view_layout())
+        self.central_widget.windowContent.layout().addLayout(
+            self.advanced_view_layout()
+        )
 
         # Main window
         self.setup_main_window()
@@ -99,7 +102,8 @@ class MainWindow(QMainWindow):
         QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.adjustSize()
         # https://stackoverflow.com/a/30472749/8014793
-        self.setFixedSize(self.layout().sizeHint())
+        # self.setFixedSize(self.layout().sizeHint())
+        self.setFixedSize(self.central_widget.windowContent.sizeHint())
         self.center()
 
     def setup_main_window(self):
