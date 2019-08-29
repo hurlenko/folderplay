@@ -121,7 +121,7 @@ class SettingsWidget(QWidget):
         self.btn_change_player.setSizePolicy(size_policy)
         self.btn_change_player.setToolTip("Change player")
         self.btn_change_player.setIcon(
-            QIcon(resource_path("assets/icons/folder_open.svg"))
+            QIcon(resource_path("icons/folder_open.svg"))
         )
 
     def setup_player_open_dialog(self):
@@ -136,7 +136,7 @@ class SettingsWidget(QWidget):
 
         self.dlg_select_player.setWindowTitle("Select new player")
         self.dlg_select_player.setWindowIcon(
-            QIcon(resource_path("assets/icons/icon.ico"))
+            QIcon(resource_path("icons/icon.ico"))
         )
         self.dlg_select_player.setDirectory(directory)
         self.dlg_select_player.setMinimumSize(QApplication.desktop().size() / 2)

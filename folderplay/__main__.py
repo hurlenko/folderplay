@@ -11,6 +11,8 @@ from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
 from folderplay.player import Player
 from folderplay.utils import resource_path
+import folderplay.gui.styles as styles
+from folderplay.gui.qtmodern import ModernWindow
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -73,16 +75,22 @@ def main(workdir, player_path):
 
     app = QApplication(sys.argv)
 
+    styles.light(app)
+
     QFontDatabase.addApplicationFont(
-        resource_path("assets/fonts/Roboto/Roboto-Regular.ttf")
+        resource_path("fonts/Roboto/Roboto-Regular.ttf")
     )
 
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)
 
-    app.setStyle("Fusion")
+    # app.setStyle("Fusion")
     player = Player(workdir)
-    player.show()
+
+    mw = ModernWindow(player)
+    mw.show()
+
+    # player.show()
     if player_path:
         player.local_player.set_player(player_path)
         player.update_player_info()
@@ -90,4 +98,4 @@ def main(workdir, player_path):
 
 
 if __name__ == "__main__":
-    main(prog_name="folderplay")
+    main(prog_name="fplay")

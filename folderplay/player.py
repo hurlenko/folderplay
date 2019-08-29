@@ -84,7 +84,7 @@ class Player(MainWindow):
     def setup_actions(self):
         # Mark watched action
         self.act_mark_watched = QAction(
-            QIcon(resource_path("assets/icons/visibility.svg")),
+            QIcon(resource_path("icons/visibility.svg")),
             "Mark watched",
             self,
         )
@@ -97,7 +97,7 @@ class Player(MainWindow):
 
         # Mark Unwatched action
         self.act_mark_unwatched = QAction(
-            QIcon(resource_path("assets/icons/visibility_off.svg")),
+            QIcon(resource_path("icons/visibility_off.svg")),
             "Mark unwatched",
             self,
         )
@@ -109,7 +109,7 @@ class Player(MainWindow):
         self.addAction(self.act_mark_unwatched)
 
         self.act_delete = QAction(
-            QIcon(resource_path("assets/icons/delete_forever.svg")),
+            QIcon(resource_path("icons/delete_forever.svg")),
             "Delete from filesystem",
             self,
         )
@@ -119,7 +119,7 @@ class Player(MainWindow):
         self.addAction(self.act_delete)
 
         self.act_reveal_on_filesystem = QAction(
-            QIcon(resource_path("assets/icons/folder.svg")),
+            QIcon(resource_path("icons/folder.svg")),
             "Reveal on filesystem",
             self,
         )
@@ -131,7 +131,7 @@ class Player(MainWindow):
         self.addAction(self.act_reveal_on_filesystem)
 
         self.act_play = QAction(
-            QIcon(resource_path("assets/icons/play_circle.svg")), "Play", self
+            QIcon(resource_path("icons/play_circle.svg")), "Play", self
         )
         self.act_play.triggered.connect(self.play_selected_item)
         self.act_play.setShortcut("Return")
@@ -139,21 +139,21 @@ class Player(MainWindow):
         self.addAction(self.act_play)
 
         self.act_copy_path = QAction(
-            QIcon(resource_path("assets/icons/copy.svg")), "Copy path", self
+            QIcon(resource_path("icons/copy.svg")), "Copy path", self
         )
         self.act_copy_path.triggered.connect(self.copy_item_path)
         self.act_copy_path.setShortcut("Ctrl+C")
         self.act_copy_path.setShortcutVisibleInContextMenu(True)
 
         self.act_refresh = QAction(
-            QIcon(resource_path("assets/icons/refresh.svg")), "Refresh", self
+            QIcon(resource_path("icons/refresh.svg")), "Refresh", self
         )
         self.act_refresh.triggered.connect(self.load_media)
         self.act_refresh.setShortcut("R")
         self.act_refresh.setShortcutVisibleInContextMenu(True)
 
         self.act_mark_unwatched_previous = QAction(
-            QIcon(resource_path("assets/icons/visibility.svg")),
+            QIcon(resource_path("icons/visibility.svg")),
             "Mark unwatched previous",
             self,
         )
@@ -164,7 +164,7 @@ class Player(MainWindow):
         self.addAction(self.act_mark_unwatched_previous)
 
         self.act_mark_watched_next = QAction(
-            QIcon(resource_path("assets/icons/visibility_off.svg")),
+            QIcon(resource_path("icons/visibility_off.svg")),
             "Mark watched next",
             self,
         )

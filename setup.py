@@ -49,5 +49,5 @@ setup(
         "Programming Language :: Python :: Implementation :: CPython",
     ],
     project_urls={"Source": about["__url__"]},
-    entry_points={"console_scripts": ["folderplay = folderplay.__main__:main"]},
+    entry_points={"console_scripts": ["fplay = folderplay.__main__:main"]},
 )

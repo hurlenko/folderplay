@@ -106,10 +106,10 @@ class MainWindow(QMainWindow):
         self.settings_widget.hide()
         self.right_pane.hide()
         self.setWindowTitle("FolderPlay by Hurlenko")
-        self.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))
+        self.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
 
     def setup_play_button(self):
-        icon = QIcon(resource_path("assets/icons/play.svg"))
+        icon = QIcon(resource_path("icons/play.svg"))
         self.btn_play.setIcon(icon)
         self.btn_play.setIconSize(QSize(100, 100))
 

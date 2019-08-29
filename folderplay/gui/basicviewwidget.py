@@ -72,9 +72,10 @@ class BasicViewWidget(QWidget):
         return vlayout
 
     def setup_play_button(self):
-        icon = QIcon(resource_path("assets/icons/play.svg"))
+        icon = QIcon(resource_path("icons/play.svg"))
         self.btn_play.setIcon(icon)
         self.btn_play.setIconSize(QSize(100, 100))
+        self.btn_play.setDefault(True)
 
     def setup_advanced_button(self):
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
@@ -82,18 +83,14 @@ class BasicViewWidget(QWidget):
         self.btn_advanced.setSizePolicy(size_policy)
         self.btn_advanced.setToolTip("Advanced options")
         self.btn_advanced.setCheckable(True)
-        self.btn_advanced.setIcon(
-            QIcon(resource_path("assets/icons/settings.svg"))
-        )
+        self.btn_advanced.setIcon(QIcon(resource_path("icons/settings.svg")))
 
     def setup_refresh_button(self):
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
         self.btn_refresh.setSizePolicy(size_policy)
         self.btn_refresh.setToolTip("Refresh")
-        self.btn_refresh.setIcon(
-            QIcon(resource_path("assets/icons/refresh.svg"))
-        )
+        self.btn_refresh.setIcon(QIcon(resource_path("icons/refresh.svg")))
 
     def setup_progress_bar(self):
         self.pbr_watched.setValue(24)
@@ -113,11 +110,7 @@ class BasicViewWidget(QWidget):
         self.grp_current_media.setTitle(FINISHED)
 
     def setup_finishes_label(self):
-        # size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.lbl_finishes_value.setSizePolicy(size_policy)
         self.lbl_finishes_value.setText(NOT_AVAILABLE)
 
     def setup_movie_info_label(self):
-        # size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.lbl_movie_info_value.setSizePolicy(size_policy)
         self.lbl_movie_info_value.setText(NOT_AVAILABLE)

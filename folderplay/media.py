@@ -18,9 +18,9 @@ class MediaItem(ListWidgetItem):
         self.path = path
 
         self.icon_unwatched = QIcon(
-            resource_path("assets/icons/check_box_blank.svg")
+            resource_path("icons/check_box_blank.svg")
         )
-        self.icon_watched = QIcon(resource_path("assets/icons/check_box.svg"))
+        self.icon_watched = QIcon(resource_path("icons/check_box.svg"))
         self.size = None
         self.duration = None
         self.width = None
