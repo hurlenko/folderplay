@@ -55,11 +55,11 @@ class Player(MainWindow):
             self.select_new_player
         )
         self.settings_widget.chk_hide_watched.stateChanged.connect(
-            self.filter_medias
+            self.filter_media
         )
-        self.settings_widget.chk_regex.stateChanged.connect(self.filter_medias)
+        self.settings_widget.chk_regex.stateChanged.connect(self.filter_media)
         self.settings_widget.txt_search_box.textEdited.connect(
-            self.filter_medias
+            self.filter_media
         )
         self.basic_view_widget.btn_refresh.pressed.connect(self.load_media)
         self.lst_media.customContextMenuRequested.connect(
@@ -68,11 +68,14 @@ class Player(MainWindow):
         self.lst_media.doubleClicked.connect(self.play_selected_item)
 
         self.act_mark_watched = None
+        self.act_mark_watched_next = None
         self.act_mark_unwatched = None
+        self.act_mark_unwatched_previous = None
         self.act_delete = None
         self.act_reveal_on_filesystem = None
         self.act_play = None
         self.act_copy_path = None
+        self.act_refresh = None
 
         self.setup_actions()
         self.load_media()
@@ -101,7 +104,7 @@ class Player(MainWindow):
         self.act_mark_unwatched.triggered.connect(
             lambda: self.set_media_watch_status(False)
         )
-        self.act_mark_unwatched.setShortcut("Ctrl+Space")
+        self.act_mark_unwatched.setShortcut("Shift+Space")
         self.act_mark_unwatched.setShortcutVisibleInContextMenu(True)
         self.addAction(self.act_mark_unwatched)
 
@@ -141,7 +144,34 @@ class Player(MainWindow):
         self.act_copy_path.triggered.connect(self.copy_item_path)
         self.act_copy_path.setShortcut("Ctrl+C")
         self.act_copy_path.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_copy_path)
+
+        self.act_refresh = QAction(
+            QIcon(resource_path("assets/icons/refresh.svg")), "Refresh", self
+        )
+        self.act_refresh.triggered.connect(self.load_media)
+        self.act_refresh.setShortcut("R")
+        self.act_refresh.setShortcutVisibleInContextMenu(True)
+
+        self.act_mark_unwatched_previous = QAction(
+            QIcon(resource_path("assets/icons/visibility.svg")),
+            "Mark unwatched previous",
+            self,
+        )
+        self.act_mark_unwatched_previous.triggered.connect(
+            self.mark_unwatched_previous
+        )
+        self.act_mark_unwatched_previous.setShortcut("Ctrl+Z")
+        self.addAction(self.act_mark_unwatched_previous)
+
+        self.act_mark_watched_next = QAction(
+            QIcon(resource_path("assets/icons/visibility_off.svg")),
+            "Mark watched next",
+            self,
+        )
+        self.act_mark_watched_next.triggered.connect(self.mark_watched_next)
+        self.act_mark_watched_next.setShortcut("Ctrl+Shift+Z")
+        self.act_mark_watched_next.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_mark_watched_next)
 
     def read_settings(self):
         logger.info("Loading settings")
@@ -193,7 +223,7 @@ class Player(MainWindow):
     def update_player_info(self):
         self.settings_widget.lbl_player_name.setText(self.local_player.name())
 
-    def filter_medias(self):
+    def filter_media(self):
         total = self.lst_media.count()
         items_hidden = 0
         logger.info("Filtering {} medias".format(total))
@@ -241,6 +271,7 @@ class Player(MainWindow):
         menu.addAction(self.act_play)
         menu.addAction(self.act_mark_watched)
         menu.addAction(self.act_mark_unwatched)
+        menu.addAction(self.act_refresh)
         menu.addAction(self.act_reveal_on_filesystem)
         menu.addAction(self.act_copy_path)
         menu.addAction(self.act_delete)
@@ -275,7 +306,30 @@ class Player(MainWindow):
                 media.set_watched()
             else:
                 media.set_unwatched()
-        self.filter_medias()
+        self.filter_media()
+
+    def mark_unwatched_previous(self):
+        logger.info("Unwatching last watched")
+        total = self.lst_media.count()
+
+        for i in reversed(range(total)):
+            item = self.lst_media.item(i)
+            media = self.lst_media.itemWidget(item)
+            if not item.isHidden() and media.is_watched():
+                media.set_unwatched()
+                break
+        self.filter_media()
+
+    def mark_watched_next(self):
+        logger.info("Marking next media as watched")
+        total = self.lst_media.count()
+        for i in range(total):
+            item = self.lst_media.item(i)
+            media = self.lst_media.itemWidget(item)
+            if not item.isHidden() and not media.is_watched():
+                media.set_watched()
+                break
+        self.filter_media()
 
     def delete_media_from_filesystem(self):
         logger.info("Deleting medias")
@@ -283,9 +337,10 @@ class Player(MainWindow):
         if not medias:
             return
         lines = []
-        for i, item in enumerate(medias, 1):
-            m = self.lst_media.itemWidget(item)
-            lines.append("  {}. {}".format(i, m.get_title()))
+        if len(medias) < 11:
+            for i, item in enumerate(medias, 1):
+                m = self.lst_media.itemWidget(item)
+                lines.append("  {}. {}".format(i, m.get_title()))
         msg = "\n".join(lines)
         status = message_box(
             title="Confirm deletion",
@@ -305,7 +360,7 @@ class Player(MainWindow):
                     logger.error("Unable to delete file {}".format(media.path))
                 self.lst_media.takeItem(self.lst_media.row(item))
 
-            self.filter_medias()
+            self.filter_media()
 
     def reveal_on_filesystem(self):
         medias = self.lst_media.selectedItems()
@@ -340,7 +395,7 @@ class Player(MainWindow):
             # Add QListWidgetItem into QListWidget
             self.lst_media.addItem(item)
             self.lst_media.setItemWidget(item, m)
-        self.filter_medias()
+        self.filter_media()
         self.highlight_first_unwatched()
 
     def highlight_first_unwatched(self):
@@ -403,7 +458,7 @@ class Player(MainWindow):
         logger.info("Enabling widgets")
         self.setEnabled(True)
         self.local_player.media.set_watched()
-        self.filter_medias()
+        self.filter_media()
         self.highlight_first_unwatched()
 
     def get_first_unwatched(self) -> MediaItem:

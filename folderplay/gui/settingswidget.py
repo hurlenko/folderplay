@@ -110,13 +110,9 @@ class SettingsWidget(QWidget):
         self.grp_filters.setTitle("Filter")
 
     def setup_player_label(self):
-        # size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.lbl_player.setSizePolicy(size_policy)
         self.lbl_player.setText("Name:")
 
     def setup_player_name_label(self):
-        # size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.lbl_player_name.setSizePolicy(size_policy)
         self.lbl_player_name.setText(NOT_AVAILABLE)
 
     def setup_change_player_button(self):
@@ -136,7 +132,7 @@ class SettingsWidget(QWidget):
             directory = os.getenv("ProgramFiles(x86)")
             self.dlg_select_player.setNameFilter("Executable Files (*.exe)")
         elif is_macos():
-            directory = "/usr/bin"
+            directory = "/Applications"
 
         self.dlg_select_player.setWindowTitle("Select new player")
         self.dlg_select_player.setWindowIcon(
