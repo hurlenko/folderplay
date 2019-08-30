@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QMetaObject, pyqtSlot, QEvent
+from PyQt5.QtCore import Qt, QMetaObject, pyqtSlot
 from PyQt5.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (
     QToolButton,
     QLabel,
     QSizePolicy,
-    QLayout)
+)
 
 from folderplay.utils import resource_path
 

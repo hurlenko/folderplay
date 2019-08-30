@@ -11,8 +11,6 @@ from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
 from folderplay.player import Player
 from folderplay.utils import resource_path
-import folderplay.gui.styles as styles
-from folderplay.gui.qtmodern import ModernWindow
 
 click.echo(click.style(about.__doc__, fg="blue"))
 

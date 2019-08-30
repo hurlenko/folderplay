@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 
 from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
+from folderplay.gui.icon import IconSets
 from folderplay.gui.label import ElidedLabel
 from folderplay.utils import resource_path, is_windows, is_macos, is_linux
 
@@ -120,9 +121,7 @@ class SettingsWidget(QWidget):
 
         self.btn_change_player.setSizePolicy(size_policy)
         self.btn_change_player.setToolTip("Change player")
-        self.btn_change_player.setIcon(
-            QIcon(resource_path("icons/folder_open.svg"))
-        )
+        self.btn_change_player.setIcon(IconSets.current().folder_open)
 
     def setup_player_open_dialog(self):
         directory = None

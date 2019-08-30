@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget,
     QProgressBar,
@@ -12,8 +11,8 @@ from PyQt5.QtWidgets import (
 from folderplay.constants import NOT_AVAILABLE, FINISHED
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import ElidedGroupBox
+from folderplay.gui.icon import IconSets
 from folderplay.gui.label import ElidedLabel
-from folderplay.utils import resource_path
 
 
 class BasicViewWidget(QWidget):
@@ -72,7 +71,7 @@ class BasicViewWidget(QWidget):
         return vlayout
 
     def setup_play_button(self):
-        icon = QIcon(resource_path("icons/play.svg"))
+        icon = IconSets.current().play
         self.btn_play.setIcon(icon)
         self.btn_play.setIconSize(QSize(100, 100))
         self.btn_play.setDefault(True)
@@ -83,14 +82,14 @@ class BasicViewWidget(QWidget):
         self.btn_advanced.setSizePolicy(size_policy)
         self.btn_advanced.setToolTip("Advanced options")
         self.btn_advanced.setCheckable(True)
-        self.btn_advanced.setIcon(QIcon(resource_path("icons/settings.svg")))
+        self.btn_advanced.setIcon(IconSets.current().settings)
 
     def setup_refresh_button(self):
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
         self.btn_refresh.setSizePolicy(size_policy)
         self.btn_refresh.setToolTip("Refresh")
-        self.btn_refresh.setIcon(QIcon(resource_path("icons/refresh.svg")))
+        self.btn_refresh.setIcon(IconSets.current().refresh)
 
     def setup_progress_bar(self):
         self.pbr_watched.setValue(24)
