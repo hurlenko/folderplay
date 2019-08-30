@@ -11,6 +11,7 @@ from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
 from folderplay.player import Player
 from folderplay.utils import resource_path
+from folderplay.gui.styles import STYLES
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -41,16 +42,6 @@ def validate_player(ctx, param, value):
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)
 @click.option(
-    "--workdir",
-    "-w",
-    type=click.Path(
-        exists=True, file_okay=False, readable=True, resolve_path=True
-    ),
-    default=os.getcwd(),
-    metavar="<directory>",
-    help="Working directory",
-)
-@click.option(
     "--player",
     "-p",
     "player_path",
@@ -61,17 +52,30 @@ def validate_player(ctx, param, value):
     help="Host player binary",
     callback=validate_player,
 )
-def main(workdir, player_path):
+@click.option(
+    "--style",
+    type=click.Choice(list(STYLES)),
+    default="light",
+    metavar="<name>",
+    help="Color style: {}".format(", ".join(STYLES)),
+)
+@click.argument(
+    "workdir",
+    metavar="<directory>",
+    type=click.Path(
+        exists=True, file_okay=False, readable=True, resolve_path=True
+    ),
+    default=os.getcwd(),
+    nargs=1,
+)
+def main(workdir, player_path, style):
     setup_logging()
 
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
-    # QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
-    # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-
     app = QApplication(sys.argv)
+    STYLES[style](app)
     QFontDatabase.addApplicationFont(
         resource_path("fonts/Roboto/Roboto-Regular.ttf")
     )
@@ -79,12 +83,9 @@ def main(workdir, player_path):
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)
 
-    player = Player(workdir)
-
-    # mw = ModernWindow(player)
-    # mw.show()
-
+    player = Player(workdir, style)
     player.show()
+
     if player_path:
         player.local_player.set_player(player_path)
         player.update_player_info()

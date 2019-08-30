@@ -12,16 +12,15 @@ from PyQt5.QtWidgets import (
 )
 
 from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
-from folderplay.gui import styles
 from folderplay.gui.basicviewwidget import BasicViewWidget
-from folderplay.gui.icon import IconSets
+from folderplay.gui.icons import IconSets
 from folderplay.gui.qtmodern import ModernWindow
 from folderplay.gui.settingswidget import SettingsWidget
 from folderplay.utils import resource_path
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, style: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("FolderPlay by Hurlenko")
         self.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
@@ -58,18 +57,11 @@ class MainWindow(QMainWindow):
         self.left_pane.setFixedWidth(self.left_pane_width)
         self.right_pane.setFixedWidth(self.right_pane_width)
 
-        if False:
+        if style in ("dark", "light"):
             self.central_widget = ModernWindow(self)
-            self.central_widget.windowContent.setLayout(
-                self.advanced_view_layout()
-            )
-            styles.light(QApplication.instance())
-
         else:
-            # QApplication.instance().setStyle("Fusion")
-
             self.central_widget = QWidget(self)
-            self.central_widget.setLayout(self.advanced_view_layout())
+        self.central_widget.setLayout(self.advanced_view_layout())
         self.setCentralWidget(self.central_widget)
 
     def left_pane_layout(self):

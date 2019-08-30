@@ -5,7 +5,6 @@ from pathlib import Path
 
 import click
 from PyQt5.QtCore import QFileInfo, QSettings
-from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (
     QListWidgetItem,
     QMenu,
@@ -23,7 +22,7 @@ from folderplay.constants import (
     NOT_AVAILABLE,
     FINISHED,
 )
-from folderplay.gui.icon import IconSets
+from folderplay.gui.icons import IconSets
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
@@ -138,6 +137,7 @@ class Player(MainWindow):
         self.act_refresh.triggered.connect(self.load_media)
         self.act_refresh.setShortcut("R")
         self.act_refresh.setShortcutVisibleInContextMenu(True)
+        self.addAction(self.act_refresh)
 
         self.act_mark_unwatched_previous = QAction(
             IconSets.current().visibility, "Mark unwatched previous", self
@@ -438,10 +438,6 @@ class Player(MainWindow):
         self.setDisabled(True)
 
     def playback_finished(self):
-        IconSets.current().set_color(QColor(255, 0, 0))
-        self.update()
-
-
         logger.info("Enabling widgets")
         self.setEnabled(True)
         self.local_player.media.set_watched()

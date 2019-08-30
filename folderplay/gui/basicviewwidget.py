@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 from folderplay.constants import NOT_AVAILABLE, FINISHED
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import ElidedGroupBox
-from folderplay.gui.icon import IconSets
+from folderplay.gui.icons import IconSets
 from folderplay.gui.label import ElidedLabel
 
 

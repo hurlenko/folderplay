@@ -4,7 +4,7 @@ from pathlib import Path
 from pymediainfo import MediaInfo
 
 from folderplay.constants import WATCHED_PREFIX
-from folderplay.gui.icon import IconSets
+from folderplay.gui.icons import IconSets
 from folderplay.gui.listwidget import ListWidgetItem
 from folderplay.utils import format_size, format_duration
 

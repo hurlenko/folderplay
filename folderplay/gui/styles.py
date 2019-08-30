@@ -1,5 +1,6 @@
 from PyQt5.QtGui import QPalette, QColor
 
+from folderplay.gui.icons import IconSets
 from folderplay.utils import resource_path
 
 _STYLESHEET = resource_path("styles/qtmodern.qss")
@@ -16,6 +17,10 @@ def _apply_base_theme(app):
 
     with open(_STYLESHEET) as stylesheet:
         app.setStyleSheet(stylesheet.read())
+
+
+def fusion(app):
+    app.setStyle("Fusion")
 
 
 def dark(app):
@@ -64,8 +69,9 @@ def dark(app):
     )
 
     app.setPalette(darkPalette)
-
     _apply_base_theme(app)
+
+    IconSets.current().set_color(QColor(180, 180, 180))
 
 
 def light(app):
@@ -116,3 +122,11 @@ def light(app):
     app.setPalette(lightPalette)
 
     _apply_base_theme(app)
+
+
+STYLES = {
+    "dark": dark,
+    "light": light,
+    "fusion": fusion,
+    "native": lambda app: None,
+}

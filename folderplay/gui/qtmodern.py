@@ -106,7 +106,6 @@ class ModernWindow(QWidget):
         self.vboxWindow = QVBoxLayout(self)
         self.vboxWindow.setContentsMargins(0, 0, 0, 0)
         self.vboxWindow.addWidget(self.windowFrame)
-        # self.vboxWindow.setSizeConstraint(QLayout.SetFixedSize)
 
         # Disable parent's window frame
         self.parent().setWindowFlags(
@@ -122,36 +121,8 @@ class ModernWindow(QWidget):
         # automatically connect slots
         QMetaObject.connectSlotsByName(self)
 
-        # contentLayout = QHBoxLayout()
-        # contentLayout.setContentsMargins(0, 0, 0, 0)
-        # contentLayout.addWidget(w)
-
-        # self.windowContent.setLayout(contentLayout)
-
-        # self.setWindowTitle(parent.windowTitle())
-        # self.setGeometry(parent.geometry())
-
-        # self.installEventFilter(self)
-
-        # Adding attribute to clean up the parent window
-        # when the child is closed
-        # self._w.setAttribute(Qt.WA_DeleteOnClose, True)
-        # self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        # self._w.destroyed.connect(self.__child_was_closed)
-
-    # def __child_was_closed(self):
-    #     # The child was deleted, remove the reference to it and
-    #     # close the parent window
-    #     self._w = None
-    #     self.close()
-
-    # def eventFilter(self, source, event):
-    #     if event.type() == QEvent.Close:
-    #         if not self._w:
-    #             return True
-    #         return self._w.close()
-    #
-    #     return QWidget.eventFilter(self, source, event)
+    def setLayout(self, layout):
+        self.windowContent.setLayout(layout)
 
     @pyqtSlot()
     def on_btnMinimize_clicked(self):
@@ -160,24 +131,13 @@ class ModernWindow(QWidget):
     @pyqtSlot()
     def on_btnRestore_clicked(self):
         self.titleBar.btnRestore.setVisible(False)
-        # self.btnMaximize.setVisible(True)
-
         self.setWindowState(Qt.WindowNoState)
 
     @pyqtSlot()
     def on_btnMaximize_clicked(self):
         self.titleBar.btnRestore.setVisible(True)
-        # self.btnMaximize.setVisible(False)
-
         self.setWindowState(Qt.WindowMaximized)
 
     @pyqtSlot()
     def on_btnClose_clicked(self):
         self.parent().close()
-
-    # @pyqtSlot()
-    # def on_titleBar_doubleClicked(self):
-    #     if self.btnMaximize.isVisible():
-    #         self.on_btnMaximize_clicked()
-    #     else:
-    #         self.on_btnRestore_clicked()
