@@ -9,10 +9,10 @@ from PyQt5.QtWidgets import QApplication
 
 from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
+from folderplay.gui.icons import IconSet
+from folderplay.gui.styles import Style
 from folderplay.player import Player
 from folderplay.utils import resource_path
-from folderplay.gui.styles import Style
-from folderplay.gui.icons import IconSet
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -48,6 +48,7 @@ def get_style_by_name(ctx, param, value):
     except ValueError as e:
         raise click.BadParameter(e)
 
+
 def get_icon_set_by_name(ctx, param, value):
     if not value:
         return value
@@ -55,6 +56,7 @@ def get_icon_set_by_name(ctx, param, value):
         return IconSet.get(value)
     except ValueError as e:
         raise click.BadParameter(e)
+
 
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)

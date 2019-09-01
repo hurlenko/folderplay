@@ -3,8 +3,8 @@ import os
 import platform
 import sys
 
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMessageBox
+import folderplay.gui.icons as icons
 
 
 def resource_path(relative_path):
@@ -51,7 +51,7 @@ def get_registry_value(key, path, value_name):
 
 def message_box(title, text, icon, buttons):
     msg = QMessageBox()
-    msg.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
+    msg.setWindowIcon(icons.main_icon())
     msg.setIcon(icon)
     msg.setText(text)
     msg.setWindowTitle(title)

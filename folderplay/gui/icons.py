@@ -3,7 +3,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from enum import Enum
 from pathlib import Path
-from xml.etree import ElementTree as et
+from xml.etree import ElementTree
 
 from PyQt5.QtCore import Qt, QPoint, QRect, QRectF
 from PyQt5.QtGui import (
@@ -86,13 +86,13 @@ class ColorfulSvgIcon(QIcon, metaclass=QIconMeta):
 
 class MaterialIcon(ColorfulSvgIcon):
     def parse_svg_color(self, color: QColor):
-        tree = et.parse(self.path)
+        tree = ElementTree.parse(self.path)
         root = tree.getroot()
         xmlns = root.tag.split("}")[0] + "}"
         for path in root.findall("{}path".format(xmlns)):
             if not path.get("fill"):
                 path.set("fill", color.name())
-        return et.tostring(root)
+        return ElementTree.tostring(root)
 
 
 class FeatherIcon(ColorfulSvgIcon):
@@ -101,10 +101,14 @@ class FeatherIcon(ColorfulSvgIcon):
         # https://stackoverflow.com/a/33540671/8014793
         # https://stackoverflow.com/a/44757951/8014793
 
-        tree = et.parse(self.path)
+        tree = ElementTree.parse(self.path)
         root = tree.getroot()
         root.set("stroke", color.name())
-        return et.tostring(root)
+        return ElementTree.tostring(root)
+
+
+def main_icon():
+    return QIcon(resource_path("icons/icon.ico"))
 
 
 def icon(name):
@@ -119,7 +123,7 @@ class GenericIconSet:
 
     def iter_icon_names(self):
         for (name, value) in inspect.getmembers(
-                self.__class__, lambda v: isinstance(v, property)
+            self.__class__, lambda v: isinstance(v, property)
         ):
             yield name
 

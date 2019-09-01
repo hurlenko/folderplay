@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 
 from PyQt5.QtCore import QSize, Qt, QEventLoop, QSettings
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QMainWindow,
     QListWidget,
@@ -17,27 +16,26 @@ from PyQt5.QtWidgets import (
 from folderplay import __version__ as about
 from folderplay.constants import MAX_MOVIE_TITLE_LENGTH, SettingsKeys
 from folderplay.gui.basicviewwidget import BasicViewWidget
-from folderplay.gui.icons import IconSet
+from folderplay.gui.icons import IconSet, main_icon
 from folderplay.gui.qtmodern import ModernWindow
 from folderplay.gui.settingswidget import SettingsWidget
 from folderplay.gui.styles import Style
-from folderplay.utils import resource_path
 
 logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
     def __init__(
-        self,
-        media_dir: str,
-        style: Style = None,
-        icons: IconSet = None,
-        *args,
-        **kwargs,
+            self,
+            media_dir: str,
+            style: Style = None,
+            icons: IconSet = None,
+            *args,
+            **kwargs,
     ):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("FolderPlay by Hurlenko")
-        self.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
+        self.setWindowIcon(main_icon())
         self.media_dir = Path(media_dir)
         self.settings = QSettings(
             self.media_dir.joinpath(
