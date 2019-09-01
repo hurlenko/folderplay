@@ -1,19 +1,22 @@
 # folderplay
 
-[![Latest Github release](https://img.shields.io/github/release/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/releases/latest)
 [![PyPI version](https://img.shields.io/pypi/v/folderplay.svg)](https://pypi.python.org/pypi/folderplay)
-
+[![Latest Github release](https://img.shields.io/github/release/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/releases/latest)
 ![Python](https://img.shields.io/badge/python-v3.5+-blue.svg)
 [![Build Status](https://dev.azure.com/hurlenko/folderplay/_apis/build/status/hurlenko.folderplay?branchName=master)](https://dev.azure.com/hurlenko/folderplay/_build/latest?definitionId=1&branchName=master)
-[![GitHub Issues](https://img.shields.io/github/issues/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/hurlenko/folderplay.svg)](https://github.com/hurlenko/folderplay/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-**folderplay** is a small tool that helps you remember watched tv episodes. Its goal is to resume playback from the episode you left off with a single button press. It doesn't use any integrated players so you can still use your favourite one.
+## **folderplay** is a small tool that helps you remember watched tv episodes :sparkles:
 
-Basic view             |  Advanced view
-:-------------------------:|:-------------------------:
-![image](https://user-images.githubusercontent.com/18035960/63596332-adff6000-c5c3-11e9-9174-0c3b5a75d48f.png "Basic view") | ![image](https://user-images.githubusercontent.com/18035960/63641510-83430380-c6b8-11e9-9b16-ee562b2835d9.png "Advanced view")
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/18035960/64080320-5b2c5380-ccfb-11e9-808f-c370ca7951c2.png" />
+</p>
+
+Its goal is to resume playback from the episode you left off with a single button press. It doesn't use any integrated players so you can still use your favourite one.
+
+## Advaced view
+
+![image](https://user-images.githubusercontent.com/18035960/64080371-0e954800-ccfc-11e9-965f-7910966da277.png)
 
 ## 🚩 Table of Contents
 
@@ -23,15 +26,18 @@ Basic view             |  Advanced view
 - [Usage](#-usage)
 - [Building](#-building)
 - [Command line interface](#%EF%B8%8F-command-line-interface)
+- [Credits](#credits)
 
 ## 🎨 Features
 
-- Continue playback with a single button press.
+- Continue playback with a single button press
 - Play with your favoure video player
 - Filter and search your playlist
 - Displays general media info
 - Supports basic [command line interface](#%EF%B8%8F-command-line-interface)
 - Minimalistic GUI
+- Supports multiple color styles
+- Supports multiple icon sets
 - No dependencies
 - No installation required - the whole program is a single executable file
 - Cross platform - supports all three major platforms (Windows, MacOS, Linux) thanks to `python` and `pyqt`
@@ -58,6 +64,8 @@ If you're on Linux, you have to additionally install `libmediainfo-dev`. For Deb
 sudo apt-get install libmediainfo-dev
 ```
 
+After installation, the `fplay` command will be available. Check the [command line](%EF%B8%8F-command-line-interface) section for supported commands.
+
 ## 📙 Usage
 
 Simply drop the executable into the directory where your media resides and run it. The application will scan all directories and subdirectories for known extensions.
@@ -77,7 +85,7 @@ git clone https://github.com/hurlenko/folderplay.git
 Create new virtual environment inside of the `folderplay` directory
 
 ```bash
-python3.7 -m venv venv
+python3 -m venv venv
 
 source venv/bin/activate # Linux / MacOs
 
@@ -104,14 +112,23 @@ python -m PyInstaller folderplay.spec
 
 ## 🖥️ Command line interface
 
-Currently `folderplay` supports these commands
+Currently `fplay` supports these commands
 
 ```bash
-Usage: folderplay [OPTIONS]
+Usage: fplay [OPTIONS] <directory>
 
 Options:
-    --version                  Show the version and exit.
-    -w, --workdir <directory>  Working directory
-    -p, --player <path>        Host player binary
-    --help                     Show this message and exit.
+  --version            Show the version and exit.
+  -p, --player <path>  Host player binary
+  -s, --style <name>   Color style: dark, light, fusion, native
+  -i, --icons <name>   Icon set: material, feather
+  --help               Show this message and exit.
 ```
+
+## :octocat: Credits
+
+Work from these open source projects is used by this application
+
+- [qtmodern](https://github.com/gmarull/qtmodern) - PyQt/PySide Widgets Modern User Interface
+- [feathericons](https://feathericons.com/) - Simply beautiful open source icons
+- [material icons](https://material.io/resources/icons/) - Material icons
