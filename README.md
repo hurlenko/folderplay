@@ -8,7 +8,9 @@
 
 ## **folderplay** is a small tool that helps you remember watched tv episodes :sparkles:
 
-![image](https://user-images.githubusercontent.com/18035960/64080320-5b2c5380-ccfb-11e9-808f-c370ca7951c2.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/18035960/64080320-5b2c5380-ccfb-11e9-808f-c370ca7951c2.png" />
+</p>
 
 Its goal is to resume playback from the episode you left off with a single button press. It doesn't use any integrated players so you can still use your favourite one.
 
