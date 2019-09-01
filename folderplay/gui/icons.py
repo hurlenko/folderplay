@@ -17,7 +17,7 @@ from PyQt5.QtGui import (
 )
 from PyQt5.QtSvg import QSvgRenderer
 
-from folderplay.utils import resource_path
+import folderplay.utils as utils
 
 
 class SvgEngine(QIconEngine):
@@ -108,7 +108,7 @@ class FeatherIcon(ColorfulSvgIcon):
 
 
 def main_icon():
-    return QIcon(resource_path("icons/icon.ico"))
+    return QIcon(utils.resource_path("icons/icon.ico"))
 
 
 def icon(name):
@@ -142,7 +142,7 @@ class GenericIconSet:
         if cached:
             return cached
         new_icon = self.loader(
-            resource_path(os.path.join("icons", self.directory, name))
+            utils.resource_path(os.path.join("icons", self.directory, name))
         )
         self.cache[name] = new_icon
         return new_icon
