@@ -3,7 +3,7 @@ from enum import Enum, unique
 
 from PyQt5.QtGui import QPalette, QColor
 
-from folderplay.gui.icons import IconSets
+from folderplay.gui.icons import IconSet
 from folderplay.utils import resource_path
 
 
@@ -76,7 +76,7 @@ class DarkStyle(AbstractStyle):
         app.setPalette(darkPalette)
         self._apply_base_theme(app)
 
-        IconSets.current().set_color(QColor(180, 180, 180))
+        IconSet.current.set_color(QColor(180, 180, 180))
 
 
 class LightStyle(DarkStyle):

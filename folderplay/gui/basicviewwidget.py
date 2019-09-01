@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (
 from folderplay.constants import NOT_AVAILABLE, FINISHED
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import ElidedGroupBox
-from folderplay.gui.icons import IconSets
+from folderplay.gui.icons import IconSet
 from folderplay.gui.label import ElidedLabel
 
 
@@ -71,7 +71,7 @@ class BasicViewWidget(QWidget):
         return vlayout
 
     def setup_play_button(self):
-        icon = IconSets.current().play
+        icon = IconSet.current.play
         self.btn_play.setIcon(icon)
         self.btn_play.setIconSize(QSize(100, 100))
         self.btn_play.setDefault(True)
@@ -82,14 +82,14 @@ class BasicViewWidget(QWidget):
         self.btn_advanced.setSizePolicy(size_policy)
         self.btn_advanced.setToolTip("Advanced options")
         self.btn_advanced.setCheckable(True)
-        self.btn_advanced.setIcon(IconSets.current().settings)
+        self.btn_advanced.setIcon(IconSet.current.settings)
 
     def setup_refresh_button(self):
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
 
         self.btn_refresh.setSizePolicy(size_policy)
         self.btn_refresh.setToolTip("Refresh")
-        self.btn_refresh.setIcon(IconSets.current().refresh)
+        self.btn_refresh.setIcon(IconSet.current.refresh)
 
     def setup_progress_bar(self):
         self.pbr_watched.setValue(24)

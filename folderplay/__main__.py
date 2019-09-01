@@ -12,6 +12,7 @@ from folderplay.constants import FONT_SIZE
 from folderplay.player import Player
 from folderplay.utils import resource_path
 from folderplay.gui.styles import Style
+from folderplay.gui.icons import IconSet
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -47,6 +48,13 @@ def get_style_by_name(ctx, param, value):
     except ValueError as e:
         raise click.BadParameter(e)
 
+def get_icon_set_by_name(ctx, param, value):
+    if not value:
+        return value
+    try:
+        return IconSet.get(value)
+    except ValueError as e:
+        raise click.BadParameter(e)
 
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)
@@ -63,10 +71,19 @@ def get_style_by_name(ctx, param, value):
 )
 @click.option(
     "--style",
+    "-s",
     type=click.Choice(Style.names()),
     metavar="<name>",
     help="Color style: {}".format(", ".join(Style.names())),
     callback=get_style_by_name,
+)
+@click.option(
+    "--icons",
+    "-i",
+    type=click.Choice(IconSet.names()),
+    metavar="<name>",
+    help="Icon set: {}".format(", ".join(IconSet.names())),
+    callback=get_icon_set_by_name,
 )
 @click.argument(
     "workdir",
@@ -77,7 +94,7 @@ def get_style_by_name(ctx, param, value):
     default=os.getcwd(),
     nargs=1,
 )
-def main(workdir, player_path, style):
+def main(workdir, player_path, style, icons):
     setup_logging()
 
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
@@ -91,7 +108,7 @@ def main(workdir, player_path, style):
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)
 
-    player = Player(workdir, style)
+    player = Player(workdir, style, icons)
     player.show()
 
     if player_path:

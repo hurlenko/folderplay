@@ -1,6 +1,7 @@
 import inspect
 import os
 from abc import ABCMeta, abstractmethod
+from enum import Enum
 from pathlib import Path
 from xml.etree import ElementTree as et
 
@@ -53,24 +54,16 @@ class ColorfulSvgIcon(QIcon, metaclass=QIconMeta):
         self.path = Path(filename)
 
     @abstractmethod
-    def setColor(self, color: QColor):
+    def parse_svg_color(self, color: QColor) -> str:
         pass
 
-
-class MaterialIcon(ColorfulSvgIcon):
     def setColor(self, color: QColor):
         # Possible ways to change colors:
         # https://stackoverflow.com/a/33540671/8014793
         # https://stackoverflow.com/a/44757951/8014793
 
-        tree = et.parse(self.path)
-        root = tree.getroot()
-        xmlns = root.tag.split("}")[0] + "}"
-        for path in root.findall("{}path".format(xmlns)):
-            if not path.get("fill"):
-                path.set("fill", color.name())
-
-        new_icon = QIcon(SvgEngine(et.tostring(root)))
+        colored_svg_contents = self.parse_svg_color(color)
+        new_icon = QIcon(SvgEngine(colored_svg_contents))
         self.swap(new_icon)
 
         # fd, filename = tempfile.mkstemp()
@@ -91,6 +84,29 @@ class MaterialIcon(ColorfulSvgIcon):
         # self.swap(icon)
 
 
+class MaterialIcon(ColorfulSvgIcon):
+    def parse_svg_color(self, color: QColor):
+        tree = et.parse(self.path)
+        root = tree.getroot()
+        xmlns = root.tag.split("}")[0] + "}"
+        for path in root.findall("{}path".format(xmlns)):
+            if not path.get("fill"):
+                path.set("fill", color.name())
+        return et.tostring(root)
+
+
+class FeatherIcon(ColorfulSvgIcon):
+    def parse_svg_color(self, color: QColor):
+        # Possible ways to change colors:
+        # https://stackoverflow.com/a/33540671/8014793
+        # https://stackoverflow.com/a/44757951/8014793
+
+        tree = et.parse(self.path)
+        root = tree.getroot()
+        root.set("stroke", color.name())
+        return et.tostring(root)
+
+
 def icon(name):
     return property(lambda self: self.load_icon(name))
 
@@ -103,7 +119,7 @@ class GenericIconSet:
 
     def iter_icon_names(self):
         for (name, value) in inspect.getmembers(
-            self.__class__, lambda v: isinstance(v, property)
+                self.__class__, lambda v: isinstance(v, property)
         ):
             yield name
 
@@ -141,16 +157,41 @@ class GenericIconSet:
     visibility_off = icon("visibility_off.svg")
 
 
-class IconSets:
-    MaterialIconSet = GenericIconSet(MaterialIcon, "material")
-    __current = MaterialIconSet
+class Constant:
+    def __init__(self, value):
+        self.value = value
+
+    def __get__(self, instance, owner):
+        return self.value
+
+    # def __set__(self, instance, value):
+    #     if not isinstance(value, GenericIconSet):
+    #         raise TypeError("Icon set must be of type GenericIconSet")
+    #     self.value = value
+
+    def __repr__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.value)
+
+
+class IconSet(Enum):
+    material = GenericIconSet(MaterialIcon, "material")
+    feather = GenericIconSet(FeatherIcon, "feather")
+    current = Constant(feather)
+
+    @classmethod
+    def get(cls, name):
+        for style in cls:
+            if style.name == name:
+                return style
+        raise ValueError("Icon set {} is not supported".format(name))
+
+    @classmethod
+    def names(cls):
+        return [e.name for e in cls]
 
     @classmethod
     def set_current(cls, iconset):
-        if not isinstance(iconset, GenericIconSet):
+        if not isinstance(iconset, IconSet):
             raise TypeError("Icon set must be of type GenericIconSet")
-        cls.__current = iconset
-
-    @classmethod
-    def current(cls) -> "GenericIconSet":
-        return cls.__current
+        # FIXME this replaces the descriptor entirely
+        cls.current = iconset.value

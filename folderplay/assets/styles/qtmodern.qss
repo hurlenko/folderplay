@@ -13,6 +13,22 @@ QGroupBox::title {
 }
 
 /*
+ * QListWidget
+ */
+
+QListWidget {
+    selection-background-color: palette(midlight);
+}
+
+/*
+ * QMenu
+ */
+
+QMenu {
+    selection-background-color: palette(midlight);
+}
+
+/*
  * QToolBar
  */
 

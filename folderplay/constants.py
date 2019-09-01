@@ -146,3 +146,4 @@ class SettingsKeys:
     HIDE_WATCHED = "hide_watched"
     ADVANCED = "advanced"
     STYLE = "style"
+    ICONSET = "iconset"

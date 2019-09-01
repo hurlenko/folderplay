@@ -21,7 +21,7 @@ from folderplay.constants import (
     NOT_AVAILABLE,
     FINISHED,
 )
-from folderplay.gui.icons import IconSets
+from folderplay.gui.icons import IconSet
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
@@ -76,7 +76,7 @@ class Player(MainWindow):
     def setup_actions(self):
         # Mark watched action
         self.act_mark_watched = QAction(
-            IconSets.current().visibility, "Mark watched", self
+            IconSet.current.visibility, "Mark watched", self
         )
         self.act_mark_watched.triggered.connect(
             lambda: self.set_media_watch_status(True)
@@ -87,7 +87,7 @@ class Player(MainWindow):
 
         # Mark Unwatched action
         self.act_mark_unwatched = QAction(
-            IconSets.current().visibility_off, "Mark unwatched", self
+            IconSet.current.visibility_off, "Mark unwatched", self
         )
         self.act_mark_unwatched.triggered.connect(
             lambda: self.set_media_watch_status(False)
@@ -97,7 +97,7 @@ class Player(MainWindow):
         self.addAction(self.act_mark_unwatched)
 
         self.act_delete = QAction(
-            IconSets.current().delete_forever, "Delete from filesystem", self
+            IconSet.current.delete_forever, "Delete from filesystem", self
         )
         self.act_delete.triggered.connect(self.delete_media_from_filesystem)
         self.act_delete.setShortcut("Del")
@@ -105,7 +105,7 @@ class Player(MainWindow):
         self.addAction(self.act_delete)
 
         self.act_reveal_on_filesystem = QAction(
-            IconSets.current().folder, "Reveal on filesystem", self
+            IconSet.current.folder, "Reveal on filesystem", self
         )
         self.act_reveal_on_filesystem.triggered.connect(
             self.reveal_on_filesystem
@@ -114,25 +114,25 @@ class Player(MainWindow):
         self.act_reveal_on_filesystem.setShortcutVisibleInContextMenu(True)
         self.addAction(self.act_reveal_on_filesystem)
 
-        self.act_play = QAction(IconSets.current().play_circle, "Play", self)
+        self.act_play = QAction(IconSet.current.play_circle, "Play", self)
         self.act_play.triggered.connect(self.play_selected_item)
         self.act_play.setShortcut("Return")
         self.act_play.setShortcutVisibleInContextMenu(True)
         self.addAction(self.act_play)
 
-        self.act_copy_path = QAction(IconSets.current().copy, "Copy path", self)
+        self.act_copy_path = QAction(IconSet.current.copy, "Copy path", self)
         self.act_copy_path.triggered.connect(self.copy_item_path)
         self.act_copy_path.setShortcut("Ctrl+C")
         self.act_copy_path.setShortcutVisibleInContextMenu(True)
 
-        self.act_refresh = QAction(IconSets.current().refresh, "Refresh", self)
+        self.act_refresh = QAction(IconSet.current.refresh, "Refresh", self)
         self.act_refresh.triggered.connect(self.load_media)
         self.act_refresh.setShortcut("R")
         self.act_refresh.setShortcutVisibleInContextMenu(True)
         self.addAction(self.act_refresh)
 
         self.act_mark_unwatched_previous = QAction(
-            IconSets.current().visibility, "Mark unwatched previous", self
+            IconSet.current.visibility, "Mark unwatched previous", self
         )
         self.act_mark_unwatched_previous.triggered.connect(
             self.mark_unwatched_previous
@@ -141,7 +141,7 @@ class Player(MainWindow):
         self.addAction(self.act_mark_unwatched_previous)
 
         self.act_mark_watched_next = QAction(
-            IconSets.current().visibility_off, "Mark watched next", self
+            IconSet.current.visibility_off, "Mark watched next", self
         )
         self.act_mark_watched_next.triggered.connect(self.mark_watched_next)
         self.act_mark_watched_next.setShortcut("Ctrl+Shift+Z")

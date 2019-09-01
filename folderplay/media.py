@@ -4,7 +4,7 @@ from pathlib import Path
 from pymediainfo import MediaInfo
 
 from folderplay.constants import WATCHED_PREFIX
-from folderplay.gui.icons import IconSets
+from folderplay.gui.icons import IconSet
 from folderplay.gui.listwidget import ListWidgetItem
 from folderplay.utils import format_size, format_duration
 
@@ -17,8 +17,8 @@ class MediaItem(ListWidgetItem):
 
         self.path = path
 
-        self.icon_unwatched = IconSets.current().check_box_blank
-        self.icon_watched = IconSets.current().check_box
+        self.icon_unwatched = IconSet.current.check_box_blank
+        self.icon_watched = IconSet.current.check_box
         self.size = None
         self.duration = None
         self.width = None
