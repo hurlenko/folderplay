@@ -1,6 +1,5 @@
 import os
 
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QWidget,
     QLineEdit,
@@ -15,8 +14,9 @@ from PyQt5.QtWidgets import (
 
 from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
+from folderplay.gui.icons import IconSet, main_icon
 from folderplay.gui.label import ElidedLabel
-from folderplay.utils import resource_path, is_windows, is_macos, is_linux
+from folderplay.utils import is_windows, is_macos, is_linux
 
 
 class SettingsWidget(QWidget):
@@ -120,9 +120,7 @@ class SettingsWidget(QWidget):
 
         self.btn_change_player.setSizePolicy(size_policy)
         self.btn_change_player.setToolTip("Change player")
-        self.btn_change_player.setIcon(
-            QIcon(resource_path("assets/icons/folder_open.svg"))
-        )
+        self.btn_change_player.setIcon(IconSet.current.folder_open)
 
     def setup_player_open_dialog(self):
         directory = None
@@ -135,9 +133,7 @@ class SettingsWidget(QWidget):
             directory = "/Applications"
 
         self.dlg_select_player.setWindowTitle("Select new player")
-        self.dlg_select_player.setWindowIcon(
-            QIcon(resource_path("assets/icons/icon.ico"))
-        )
+        self.dlg_select_player.setWindowIcon(main_icon())
         self.dlg_select_player.setDirectory(directory)
         self.dlg_select_player.setMinimumSize(QApplication.desktop().size() / 2)
         self.dlg_select_player.setFileMode(QFileDialog.ExistingFile)

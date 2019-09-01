@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import QApplication
 
 from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
+from folderplay.gui.icons import IconSet
+from folderplay.gui.styles import Style
 from folderplay.player import Player
 from folderplay.utils import resource_path
 
@@ -38,18 +40,26 @@ def validate_player(ctx, param, value):
     return value
 
 
+def get_style_by_name(ctx, param, value):
+    if not value:
+        return value
+    try:
+        return Style.get(value)
+    except ValueError as e:
+        raise click.BadParameter(e)
+
+
+def get_icon_set_by_name(ctx, param, value):
+    if not value:
+        return value
+    try:
+        return IconSet.get(value)
+    except ValueError as e:
+        raise click.BadParameter(e)
+
+
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)
-@click.option(
-    "--workdir",
-    "-w",
-    type=click.Path(
-        exists=True, file_okay=False, readable=True, resolve_path=True
-    ),
-    default=os.getcwd(),
-    metavar="<directory>",
-    help="Working directory",
-)
 @click.option(
     "--player",
     "-p",
@@ -61,28 +71,48 @@ def validate_player(ctx, param, value):
     help="Host player binary",
     callback=validate_player,
 )
-def main(workdir, player_path):
+@click.option(
+    "--style",
+    "-s",
+    type=click.Choice(Style.names()),
+    metavar="<name>",
+    help="Color style: {}".format(", ".join(Style.names())),
+    callback=get_style_by_name,
+)
+@click.option(
+    "--icons",
+    "-i",
+    type=click.Choice(IconSet.names()),
+    metavar="<name>",
+    help="Icon set: {}".format(", ".join(IconSet.names())),
+    callback=get_icon_set_by_name,
+)
+@click.argument(
+    "workdir",
+    metavar="<directory>",
+    type=click.Path(
+        exists=True, file_okay=False, readable=True, resolve_path=True
+    ),
+    default=os.getcwd(),
+    nargs=1,
+)
+def main(workdir, player_path, style, icons):
     setup_logging()
 
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
-    # QApplication.setAttribute(Qt.AA_DisableHighDpiScaling)
-    # QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps)
-    # QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-
     app = QApplication(sys.argv)
-
     QFontDatabase.addApplicationFont(
-        resource_path("assets/fonts/Roboto/Roboto-Regular.ttf")
+        resource_path("fonts/Roboto/Roboto-Regular.ttf")
     )
 
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)
 
-    app.setStyle("Fusion")
-    player = Player(workdir)
+    player = Player(workdir, style, icons)
     player.show()
+
     if player_path:
         player.local_player.set_player(player_path)
         player.update_player_info()
@@ -90,4 +120,4 @@ def main(workdir, player_path):
 
 
 if __name__ == "__main__":
-    main(prog_name="folderplay")
+    main(prog_name="fplay")

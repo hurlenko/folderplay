@@ -145,3 +145,5 @@ class SettingsKeys:
     PLAYER_PATH = "player_path"
     HIDE_WATCHED = "hide_watched"
     ADVANCED = "advanced"
+    STYLE = "style"
+    ICONSET = "iconset"

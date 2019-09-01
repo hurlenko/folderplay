@@ -3,14 +3,13 @@ import os
 import platform
 import sys
 
-from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMessageBox
+import folderplay.gui.icons as icons
 
 
 def resource_path(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.dirname(__file__), relative_path)
+    path = getattr(sys, "_MEIPASS", os.path.dirname(__file__))
+    return os.path.join(path, "assets", relative_path)
 
 
 def is_os_64bit():
@@ -52,7 +51,7 @@ def get_registry_value(key, path, value_name):
 
 def message_box(title, text, icon, buttons):
     msg = QMessageBox()
-    msg.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))
+    msg.setWindowIcon(icons.main_icon())
     msg.setIcon(icon)
     msg.setText(text)
     msg.setWindowTitle(title)

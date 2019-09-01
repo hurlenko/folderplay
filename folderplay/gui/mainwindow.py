@@ -1,5 +1,7 @@
-from PyQt5.QtCore import QSize, Qt, QEventLoop
-from PyQt5.QtGui import QIcon
+import logging
+from pathlib import Path
+
+from PyQt5.QtCore import QSize, Qt, QEventLoop, QSettings
 from PyQt5.QtWidgets import (
     QMainWindow,
     QListWidget,
@@ -11,15 +13,38 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
-from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
+from folderplay import __version__ as about
+from folderplay.constants import MAX_MOVIE_TITLE_LENGTH, SettingsKeys
 from folderplay.gui.basicviewwidget import BasicViewWidget
-from folderplay.utils import resource_path
+from folderplay.gui.icons import IconSet, main_icon
+from folderplay.gui.qtmodern import ModernWindow
 from folderplay.gui.settingswidget import SettingsWidget
+from folderplay.gui.styles import Style
+
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+            self,
+            media_dir: str,
+            style: Style = None,
+            icons: IconSet = None,
+            *args,
+            **kwargs,
+    ):
         super().__init__(*args, **kwargs)
+        self.setWindowTitle("FolderPlay by Hurlenko")
+        self.setWindowIcon(main_icon())
+        self.media_dir = Path(media_dir)
+        self.settings = QSettings(
+            self.media_dir.joinpath(
+                "{}.ini".format(about.__title__)
+            ).as_posix(),
+            QSettings.IniFormat,
+        )
+        self.central_widget = None
+        self.set_style(style, icons)
 
         self.basic_view_widget = BasicViewWidget(self)
         self.basic_view_widget.btn_advanced.clicked.connect(
@@ -27,20 +52,24 @@ class MainWindow(QMainWindow):
         )
 
         self.settings_widget = SettingsWidget(self)
+        self.settings_widget.hide()
 
         # Media list
         self.lst_media = QListWidget(self)
         self.setup_files_list()
 
+        # Left Pane
         self.left_pane = QWidget(self)
         self.left_pane.setLayout(self.left_pane_layout())
         self.left_pane.layout().setContentsMargins(0, 0, 0, 0)
         self.left_pane.layout().setSpacing(0)
 
+        # Right pane
         self.right_pane = QWidget(self)
         self.right_pane.setLayout(self.right_pane_layout())
         self.right_pane.layout().setContentsMargins(0, 0, 0, 0)
         self.right_pane.layout().setSpacing(0)
+        self.right_pane.hide()
 
         average_char_width = self.fontMetrics().averageCharWidth()
         self.left_pane_width = average_char_width * (MAX_MOVIE_TITLE_LENGTH + 5)
@@ -48,13 +77,30 @@ class MainWindow(QMainWindow):
 
         self.left_pane.setFixedWidth(self.left_pane_width)
         self.right_pane.setFixedWidth(self.right_pane_width)
-
-        self.central_widget = QWidget(self)
-        self.setCentralWidget(self.central_widget)
         self.central_widget.setLayout(self.advanced_view_layout())
 
-        # Main window
-        self.setup_main_window()
+    def set_style(self, style: Style, icons: IconSet):
+        if not icons:
+            icons = self.settings.value(
+                SettingsKeys.ICONSET, IconSet.material.name
+            )
+            icons = IconSet.get(icons)
+            IconSet.set_current(icons)
+
+        if not style:
+            style_name = self.settings.value(
+                SettingsKeys.STYLE, Style.light.name
+            )
+            style = Style.get(style_name)
+
+        if style in (Style.dark, Style.light):
+            self.central_widget = ModernWindow(self)
+        else:
+            self.central_widget = QWidget(self)
+        style.apply(QApplication.instance())
+        self.setCentralWidget(self.central_widget)
+        self.settings.setValue(SettingsKeys.STYLE, style.name)
+        self.settings.setValue(SettingsKeys.ICONSET, icons.name)
 
     def left_pane_layout(self):
         layout = QVBoxLayout()
@@ -99,18 +145,19 @@ class MainWindow(QMainWindow):
         QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.adjustSize()
         # https://stackoverflow.com/a/30472749/8014793
+        # self.setFixedSize(self.layout().sizeHint())
+        # self.central_widget.adjustSize()
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
+
+        self.central_widget.adjustSize()
+        QApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
         self.setFixedSize(self.layout().sizeHint())
+
+        # self.setFixedSize(self.central_widget.sizeHint())
         self.center()
 
-    def setup_main_window(self):
-        self.settings_widget.hide()
-        self.right_pane.hide()
-        self.setWindowTitle("FolderPlay by Hurlenko")
-        self.setWindowIcon(QIcon(resource_path("assets/icons/icon.ico")))
-
     def setup_play_button(self):
-        icon = QIcon(resource_path("assets/icons/play.svg"))
-        self.btn_play.setIcon(icon)
+        self.btn_play.setIcon(IconSet.current.play)
         self.btn_play.setIconSize(QSize(100, 100))
 
     def setup_files_list(self):
