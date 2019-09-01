@@ -11,7 +11,7 @@ from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
 from folderplay.player import Player
 from folderplay.utils import resource_path
-from folderplay.gui.styles import STYLES
+from folderplay.gui.styles import Style
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -39,6 +39,15 @@ def validate_player(ctx, param, value):
     return value
 
 
+def get_style_by_name(ctx, param, value):
+    if not value:
+        return value
+    try:
+        return Style.get(value)
+    except ValueError as e:
+        raise click.BadParameter(e)
+
+
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)
 @click.option(
@@ -54,10 +63,10 @@ def validate_player(ctx, param, value):
 )
 @click.option(
     "--style",
-    type=click.Choice(list(STYLES)),
-    default="light",
+    type=click.Choice(Style.names()),
     metavar="<name>",
-    help="Color style: {}".format(", ".join(STYLES)),
+    help="Color style: {}".format(", ".join(Style.names())),
+    callback=get_style_by_name,
 )
 @click.argument(
     "workdir",
@@ -75,7 +84,6 @@ def main(workdir, player_path, style):
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
     app = QApplication(sys.argv)
-    STYLES[style](app)
     QFontDatabase.addApplicationFont(
         resource_path("fonts/Roboto/Roboto-Regular.ttf")
     )

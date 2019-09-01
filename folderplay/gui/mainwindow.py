@@ -1,4 +1,7 @@
-from PyQt5.QtCore import QSize, Qt, QEventLoop
+import logging
+from pathlib import Path
+
+from PyQt5.QtCore import QSize, Qt, QEventLoop, QSettings
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QMainWindow,
@@ -11,19 +14,32 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
-from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
+from folderplay import __version__ as about
+from folderplay.constants import MAX_MOVIE_TITLE_LENGTH, SettingsKeys
 from folderplay.gui.basicviewwidget import BasicViewWidget
 from folderplay.gui.icons import IconSets
 from folderplay.gui.qtmodern import ModernWindow
 from folderplay.gui.settingswidget import SettingsWidget
+from folderplay.gui.styles import Style
 from folderplay.utils import resource_path
+
+logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, style: str, *args, **kwargs):
+    def __init__(self, media_dir: str, style: Style = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("FolderPlay by Hurlenko")
         self.setWindowIcon(QIcon(resource_path("icons/icon.ico")))
+        self.media_dir = Path(media_dir)
+        self.settings = QSettings(
+            self.media_dir.joinpath(
+                "{}.ini".format(about.__title__)
+            ).as_posix(),
+            QSettings.IniFormat,
+        )
+        self.central_widget = None
+        self.set_style(style)
 
         self.basic_view_widget = BasicViewWidget(self)
         self.basic_view_widget.btn_advanced.clicked.connect(
@@ -56,13 +72,22 @@ class MainWindow(QMainWindow):
 
         self.left_pane.setFixedWidth(self.left_pane_width)
         self.right_pane.setFixedWidth(self.right_pane_width)
+        self.central_widget.setLayout(self.advanced_view_layout())
 
-        if style in ("dark", "light"):
+    def set_style(self, style: Style):
+        if not style:
+            style_name = self.settings.value(
+                SettingsKeys.STYLE, Style.light.name
+            )
+            style = Style.get(style_name)
+
+        if style in (Style.dark, Style.light):
             self.central_widget = ModernWindow(self)
         else:
             self.central_widget = QWidget(self)
-        self.central_widget.setLayout(self.advanced_view_layout())
+        style.apply(QApplication.instance())
         self.setCentralWidget(self.central_widget)
+        self.settings.setValue(SettingsKeys.STYLE, style.name)
 
     def left_pane_layout(self):
         layout = QVBoxLayout()

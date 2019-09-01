@@ -4,7 +4,7 @@ import re
 from pathlib import Path
 
 import click
-from PyQt5.QtCore import QFileInfo, QSettings
+from PyQt5.QtCore import QFileInfo
 from PyQt5.QtWidgets import (
     QListWidgetItem,
     QMenu,
@@ -15,7 +15,6 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
 )
 
-from folderplay import __version__ as about
 from folderplay.constants import (
     EXTENSIONS_MEDIA,
     SettingsKeys,
@@ -32,15 +31,8 @@ logger = logging.getLogger(__name__)
 
 
 class Player(MainWindow):
-    def __init__(self, media_dir: str, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.media_dir = Path(media_dir)
-        self.settings = QSettings(
-            self.media_dir.joinpath(
-                "{}.ini".format(about.__title__)
-            ).as_posix(),
-            QSettings.IniFormat,
-        )
         self.local_player = LocalPlayer()
 
         self.local_player.started.connect(self.playback_started)
