@@ -16,6 +16,7 @@ from folderplay.utils import (
     is_macos,
     is_windows,
     message_box,
+    win_short_path,
 )
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ class LocalPlayer(QThread):
 
     def command(self):
         command = [str(self.player_path)]
-        media_path = str(self.media.path)
+        media_path = win_short_path(self.media.path)
         args = self.args
         if args:
             if LOCAL_PLAYER_MEDIA_ARG in args:

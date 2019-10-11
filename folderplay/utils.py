@@ -1,10 +1,16 @@
+import ctypes
 import datetime
 import os
 import platform
 import sys
+from ctypes import wintypes
+from pathlib import Path
 
 from PyQt5.QtWidgets import QMessageBox
+
 import folderplay.gui.icons as icons
+
+WIN_PATH_PREFIX = "\\\\?\\"
 
 
 def resource_path(relative_path):
@@ -73,3 +79,41 @@ def format_size(num, suffix="B"):
 
 def format_duration(seconds):
     return str(datetime.timedelta(seconds=seconds))
+
+
+_GetShortPathNameW = ctypes.windll.kernel32.GetShortPathNameW
+_GetShortPathNameW.argtypes = [
+    wintypes.LPCWSTR,
+    wintypes.LPWSTR,
+    wintypes.DWORD,
+]
+_GetShortPathNameW.restype = wintypes.DWORD
+
+
+def win_short_path(long_name: Path) -> str:
+    """
+    Gets the short path name of a given long path.
+    http://stackoverflow.com/a/23598461/200291
+    """
+    path = str(long_name)
+    if not is_windows() or not len(path) > 259:
+        return path
+
+    output_buf_size = 0
+    while True:
+        output_buf = ctypes.create_unicode_buffer(output_buf_size)
+        needed = _GetShortPathNameW(path, output_buf, output_buf_size)
+        if output_buf_size >= needed:
+            path = output_buf.value
+            break
+        else:
+            output_buf_size = needed
+    if path.startswith(WIN_PATH_PREFIX):
+        path = path[len(WIN_PATH_PREFIX) :]
+    return path
+
+
+def normpath(path: Path) -> Path:
+    if is_windows():
+        return Path(WIN_PATH_PREFIX + str(path))
+    return path

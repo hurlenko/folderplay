@@ -6,7 +6,7 @@ from pymediainfo import MediaInfo
 from folderplay.constants import WATCHED_PREFIX
 from folderplay.gui.icons import IconSet
 from folderplay.gui.listwidget import ListWidgetItem
-from folderplay.utils import format_size, format_duration
+from folderplay.utils import format_size, format_duration, win_short_path
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,11 @@ class MediaItem(ListWidgetItem):
         self.setup_info()
 
     def parse_media_info(self):
-        media_info = MediaInfo.parse(self.path)
+        try:
+            media_info = MediaInfo.parse(win_short_path(self.path))
+        except Exception as e:
+            logger.exception(e)
+            return
         for track in media_info.tracks:
             if track.track_type == "Video":
                 self.duration = int(float(track.duration)) // 1000
