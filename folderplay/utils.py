@@ -96,7 +96,7 @@ def win_short_path(long_name: Path) -> str:
     http://stackoverflow.com/a/23598461/200291
     """
     path = str(long_name)
-    if not is_windows() or not len(path) > 259:
+    if not is_windows() or not len(path) > 200:
         return path
 
     output_buf_size = 0
