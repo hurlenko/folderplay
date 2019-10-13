@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import QMessageBox
 import folderplay.gui.icons as icons
 
 WIN_PATH_PREFIX = "\\\\?\\"
+WIN_MAX_PATH = 259
 
 
 def resource_path(relative_path):
@@ -96,7 +97,7 @@ def win_short_path(long_name: Path) -> str:
     http://stackoverflow.com/a/23598461/200291
     """
     path = str(long_name)
-    if not is_windows() or not len(path) > 200:
+    if not is_windows() or not len(path) > WIN_MAX_PATH:
         return path
 
     output_buf_size = 0
@@ -109,11 +110,11 @@ def win_short_path(long_name: Path) -> str:
         else:
             output_buf_size = needed
     if path.startswith(WIN_PATH_PREFIX):
-        path = path[len(WIN_PATH_PREFIX) :]
+        path = path[len(WIN_PATH_PREFIX):]
     return path
 
 
 def normpath(path: Path) -> Path:
-    if is_windows():
+    if is_windows() and len(str(path)) > WIN_MAX_PATH:
         return Path(WIN_PATH_PREFIX + str(path))
     return path
