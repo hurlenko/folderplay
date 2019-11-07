@@ -46,8 +46,14 @@ setup(
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: Implementation :: CPython",
     ],
     project_urls={"Source": about["__url__"]},
-    entry_points={"console_scripts": ["fplay = folderplay.__main__:main"]},
+    entry_points={
+        "console_scripts": [
+            "fplay = folderplay.__main__:main",
+            "folderplay = folderplay.__main__:main",
+        ]
+    },
 )

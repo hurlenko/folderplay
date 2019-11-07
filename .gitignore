@@ -54,8 +54,8 @@ log.txt
 # Directories #
 ######################
 extra/
-venv/
-.venv/
+venv*/
+.venv*/
 *build/
 dist/
 *.egg-info

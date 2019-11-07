@@ -3,12 +3,9 @@ import datetime
 import os
 import platform
 import sys
-from ctypes import wintypes
 from pathlib import Path
 
 from PyQt5.QtWidgets import QMessageBox
-
-import folderplay.gui.icons as icons
 
 WIN_PATH_PREFIX = "\\\\?\\"
 WIN_MAX_PATH = 259
@@ -57,6 +54,7 @@ def get_registry_value(key, path, value_name):
 
 
 def message_box(title, text, icon, buttons):
+    import folderplay.gui.icons as icons
     msg = QMessageBox()
     msg.setWindowIcon(icons.main_icon())
     msg.setIcon(icon)
@@ -82,13 +80,16 @@ def format_duration(seconds):
     return str(datetime.timedelta(seconds=seconds))
 
 
-_GetShortPathNameW = ctypes.windll.kernel32.GetShortPathNameW
-_GetShortPathNameW.argtypes = [
-    wintypes.LPCWSTR,
-    wintypes.LPWSTR,
-    wintypes.DWORD,
-]
-_GetShortPathNameW.restype = wintypes.DWORD
+if is_windows():
+    from ctypes import wintypes
+
+    _GetShortPathNameW = ctypes.windll.kernel32.GetShortPathNameW
+    _GetShortPathNameW.argtypes = [
+        wintypes.LPCWSTR,
+        wintypes.LPWSTR,
+        wintypes.DWORD,
+    ]
+    _GetShortPathNameW.restype = wintypes.DWORD
 
 
 def win_short_path(long_name: Path) -> str:
