@@ -1,7 +1,6 @@
 import datetime
 import logging
 import re
-from pathlib import Path
 
 import click
 from PyQt5.QtCore import QFileInfo
@@ -25,7 +24,7 @@ from folderplay.gui.icons import IconSet
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
-from folderplay.utils import message_box
+from folderplay.utils import message_box, normpath
 
 logger = logging.getLogger(__name__)
 
@@ -359,7 +358,8 @@ class Player(MainWindow):
         medias = []
         logger.info("Loading media from filesystem: {}".format(self.media_dir))
         for f in self.media_dir.rglob("*"):
-            if f.suffix in EXTENSIONS_MEDIA:
+            f = normpath(f)
+            if f.suffix.lower() in EXTENSIONS_MEDIA:
                 medias.append(MediaItem(f))
         medias.sort()
         logger.info("{} medias found ".format(len(medias)))

@@ -120,4 +120,4 @@ def main(workdir, player_path, style, icons):
 
 
 if __name__ == "__main__":
-    main(prog_name="fplay")
+    main(prog_name="folderplay")
