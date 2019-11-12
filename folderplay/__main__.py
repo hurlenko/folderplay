@@ -50,8 +50,8 @@ def validate_player(ctx, param, value):
         filename = Path(value.lower()).stem
 
         with suppress(WindowsError), winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths",
+            winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths",
         ) as k:
             for i in itertools.count():
                 subkey = winreg.EnumKey(k, i)
@@ -133,11 +133,11 @@ def main(workdir, player_path, style, icons):
     QApplication.setFont(font)
 
     player = Player(workdir, style, icons)
-    player.show()
-
     if player_path:
         player.local_player.set_player(player_path)
-        player.update_player_info()
+    player.init()
+    player.show()
+
     sys.exit(app.exec_())
 
 

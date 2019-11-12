@@ -68,6 +68,7 @@ class Player(MainWindow):
         self.act_copy_path = None
         self.act_refresh = None
 
+    def init(self):
         self.setup_actions()
         self.load_media()
         self.read_settings()
@@ -150,7 +151,7 @@ class Player(MainWindow):
     def read_settings(self):
         logger.info("Loading settings")
         local_player_path = self.settings.value(SettingsKeys.PLAYER_PATH)
-        if local_player_path:
+        if not self.local_player.is_found() and local_player_path:
             self.local_player.set_player(local_player_path)
             logger.info(
                 "Using player from config: {}".format(local_player_path)
