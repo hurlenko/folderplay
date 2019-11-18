@@ -5,14 +5,13 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QVBoxLayout,
     QHBoxLayout,
-    QFormLayout,
+    QLabel,
 )
 
-from folderplay.constants import NOT_AVAILABLE, FINISHED
+from folderplay.constants import FINISHED, NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import ElidedGroupBox
 from folderplay.gui.icons import IconSet
-from folderplay.gui.label import ElidedLabel
 
 
 class BasicViewWidget(QWidget):
@@ -37,11 +36,12 @@ class BasicViewWidget(QWidget):
         self.grp_current_media = ElidedGroupBox(self)
         self.setup_current_media_group_box()
 
-        self.lbl_finishes_value = ElidedLabel(self)
-        self.setup_finishes_label()
-
-        self.lbl_movie_info_value = ElidedLabel(self)
-        self.setup_movie_info_label()
+        self.lbl_movie_info_time = QLabel(NOT_AVAILABLE, self)
+        self.lbl_movie_info_size = QLabel(NOT_AVAILABLE, self)
+        self.lbl_movie_info_res = QLabel(NOT_AVAILABLE, self)
+        self.lbl_movie_info_time.setAlignment(Qt.AlignCenter)
+        self.lbl_movie_info_size.setAlignment(Qt.AlignCenter)
+        self.lbl_movie_info_res.setAlignment(Qt.AlignCenter)
 
         self.setLayout(self.get_layout())
         self.layout().setContentsMargins(0, 0, 0, 0)
@@ -52,9 +52,10 @@ class BasicViewWidget(QWidget):
 
         hlayout = QHBoxLayout()
 
-        mediainfo_layout = QFormLayout()
-        mediainfo_layout.addRow("Ends:", self.lbl_finishes_value)
-        mediainfo_layout.addRow("Info:", self.lbl_movie_info_value)
+        mediainfo_layout = QHBoxLayout()
+        mediainfo_layout.addWidget(self.lbl_movie_info_time)
+        mediainfo_layout.addWidget(self.lbl_movie_info_size)
+        mediainfo_layout.addWidget(self.lbl_movie_info_res)
 
         widgets = [self.btn_advanced, self.btn_refresh]
         for w in widgets:
@@ -107,9 +108,6 @@ class BasicViewWidget(QWidget):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.grp_current_media.setSizePolicy(size_policy)
         self.grp_current_media.setTitle(FINISHED)
-
-    def setup_finishes_label(self):
-        self.lbl_finishes_value.setText(NOT_AVAILABLE)
-
-    def setup_movie_info_label(self):
-        self.lbl_movie_info_value.setText(NOT_AVAILABLE)
+        self.grp_current_media.setStyleSheet(
+            "QGroupBox { font-weight: bold; } "
+        )

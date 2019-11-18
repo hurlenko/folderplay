@@ -24,7 +24,7 @@ from folderplay.gui.icons import IconSet
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
-from folderplay.utils import message_box, normpath
+from folderplay.utils import message_box, normpath, format_duration, format_size
 
 logger = logging.getLogger(__name__)
 
@@ -390,8 +390,9 @@ class Player(MainWindow):
 
     def init_unwatched(self):
         self.basic_view_widget.grp_current_media.setTitle(FINISHED)
-        self.basic_view_widget.lbl_movie_info_value.setText(NOT_AVAILABLE)
-        self.basic_view_widget.lbl_finishes_value.setText(NOT_AVAILABLE)
+        self.basic_view_widget.lbl_movie_info_time.setText(NOT_AVAILABLE)
+        self.basic_view_widget.lbl_movie_info_size.setText(NOT_AVAILABLE)
+        self.basic_view_widget.lbl_movie_info_res.setText(NOT_AVAILABLE)
 
         total = self.lst_media.count()
         logger.info("Initializing {} media".format(total))
@@ -406,18 +407,27 @@ class Player(MainWindow):
                 unwatched_initialized = True
                 media.parse_media_info()
                 logger.info("Setting current media to {}".format(media))
-                self.basic_view_widget.lbl_movie_info_value.setText(
-                    media.get_short_info()
-                )
-                self.basic_view_widget.grp_current_media.setTitle(
-                    media.get_title()
-                )
-                finishes = NOT_AVAILABLE
                 if media.duration is not None:
                     now = datetime.datetime.now()
                     finishes = now + datetime.timedelta(seconds=media.duration)
-                    finishes = finishes.strftime("%H:%M:%S")
-                self.basic_view_widget.lbl_finishes_value.setText(finishes)
+                    self.basic_view_widget.lbl_movie_info_time.setText(
+                        "{}/{}".format(
+                            format_duration(media.duration),
+                            finishes.strftime("%H:%M"),
+                        )
+                    )
+                if media.size is not None:
+                    self.basic_view_widget.lbl_movie_info_size.setText(
+                        format_size(media.size)
+                    )
+
+                if all((media.width, media.height)):
+                    self.basic_view_widget.lbl_movie_info_res.setText(
+                        "{}x{}".format(media.width, media.height)
+                    )
+                self.basic_view_widget.grp_current_media.setTitle(
+                    media.get_title()
+                )
 
         logger.info("Medias watched {}".format(watched))
         self.basic_view_widget.pbr_watched.setMaximum(total)

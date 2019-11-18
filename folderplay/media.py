@@ -1,3 +1,4 @@
+import datetime
 import logging
 from pathlib import Path
 
@@ -43,7 +44,13 @@ class MediaItem(ListWidgetItem):
     def get_short_info(self):
         res = []
         if self.duration is not None:
-            res.append(format_duration(self.duration))
+            now = datetime.datetime.now()
+            finishes = now + datetime.timedelta(seconds=self.duration)
+            res.append(
+                "{}/{}".format(
+                    format_duration(self.duration), finishes.strftime("%H:%M")
+                )
+            )
         if self.size is not None:
             res.append(format_size(self.size))
         if all((self.width, self.height)):
@@ -52,7 +59,6 @@ class MediaItem(ListWidgetItem):
 
     def setup_info(self):
         self.title.setText(self.get_title())
-        # self.info.setText(self.get_short_info())
         icon = self.icon_unwatched
         if self.is_watched():
             icon = self.icon_watched
