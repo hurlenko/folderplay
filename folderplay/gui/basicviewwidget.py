@@ -7,11 +7,11 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
-from folderplay.constants import FINISHED, NOT_AVAILABLE
+from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
-from folderplay.gui.groupbox import ElidedGroupBox
+from folderplay.gui.groupbox import NoTitleGroupBox
 from folderplay.gui.icons import IconSet
-from folderplay.gui.label import QIconLabel
+from folderplay.gui.label import QIconLabel, ElidedQIconLabel
 
 
 class BasicViewWidget(QWidget):
@@ -33,7 +33,7 @@ class BasicViewWidget(QWidget):
         self.setup_progress_bar()
 
         # Media info groupbox
-        self.grp_current_media = ElidedGroupBox(self)
+        self.grp_current_media = NoTitleGroupBox(self)
         self.setup_current_media_group_box()
 
         self.lbl_movie_info_time = QIconLabel(
@@ -50,6 +50,13 @@ class BasicViewWidget(QWidget):
         )
         self.lbl_movie_info_res.setToolTip("Media resolution")
 
+        self.lbl_movie_info_title = ElidedQIconLabel(
+            IconSet.current.movie, NOT_AVAILABLE, self
+        )
+        title_font = self.lbl_movie_info_title.font()
+        title_font.setBold(True)
+        # title_font.setUnderline(True)
+        self.lbl_movie_info_title.setFont(title_font)
         self.setLayout(self.get_layout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
@@ -59,16 +66,19 @@ class BasicViewWidget(QWidget):
 
         hlayout = QHBoxLayout()
 
+        mediainfo_layout_v = QVBoxLayout()
         mediainfo_layout = QHBoxLayout()
         mediainfo_layout.addWidget(self.lbl_movie_info_time)
         mediainfo_layout.addWidget(self.lbl_movie_info_size)
         mediainfo_layout.addWidget(self.lbl_movie_info_res)
+        mediainfo_layout_v.addWidget(self.lbl_movie_info_title)
+        mediainfo_layout_v.addLayout(mediainfo_layout)
+        # lbl_movie_info_title
+        self.grp_current_media.setLayout(mediainfo_layout_v)
 
         widgets = [self.btn_advanced, self.btn_refresh]
         for w in widgets:
             vlayout_refresh_advanced.addWidget(w)
-
-        self.grp_current_media.setLayout(mediainfo_layout)
 
         hlayout.addWidget(self.pbr_watched)
         hlayout.addLayout(vlayout_refresh_advanced)
@@ -114,7 +124,4 @@ class BasicViewWidget(QWidget):
     def setup_current_media_group_box(self):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.grp_current_media.setSizePolicy(size_policy)
-        self.grp_current_media.setTitle(FINISHED)
-        self.grp_current_media.setStyleSheet(
-            "QGroupBox { font-weight: bold; } "
-        )
+        # self.grp_current_media.setContextMenuPolicy(Qt.ActionsContextMenu)

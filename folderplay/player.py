@@ -238,6 +238,11 @@ class Player(MainWindow):
 
     def media_context_menu(self, position):
         # Create menu and insert some actions
+        # Todo
+        #  make all actions a list
+        #  add context menu mediainfo groupbox
+        #  use get_first_unwatched for groupbox context menu
+        #  use addActionS to add a list of actions
         menu = QMenu("Options")
         logger.info("Creating context menu")
         menu.addSection(
@@ -389,10 +394,10 @@ class Player(MainWindow):
                 return
 
     def init_unwatched(self):
-        self.basic_view_widget.grp_current_media.setTitle(FINISHED)
         self.basic_view_widget.lbl_movie_info_time.setText(NOT_AVAILABLE)
         self.basic_view_widget.lbl_movie_info_size.setText(NOT_AVAILABLE)
         self.basic_view_widget.lbl_movie_info_res.setText(NOT_AVAILABLE)
+        self.basic_view_widget.lbl_movie_info_title.setText(FINISHED)
 
         total = self.lst_media.count()
         logger.info("Initializing {} media".format(total))
@@ -425,7 +430,7 @@ class Player(MainWindow):
                     self.basic_view_widget.lbl_movie_info_res.setText(
                         "{}x{}".format(media.width, media.height)
                     )
-                self.basic_view_widget.grp_current_media.setTitle(
+                self.basic_view_widget.lbl_movie_info_title.setText(
                     media.get_title()
                 )
 

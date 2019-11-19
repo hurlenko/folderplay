@@ -162,6 +162,7 @@ class GenericIconSet:
     clock = icon("clock.svg")
     monitor = icon("monitor.svg")
     size = icon("size.svg")
+    movie = icon("movie.svg")
 
 
 class Constant:
