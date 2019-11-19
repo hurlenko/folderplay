@@ -159,6 +159,9 @@ class GenericIconSet:
     settings = icon("settings.svg")
     visibility = icon("visibility.svg")
     visibility_off = icon("visibility_off.svg")
+    clock = icon("clock.svg")
+    monitor = icon("monitor.svg")
+    size = icon("size.svg")
 
 
 class Constant:

@@ -19,3 +19,11 @@ class ElidedGroupBox(QGroupBox):
         option.text = elided
 
         painter.drawComplexControl(QStyle.CC_GroupBox, option)
+
+# class ElidedGroupBox(QGroupBox):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.setStyleSheet("QGroupBox{padding-top:0; margin-top: 0}")
+#
+#     def setTitle(self, text):
+#         pass

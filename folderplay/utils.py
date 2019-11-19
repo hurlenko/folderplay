@@ -54,6 +54,7 @@ def get_registry_value(key, path, value_name):
 
 def message_box(title, text, icon, buttons):
     import folderplay.gui.icons as icons
+
     msg = QMessageBox()
     msg.setWindowIcon(icons.main_icon())
     msg.setIcon(icon)
@@ -81,13 +82,13 @@ def format_duration(seconds):
     hours, seconds = divmod(seconds, 3600)
     minutes, seconds = divmod(seconds, 60)
     if days > 0:
-        return '%dd%dh%dm%ds' % (days, hours, minutes, seconds)
+        return "%dd %dh %dm %ds" % (days, hours, minutes, seconds)
     elif hours > 0:
-        return '%dh%dm%ds' % (hours, minutes, seconds)
+        return "%dh %dm %ds" % (hours, minutes, seconds)
     elif minutes > 0:
-        return '%dm%ds' % (minutes, seconds)
+        return "%dm %ds" % (minutes, seconds)
     else:
-        return '%ds' % (seconds,)
+        return "%ds" % (seconds,)
 
 
 if is_windows():
@@ -121,7 +122,7 @@ def win_short_path(long_name: Path) -> str:
         else:
             output_buf_size = needed
     if path.startswith(WIN_PATH_PREFIX):
-        path = path[len(WIN_PATH_PREFIX):]
+        path = path[len(WIN_PATH_PREFIX) :]
     return path
 
 

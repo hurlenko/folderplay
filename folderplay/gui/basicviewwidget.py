@@ -5,13 +5,13 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QVBoxLayout,
     QHBoxLayout,
-    QLabel,
 )
 
 from folderplay.constants import FINISHED, NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import ElidedGroupBox
 from folderplay.gui.icons import IconSet
+from folderplay.gui.label import QIconLabel
 
 
 class BasicViewWidget(QWidget):
@@ -36,12 +36,19 @@ class BasicViewWidget(QWidget):
         self.grp_current_media = ElidedGroupBox(self)
         self.setup_current_media_group_box()
 
-        self.lbl_movie_info_time = QLabel(NOT_AVAILABLE, self)
-        self.lbl_movie_info_size = QLabel(NOT_AVAILABLE, self)
-        self.lbl_movie_info_res = QLabel(NOT_AVAILABLE, self)
-        self.lbl_movie_info_time.setAlignment(Qt.AlignCenter)
-        self.lbl_movie_info_size.setAlignment(Qt.AlignCenter)
-        self.lbl_movie_info_res.setAlignment(Qt.AlignCenter)
+        self.lbl_movie_info_time = QIconLabel(
+            IconSet.current.clock, NOT_AVAILABLE, self
+        )
+        self.lbl_movie_info_time.setToolTip("Duration/Ends")
+        self.lbl_movie_info_size = QIconLabel(
+            IconSet.current.size, NOT_AVAILABLE, self
+        )
+        self.lbl_movie_info_size.setToolTip("Media size")
+
+        self.lbl_movie_info_res = QIconLabel(
+            IconSet.current.monitor, NOT_AVAILABLE, self
+        )
+        self.lbl_movie_info_res.setToolTip("Media resolution")
 
         self.setLayout(self.get_layout())
         self.layout().setContentsMargins(0, 0, 0, 0)
