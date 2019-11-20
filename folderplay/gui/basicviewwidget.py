@@ -114,6 +114,7 @@ class BasicViewWidget(QWidget):
     def setup_current_media_group_box(self):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.grp_current_media.setSizePolicy(size_policy)
+        self.grp_current_media.setContextMenuPolicy(Qt.CustomContextMenu)
         self.grp_current_media.setTitle(FINISHED)
         self.grp_current_media.setStyleSheet(
             "QGroupBox { font-weight: bold; } "

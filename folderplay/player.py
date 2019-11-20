@@ -54,19 +54,14 @@ class Player(MainWindow):
         )
         self.basic_view_widget.btn_refresh.pressed.connect(self.load_media)
         self.lst_media.customContextMenuRequested.connect(
-            self.media_context_menu
+            self.context_menu_media_list
+        )
+        self.basic_view_widget.grp_current_media.customContextMenuRequested.connect(
+            self.context_menu_media_info_box
         )
         self.lst_media.doubleClicked.connect(self.play_selected_item)
 
-        self.act_mark_watched = None
-        self.act_mark_watched_next = None
-        self.act_mark_unwatched = None
-        self.act_mark_unwatched_previous = None
-        self.act_delete = None
-        self.act_reveal_on_filesystem = None
-        self.act_play = None
-        self.act_copy_path = None
-        self.act_refresh = None
+        self.action_list = []
 
     def init(self):
         self.setup_actions()
@@ -75,78 +70,89 @@ class Player(MainWindow):
 
     def setup_actions(self):
         # Mark watched action
-        self.act_mark_watched = QAction(
+        act_mark_watched = QAction(
             IconSet.current.visibility, "Mark watched", self
         )
-        self.act_mark_watched.triggered.connect(
+        act_mark_watched.triggered.connect(
             lambda: self.set_media_watch_status(True)
         )
-        self.act_mark_watched.setShortcut("Space")
-        self.act_mark_watched.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_mark_watched)
+        act_mark_watched.setShortcut("Space")
+        act_mark_watched.setShortcutVisibleInContextMenu(True)
 
         # Mark Unwatched action
-        self.act_mark_unwatched = QAction(
+        act_mark_unwatched = QAction(
             IconSet.current.visibility_off, "Mark unwatched", self
         )
-        self.act_mark_unwatched.triggered.connect(
+        act_mark_unwatched.triggered.connect(
             lambda: self.set_media_watch_status(False)
         )
-        self.act_mark_unwatched.setShortcut("Shift+Space")
-        self.act_mark_unwatched.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_mark_unwatched)
+        act_mark_unwatched.setShortcut("Shift+Space")
+        act_mark_unwatched.setShortcutVisibleInContextMenu(True)
 
-        self.act_delete = QAction(
+        # Delete
+        act_delete = QAction(
             IconSet.current.delete_forever, "Delete from filesystem", self
         )
-        self.act_delete.triggered.connect(self.delete_media_from_filesystem)
-        self.act_delete.setShortcut("Del")
-        self.act_delete.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_delete)
+        act_delete.triggered.connect(self.delete_media_from_filesystem)
+        act_delete.setShortcut("Del")
+        act_delete.setShortcutVisibleInContextMenu(True)
 
-        self.act_reveal_on_filesystem = QAction(
+        # Reveal on filesystem
+        act_reveal_on_filesystem = QAction(
             IconSet.current.folder, "Reveal on filesystem", self
         )
-        self.act_reveal_on_filesystem.triggered.connect(
-            self.reveal_on_filesystem
-        )
-        self.act_reveal_on_filesystem.setShortcut("O")
-        self.act_reveal_on_filesystem.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_reveal_on_filesystem)
+        act_reveal_on_filesystem.triggered.connect(self.reveal_on_filesystem)
+        act_reveal_on_filesystem.setShortcut("O")
+        act_reveal_on_filesystem.setShortcutVisibleInContextMenu(True)
 
-        self.act_play = QAction(IconSet.current.play_circle, "Play", self)
-        self.act_play.triggered.connect(self.play_selected_item)
-        self.act_play.setShortcut("Return")
-        self.act_play.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_play)
+        # Play
+        act_play = QAction(IconSet.current.play_circle, "Play", self)
+        act_play.triggered.connect(self.play_selected_item)
+        act_play.setShortcut("Return")
+        act_play.setShortcutVisibleInContextMenu(True)
 
-        self.act_copy_path = QAction(IconSet.current.copy, "Copy path", self)
-        self.act_copy_path.triggered.connect(self.copy_item_path)
-        self.act_copy_path.setShortcut("Ctrl+C")
-        self.act_copy_path.setShortcutVisibleInContextMenu(True)
+        # Copy Path
+        act_copy_path = QAction(IconSet.current.copy, "Copy path", self)
+        act_copy_path.triggered.connect(self.copy_item_path)
+        act_copy_path.setShortcut("Ctrl+C")
+        act_copy_path.setShortcutVisibleInContextMenu(True)
 
-        self.act_refresh = QAction(IconSet.current.refresh, "Refresh", self)
-        self.act_refresh.triggered.connect(self.load_media)
-        self.act_refresh.setShortcut("R")
-        self.act_refresh.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_refresh)
+        # Refresh
+        act_refresh = QAction(IconSet.current.refresh, "Refresh", self)
+        act_refresh.triggered.connect(self.load_media)
+        act_refresh.setShortcut("R")
+        act_refresh.setShortcutVisibleInContextMenu(True)
 
-        self.act_mark_unwatched_previous = QAction(
+        # Mark unwatched previous
+        act_mark_unwatched_previous = QAction(
             IconSet.current.visibility, "Mark unwatched previous", self
         )
-        self.act_mark_unwatched_previous.triggered.connect(
+        act_mark_unwatched_previous.triggered.connect(
             self.mark_unwatched_previous
         )
-        self.act_mark_unwatched_previous.setShortcut("Ctrl+Z")
-        self.addAction(self.act_mark_unwatched_previous)
+        act_mark_unwatched_previous.setShortcut("Ctrl+Z")
 
-        self.act_mark_watched_next = QAction(
+        # Mark watched next
+        act_mark_watched_next = QAction(
             IconSet.current.visibility_off, "Mark watched next", self
         )
-        self.act_mark_watched_next.triggered.connect(self.mark_watched_next)
-        self.act_mark_watched_next.setShortcut("Ctrl+Shift+Z")
-        self.act_mark_watched_next.setShortcutVisibleInContextMenu(True)
-        self.addAction(self.act_mark_watched_next)
+        act_mark_watched_next.triggered.connect(self.mark_watched_next)
+        act_mark_watched_next.setShortcut("Ctrl+Shift+Z")
+        act_mark_watched_next.setShortcutVisibleInContextMenu(True)
+
+        self.action_list = [
+            act_play,
+            act_mark_watched,
+            act_mark_unwatched,
+            act_refresh,
+            act_reveal_on_filesystem,
+            act_copy_path,
+            act_delete,
+        ]
+        self.addActions(
+            self.action_list
+            + [act_mark_watched_next, act_mark_unwatched_previous]
+        )
 
     def read_settings(self):
         logger.info("Loading settings")
@@ -236,21 +242,25 @@ class Player(MainWindow):
         found = bool(pattern.search(media.get_title()))
         return not found
 
-    def media_context_menu(self, position):
-        # Create menu and insert some actions
+    def context_menu_media_list(self, position):
         menu = QMenu("Options")
-        logger.info("Creating context menu")
+        logger.info("Creating context menu for media list")
         menu.addSection(
             "Selected: {}".format(len(self.lst_media.selectedItems()))
         )
-        menu.addAction(self.act_play)
-        menu.addAction(self.act_mark_watched)
-        menu.addAction(self.act_mark_unwatched)
-        menu.addAction(self.act_refresh)
-        menu.addAction(self.act_reveal_on_filesystem)
-        menu.addAction(self.act_copy_path)
-        menu.addAction(self.act_delete)
+        menu.addActions(self.action_list)
         menu.exec_(self.lst_media.mapToGlobal(position))
+
+    def context_menu_media_info_box(self, position):
+        menu = QMenu("Options")
+        logger.info("Creating context menu for current media")
+        menu.addActions(self.action_list)
+        self.highlight_first_unwatched()
+        if not self.lst_media.selectedItems():
+            return
+        menu.exec_(
+            self.basic_view_widget.grp_current_media.mapToGlobal(position)
+        )
 
     def select_new_player(self):
         logger.info("Selecting new player")
