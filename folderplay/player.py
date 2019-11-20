@@ -1,6 +1,7 @@
 import datetime
 import logging
 import re
+from pathlib import Path
 
 import click
 from PyQt5.QtCore import QFileInfo
@@ -156,7 +157,7 @@ class Player(MainWindow):
 
     def read_settings(self):
         logger.info("Loading settings")
-        local_player_path = self.settings.value(SettingsKeys.PLAYER_PATH)
+        local_player_path = self.config.player
         if not self.local_player.is_found() and local_player_path:
             self.local_player.set_player(local_player_path)
             logger.info(
@@ -171,12 +172,9 @@ class Player(MainWindow):
             self.local_player.not_found_warning()
 
         self.settings_widget.chk_hide_watched.setChecked(
-            self.settings.value(SettingsKeys.HIDE_WATCHED, False, type=bool)
+            self.config.hide_watched
         )
-        is_advanced = self.settings.value(
-            SettingsKeys.ADVANCED, False, type=bool
-        )
-        if is_advanced:
+        if self.config.advanced:
             logger.info("Switching to advanced view")
             self.basic_view_widget.btn_advanced.click()
         else:
@@ -188,17 +186,12 @@ class Player(MainWindow):
             logger.info(
                 "Saving player info: {}".format(self.local_player.player_path)
             )
-            self.settings.setValue(
-                SettingsKeys.PLAYER_PATH, str(self.local_player.player_path)
-            )
-        self.settings.setValue(
-            SettingsKeys.HIDE_WATCHED,
-            self.settings_widget.chk_hide_watched.isChecked(),
+            self.config.player = str(self.local_player.player_path)
+        self.config.hide_watched = (
+            self.settings_widget.chk_hide_watched.isChecked()
         )
-        self.settings.setValue(
-            SettingsKeys.ADVANCED,
-            self.basic_view_widget.btn_advanced.isChecked(),
-        )
+        self.config.advanced = self.basic_view_widget.btn_advanced.isChecked()
+        self.config.save()
         return super().closeEvent(event)
 
     def update_player_info(self):
@@ -367,8 +360,10 @@ class Player(MainWindow):
         # https://stackoverflow.com/a/25188862/8014793
         self.lst_media.clear()
         medias = []
-        logger.info("Loading media from filesystem: {}".format(self.media_dir))
-        for f in self.media_dir.rglob("*"):
+        logger.info(
+            "Loading media from filesystem: {}".format(self.config.workdir)
+        )
+        for f in Path(self.config.workdir).rglob("*"):
             f = normpath(f)
             if f.suffix.lower() in EXTENSIONS_MEDIA:
                 medias.append(MediaItem(f))

@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, QFileInfo, QCoreApplication
 from PyQt5.QtGui import QFontDatabase, QFont
 from PyQt5.QtWidgets import QApplication
 
+from config import Config
 from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE
 from folderplay.gui.icons import IconSet
@@ -64,22 +65,22 @@ def validate_player(ctx, param, value):
     raise click.BadParameter("Player must an executable")
 
 
-def get_style_by_name(ctx, param, value):
-    if not value:
-        return value
-    try:
-        return Style.get(value)
-    except ValueError as e:
-        raise click.BadParameter(e)
-
-
-def get_icon_set_by_name(ctx, param, value):
-    if not value:
-        return value
-    try:
-        return IconSet.get(value)
-    except ValueError as e:
-        raise click.BadParameter(e)
+# def get_style_by_name(ctx, param, value):
+#     if not value:
+#         return value
+#     try:
+#         return Style.get(value)
+#     except ValueError as e:
+#         raise click.BadParameter(e)
+#
+#
+# def get_icon_set_by_name(ctx, param, value):
+#     if not value:
+#         return value
+#     try:
+#         return IconSet.get(value)
+#     except ValueError as e:
+#         raise click.BadParameter(e)
 
 
 @click.command(short_help=about.__description__)
@@ -99,7 +100,7 @@ def get_icon_set_by_name(ctx, param, value):
     type=click.Choice(Style.names()),
     metavar="<name>",
     help="Color style: {}".format(", ".join(Style.names())),
-    callback=get_style_by_name,
+    # callback=get_style_by_name,
 )
 @click.option(
     "--icons",
@@ -107,7 +108,7 @@ def get_icon_set_by_name(ctx, param, value):
     type=click.Choice(IconSet.names()),
     metavar="<name>",
     help="Icon set: {}".format(", ".join(IconSet.names())),
-    callback=get_icon_set_by_name,
+    # callback=get_icon_set_by_name,
 )
 @click.argument(
     "workdir",
@@ -118,9 +119,10 @@ def get_icon_set_by_name(ctx, param, value):
     default=os.getcwd(),
     nargs=1,
 )
-def main(workdir, player_path, style, icons):
+@click.pass_context
+def main(ctx, workdir, player_path, style, icons):
     setup_logging()
-
+    config = Config(workdir, ctx.params)
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
@@ -132,9 +134,7 @@ def main(workdir, player_path, style, icons):
     font = QFont("Roboto", FONT_SIZE)
     QApplication.setFont(font)
 
-    player = Player(workdir, style, icons)
-    if player_path:
-        player.local_player.set_player(player_path)
+    player = Player(config)
     player.init()
     player.show()
 

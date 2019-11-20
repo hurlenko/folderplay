@@ -1,7 +1,6 @@
 import logging
-from pathlib import Path
 
-from PyQt5.QtCore import QSize, Qt, QEventLoop, QSettings
+from PyQt5.QtCore import QSize, Qt, QEventLoop
 from PyQt5.QtWidgets import (
     QMainWindow,
     QListWidget,
@@ -13,8 +12,8 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
-from folderplay import __version__ as about
-from folderplay.constants import MAX_MOVIE_TITLE_LENGTH, SettingsKeys
+from config import Config
+from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
 from folderplay.gui.basicviewwidget import BasicViewWidget
 from folderplay.gui.icons import IconSet, main_icon
 from folderplay.gui.qtmodern import ModernWindow
@@ -25,26 +24,13 @@ logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
-    def __init__(
-            self,
-            media_dir: str,
-            style: Style = None,
-            icons: IconSet = None,
-            *args,
-            **kwargs,
-    ):
+    def __init__(self, config: Config, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setWindowTitle("FolderPlay by Hurlenko")
         self.setWindowIcon(main_icon())
-        self.media_dir = Path(media_dir)
-        self.settings = QSettings(
-            self.media_dir.joinpath(
-                "{}.ini".format(about.__title__)
-            ).as_posix(),
-            QSettings.IniFormat,
-        )
+        self.config = config
         self.central_widget = None
-        self.set_style(style, icons)
+        self.set_style()
 
         self.basic_view_widget = BasicViewWidget(self)
         self.basic_view_widget.btn_advanced.clicked.connect(
@@ -79,19 +65,15 @@ class MainWindow(QMainWindow):
         self.right_pane.setFixedWidth(self.right_pane_width)
         self.central_widget.setLayout(self.advanced_view_layout())
 
-    def set_style(self, style: Style, icons: IconSet):
-        if not icons:
-            icons = self.settings.value(
-                SettingsKeys.ICONSET, IconSet.material.name
-            )
-            icons = IconSet.get(icons)
-            IconSet.set_current(icons)
+    def set_style(self):
+        # if not icons:
+        #     icons = self.settings.value(
+        #         SettingsKeys.ICONSET, IconSet.material.name
+        #     )
+        icons = IconSet.get(self.config.iconset)
+        IconSet.set_current(icons)
 
-        if not style:
-            style_name = self.settings.value(
-                SettingsKeys.STYLE, Style.light.name
-            )
-            style = Style.get(style_name)
+        style = Style.get(self.config.style)
 
         if style in (Style.dark, Style.light):
             self.central_widget = ModernWindow(self)
@@ -99,8 +81,6 @@ class MainWindow(QMainWindow):
             self.central_widget = QWidget(self)
         style.apply(QApplication.instance())
         self.setCentralWidget(self.central_widget)
-        self.settings.setValue(SettingsKeys.STYLE, style.name)
-        self.settings.setValue(SettingsKeys.ICONSET, icons.name)
 
     def left_pane_layout(self):
         layout = QVBoxLayout()
