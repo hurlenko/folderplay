@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
 )
 
-from config import Config
+from folderplay.config import Config
 from folderplay.constants import MAX_MOVIE_TITLE_LENGTH
 from folderplay.gui.basicviewwidget import BasicViewWidget
 from folderplay.gui.icons import IconSet, main_icon

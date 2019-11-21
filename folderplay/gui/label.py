@@ -26,7 +26,16 @@ class QIconLabel(ScalablePushButton):
         super().__init__(*args, **kwargs)
         size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.setSizePolicy(size_policy)
-        self.setStyleSheet("border: none;")
+        self.setStyleSheet(
+        """
+        QPushButton {
+            border: none;
+        }
+        QPushButton[alignleft=true] {
+          text-align: left;
+        }
+        """
+        )
 
 
 class ElidedQIconLabel(QIconLabel):

@@ -57,6 +57,10 @@ class BasicViewWidget(QWidget):
         title_font.setBold(True)
         # title_font.setUnderline(True)
         self.lbl_movie_info_title.setFont(title_font)
+        # self.lbl_movie_info_title.setProperty("alignleft", True)
+        # self.lbl_movie_info_title.style().unpolish(self.lbl_movie_info_title)
+        # self.lbl_movie_info_title.style().polish(self.lbl_movie_info_title)
+        # self.lbl_movie_info_title.update()
         self.setLayout(self.get_layout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
@@ -110,7 +114,6 @@ class BasicViewWidget(QWidget):
         self.btn_refresh.setIcon(IconSet.current.refresh)
 
     def setup_progress_bar(self):
-        self.pbr_watched.setValue(24)
         # Allow pbr_watched to expand to take up all space in layout
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.pbr_watched.setSizePolicy(size_policy)
