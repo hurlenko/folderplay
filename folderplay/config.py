@@ -6,6 +6,7 @@ from pathlib import Path
 from folderplay import __version__ as about
 from gui.icons import IconSet
 from gui.label import DurationLabel
+from gui.progressbar import BidirectionalProgressBar
 from gui.styles import Style
 
 
@@ -76,4 +77,7 @@ class Config:
     workdir = Param("workdir", os.getcwd())
     duration_type = Param(
         "duration_type", DurationLabel.DisplayMode.endtime.name
+    )
+    pbar_direction = Param(
+        "pbar_direction", BidirectionalProgressBar.Direction.forward.name
     )

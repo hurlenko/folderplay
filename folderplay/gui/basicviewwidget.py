@@ -12,6 +12,7 @@ from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import NoTitleGroupBox
 from folderplay.gui.icons import IconSet
 from folderplay.gui.label import QIconLabel, ElidedQIconLabel, DurationLabel
+from gui.progressbar import BidirectionalProgressBar
 
 
 class BasicViewWidget(QWidget):
@@ -29,7 +30,7 @@ class BasicViewWidget(QWidget):
         self.setup_refresh_button()
 
         # Progressbar
-        self.pbr_watched = QProgressBar(self)
+        self.pbr_watched = BidirectionalProgressBar(self)
         self.setup_progress_bar()
 
         # Media info groupbox
@@ -121,7 +122,7 @@ class BasicViewWidget(QWidget):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.pbr_watched.setSizePolicy(size_policy)
         self.pbr_watched.setAlignment(Qt.AlignHCenter)
-        self.pbr_watched.setFormat("%v / %m")
+        # self.pbr_watched.setFormat("%v / %m")
         font = self.pbr_watched.font()
         font.setPointSize(25)
         font.setBold(True)

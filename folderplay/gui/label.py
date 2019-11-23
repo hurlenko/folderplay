@@ -67,6 +67,10 @@ class DurationLabel(QIconLabel):
         duration = auto()
         endtime = auto()
 
+        @classmethod
+        def names(cls):
+            return [e.name for e in cls]
+
     def __init__(
         self, duration: int, display_mode: DisplayMode, *args, **kwargs
     ):

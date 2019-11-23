@@ -176,6 +176,9 @@ class Player(MainWindow):
         self.basic_view_widget.lbl_movie_info_time.set_display_mode(
             self.config.duration_type
         )
+        self.basic_view_widget.pbr_watched.set_direction(
+            self.config.pbar_direction
+        )
         self.update_player_info()
 
     def closeEvent(self, event):
@@ -190,6 +193,9 @@ class Player(MainWindow):
         self.config.advanced = self.basic_view_widget.btn_advanced.isChecked()
         self.config.duration_type = (
             self.basic_view_widget.lbl_movie_info_time.display_mode.name
+        )
+        self.config.pbar_direction = (
+            self.basic_view_widget.pbr_watched.direction.name
         )
         self.config.save()
         return super().closeEvent(event)

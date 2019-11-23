@@ -15,6 +15,8 @@ from folderplay.gui.icons import IconSet
 from folderplay.gui.styles import Style
 from folderplay.player import Player
 from folderplay.utils import resource_path, is_windows
+from gui.label import DurationLabel
+from gui.progressbar import BidirectionalProgressBar
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -65,24 +67,6 @@ def validate_player(ctx, param, value):
     raise click.BadParameter("Player must an executable")
 
 
-# def get_style_by_name(ctx, param, value):
-#     if not value:
-#         return value
-#     try:
-#         return Style.get(value)
-#     except ValueError as e:
-#         raise click.BadParameter(e)
-#
-#
-# def get_icon_set_by_name(ctx, param, value):
-#     if not value:
-#         return value
-#     try:
-#         return IconSet.get(value)
-#     except ValueError as e:
-#         raise click.BadParameter(e)
-
-
 @click.command(short_help=about.__description__)
 @click.version_option(about.__version__)
 @click.option(
@@ -100,7 +84,24 @@ def validate_player(ctx, param, value):
     type=click.Choice(Style.names()),
     metavar="<name>",
     help="Color style: {}".format(", ".join(Style.names())),
-    # callback=get_style_by_name,
+)
+@click.option(
+    "--duration_type",
+    "-d",
+    type=click.Choice(DurationLabel.DisplayMode.names()),
+    metavar="<name>",
+    help="Duration display mode: {}".format(
+        ", ".join(DurationLabel.DisplayMode.names())
+    ),
+)
+@click.option(
+    "--pbar_direction",
+    "-pd",
+    type=click.Choice(BidirectionalProgressBar.Direction.names()),
+    metavar="<name>",
+    help="Progressbar direction: {}".format(
+        ", ".join(BidirectionalProgressBar.Direction.names())
+    ),
 )
 @click.option(
     "--icons",
@@ -108,7 +109,6 @@ def validate_player(ctx, param, value):
     type=click.Choice(IconSet.names()),
     metavar="<name>",
     help="Icon set: {}".format(", ".join(IconSet.names())),
-    # callback=get_icon_set_by_name,
 )
 @click.argument(
     "workdir",
@@ -120,7 +120,9 @@ def validate_player(ctx, param, value):
     nargs=1,
 )
 @click.pass_context
-def main(ctx, workdir, player_path, style, icons):
+def main(
+    ctx, workdir, player_path, style, icons, duration_type, pbar_direction
+):
     setup_logging()
     config = Config(workdir, ctx.params)
     QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
