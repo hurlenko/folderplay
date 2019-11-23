@@ -149,13 +149,6 @@ class Style(Enum):
     native = DummyStyle()
 
     @classmethod
-    def get(cls, name):
-        for style in cls:
-            if style.name == name:
-                return style
-        raise ValueError("Style {} is not supported".format(name))
-
-    @classmethod
     def names(cls):
         return [e.name for e in cls]
 

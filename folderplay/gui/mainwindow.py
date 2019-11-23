@@ -66,14 +66,10 @@ class MainWindow(QMainWindow):
         self.central_widget.setLayout(self.advanced_view_layout())
 
     def set_style(self):
-        # if not icons:
-        #     icons = self.settings.value(
-        #         SettingsKeys.ICONSET, IconSet.material.name
-        #     )
-        icons = IconSet.get(self.config.iconset)
+        icons = IconSet[self.config.iconset]
         IconSet.set_current(icons)
 
-        style = Style.get(self.config.style)
+        style = Style[self.config.style]
 
         if style in (Style.dark, Style.light):
             self.central_widget = ModernWindow(self)

@@ -11,7 +11,7 @@ from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import NoTitleGroupBox
 from folderplay.gui.icons import IconSet
-from folderplay.gui.label import QIconLabel, ElidedQIconLabel
+from folderplay.gui.label import QIconLabel, ElidedQIconLabel, DurationLabel
 
 
 class BasicViewWidget(QWidget):
@@ -36,10 +36,13 @@ class BasicViewWidget(QWidget):
         self.grp_current_media = NoTitleGroupBox(self)
         self.setup_current_media_group_box()
 
-        self.lbl_movie_info_time = QIconLabel(
-            IconSet.current.clock, NOT_AVAILABLE, self
+        self.lbl_movie_info_time = DurationLabel(
+            0,
+            DurationLabel.DisplayMode.endtime,
+            IconSet.current.clock,
+            NOT_AVAILABLE,
+            self,
         )
-        self.lbl_movie_info_time.setToolTip("Duration/Ends")
         self.lbl_movie_info_size = QIconLabel(
             IconSet.current.size, NOT_AVAILABLE, self
         )

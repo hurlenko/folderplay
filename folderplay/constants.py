@@ -139,11 +139,3 @@ NOT_AVAILABLE = "N/A"
 FINISHED = "Finished"
 FONT_SIZE = 12
 MAX_MOVIE_TITLE_LENGTH = 50
-
-
-class SettingsKeys:
-    PLAYER_PATH = "player_path"
-    HIDE_WATCHED = "hide_watched"
-    ADVANCED = "advanced"
-    STYLE = "style"
-    ICONSET = "iconset"

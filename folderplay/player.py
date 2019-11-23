@@ -1,4 +1,3 @@
-import datetime
 import logging
 import re
 from pathlib import Path
@@ -15,17 +14,12 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
 )
 
-from folderplay.constants import (
-    EXTENSIONS_MEDIA,
-    SettingsKeys,
-    NOT_AVAILABLE,
-    FINISHED,
-)
+from folderplay.constants import EXTENSIONS_MEDIA, NOT_AVAILABLE, FINISHED
 from folderplay.gui.icons import IconSet
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
-from folderplay.utils import message_box, normpath, format_duration, format_size
+from folderplay.utils import message_box, normpath, format_size
 
 logger = logging.getLogger(__name__)
 
@@ -179,6 +173,9 @@ class Player(MainWindow):
             self.basic_view_widget.btn_advanced.click()
         else:
             self.reset()
+        self.basic_view_widget.lbl_movie_info_time.set_display_mode(
+            self.config.duration_type
+        )
         self.update_player_info()
 
     def closeEvent(self, event):
@@ -191,6 +188,9 @@ class Player(MainWindow):
             self.settings_widget.chk_hide_watched.isChecked()
         )
         self.config.advanced = self.basic_view_widget.btn_advanced.isChecked()
+        self.config.duration_type = (
+            self.basic_view_widget.lbl_movie_info_time.display_mode.name
+        )
         self.config.save()
         return super().closeEvent(event)
 
@@ -394,7 +394,7 @@ class Player(MainWindow):
                 return
 
     def init_unwatched(self):
-        self.basic_view_widget.lbl_movie_info_time.setText(NOT_AVAILABLE)
+        self.basic_view_widget.lbl_movie_info_time.set_duration(None)
         self.basic_view_widget.lbl_movie_info_size.setText(NOT_AVAILABLE)
         self.basic_view_widget.lbl_movie_info_res.setText(NOT_AVAILABLE)
         self.basic_view_widget.lbl_movie_info_title.setText(FINISHED)
@@ -413,13 +413,8 @@ class Player(MainWindow):
                 media.parse_media_info()
                 logger.info("Setting current media to {}".format(media))
                 if media.duration is not None:
-                    now = datetime.datetime.now()
-                    finishes = now + datetime.timedelta(seconds=media.duration)
-                    self.basic_view_widget.lbl_movie_info_time.setText(
-                        "{}/{}".format(
-                            format_duration(media.duration),
-                            finishes.strftime("%H:%M"),
-                        )
+                    self.basic_view_widget.lbl_movie_info_time.set_duration(
+                        media.duration
                     )
                 if media.size is not None:
                     self.basic_view_widget.lbl_movie_info_size.setText(

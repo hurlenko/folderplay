@@ -5,18 +5,18 @@ from pathlib import Path
 
 from folderplay import __version__ as about
 from gui.icons import IconSet
+from gui.label import DurationLabel
 from gui.styles import Style
 
 
 class Param:
-    def __init__(self, name, default=None, type_=None):
+    def __init__(self, name, default=None):
         self.name = name
         self.default = default
-        self.type = type_ or (lambda x: x)
 
     def __get__(self, instance: "Config", owner: "Config"):
         value = instance._overrides.get(self.name, self.default)
-        return self.type(value)
+        return value
 
     def __set__(self, instance: "Config", value):
         # Raises an exception if value is not json serializable
@@ -74,3 +74,6 @@ class Config:
     style = Param("style", Style.light.name)
     iconset = Param("iconset", IconSet.material.name)
     workdir = Param("workdir", os.getcwd())
+    duration_type = Param(
+        "duration_type", DurationLabel.DisplayMode.endtime.name
+    )
