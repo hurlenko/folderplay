@@ -1,17 +1,11 @@
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtWidgets import (
-    QWidget,
-    QProgressBar,
-    QSizePolicy,
-    QVBoxLayout,
-    QHBoxLayout,
-)
+from PyQt5.QtWidgets import QWidget, QSizePolicy, QVBoxLayout, QHBoxLayout
 
 from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import NoTitleGroupBox
 from folderplay.gui.icons import IconSet
-from folderplay.gui.label import QIconLabel, ElidedQIconLabel, DurationLabel
+from folderplay.gui.label import QIconLabel, DurationLabel, MarqueeLabel
 from gui.progressbar import BidirectionalProgressBar
 
 
@@ -54,13 +48,18 @@ class BasicViewWidget(QWidget):
         )
         self.lbl_movie_info_res.setToolTip("Media resolution")
 
-        self.lbl_movie_info_title = ElidedQIconLabel(
-            IconSet.current.movie, NOT_AVAILABLE, self
+        self.lbl_movie_info_title_icon = QIconLabel(self)
+        self.lbl_movie_info_title_icon.setIcon(IconSet.current.movie)
+        self.lbl_movie_info_title_icon.setSizePolicy(
+            QSizePolicy.Fixed, QSizePolicy.Fixed
         )
+
+        self.lbl_movie_info_title = MarqueeLabel(NOT_AVAILABLE, self)
         title_font = self.lbl_movie_info_title.font()
         title_font.setBold(True)
         # title_font.setUnderline(True)
         self.lbl_movie_info_title.setFont(title_font)
+
         # self.lbl_movie_info_title.setProperty("alignleft", True)
         # self.lbl_movie_info_title.style().unpolish(self.lbl_movie_info_title)
         # self.lbl_movie_info_title.style().polish(self.lbl_movie_info_title)
@@ -74,13 +73,17 @@ class BasicViewWidget(QWidget):
 
         hlayout = QHBoxLayout()
 
+        hlayout_info = QHBoxLayout()
+        hlayout_info.addWidget(self.lbl_movie_info_time)
+        hlayout_info.addWidget(self.lbl_movie_info_size)
+        hlayout_info.addWidget(self.lbl_movie_info_res)
+        hlayout_title = QHBoxLayout()
+        hlayout_title.addWidget(self.lbl_movie_info_title_icon)
+        hlayout_title.addWidget(self.lbl_movie_info_title)
+
         mediainfo_layout_v = QVBoxLayout()
-        mediainfo_layout = QHBoxLayout()
-        mediainfo_layout.addWidget(self.lbl_movie_info_time)
-        mediainfo_layout.addWidget(self.lbl_movie_info_size)
-        mediainfo_layout.addWidget(self.lbl_movie_info_res)
-        mediainfo_layout_v.addWidget(self.lbl_movie_info_title)
-        mediainfo_layout_v.addLayout(mediainfo_layout)
+        mediainfo_layout_v.addLayout(hlayout_title)
+        mediainfo_layout_v.addLayout(hlayout_info)
         # lbl_movie_info_title
         self.grp_current_media.setLayout(mediainfo_layout_v)
 

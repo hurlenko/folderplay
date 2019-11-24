@@ -1,7 +1,7 @@
 import datetime
 from enum import Enum, auto
 
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, QTimer, QEvent
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import (
     QLabel,
@@ -60,6 +60,105 @@ class ElidedQIconLabel(QIconLabel):
         option.text = elided
 
         painter.drawControl(QStyle.CE_PushButton, option)
+
+
+class MarqueeLabel(QLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.px = 0
+        self.py = 15
+        self.pause_ms = 2e3
+        self._direction = Qt.RightToLeft
+        self.setWordWrap(True)
+        self.timer = QTimer(self)
+        self.timer.singleShot(self.pause_ms, self.animate)
+        # self.timer.start(40)
+        self._speed = 2
+        self.textLength = 0
+        self.fontPointSize = 0
+        self.setAlignment(Qt.AlignVCenter)
+        self.setFixedHeight(self.fontMetrics().height())
+
+    def setFont(self, font):
+        super().setFont(font)
+        self.setFixedHeight(self.fontMetrics().height())
+
+    def animation_cycle(self):
+        if self._direction == Qt.RightToLeft:
+            self.px -= self.speed()
+            if self.px <= -self.textLength:
+                self.px = self.width()
+        else:
+            self.px += self.speed()
+            if self.px >= self.width():
+                self.px = -self.textLength
+        self.update()
+
+    def animate(self):
+        if self.textLength < self.width():
+            return
+        for _ in range(1000):
+            if self._direction == Qt.RightToLeft:
+                self.px -= self.speed()
+                if self.px <= -self.textLength:
+                    self.px = self.width()
+            else:
+                self.px += self.speed()
+                if self.px >= self.width():
+                    self.px = -self.textLength
+            self.update()
+        self.timer.singleShot(self.pause_ms, self.animate)
+
+    def updateCoordinates(self):
+        align = self.alignment()
+        if align == Qt.AlignTop:
+            self.py = 10
+        elif align == Qt.AlignBottom:
+            self.py = self.height() - 10
+        elif align == Qt.AlignVCenter:
+            self.py = self.height() / 2
+        self.fontPointSize = self.font().pointSize() / 2
+        self.textLength = self.fontMetrics().width(self.text())
+
+    def setAlignment(self, alignment):
+        self.updateCoordinates()
+        super().setAlignment(alignment)
+
+    def resizeEvent(self, event):
+        self.updateCoordinates()
+        super().resizeEvent(event)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.drawText(self.px, self.py + self.fontPointSize, self.text())
+        painter.translate(self.px, 0)
+
+    # def event(self, event):
+    #     if event.type() == QEvent.Enter:
+    #         self.unpause()
+    #     elif event.type() == QEvent.Leave:
+    #         self.pause()
+    #     return super().event(event)
+
+    def speed(self):
+        return self._speed
+
+    def setSpeed(self, speed):
+        self._speed = speed
+
+    def setDirection(self, direction):
+        self._direction = direction
+        if self._direction == Qt.RightToLeft:
+            self.px = self.width() - self.textLength
+        else:
+            self.px = 0
+        self.update()
+
+    def pause(self):
+        self.timer.stop()
+
+    def unpause(self):
+        self.timer.start()
 
 
 class DurationLabel(QIconLabel):
