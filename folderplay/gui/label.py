@@ -1,15 +1,9 @@
 import datetime
 from enum import Enum, auto
 
-from PyQt5.QtCore import Qt, QSize, QTimer
+from PyQt5.QtCore import Qt, QTimer, QEvent
 from PyQt5.QtGui import QPainter
-from PyQt5.QtWidgets import (
-    QLabel,
-    QSizePolicy,
-    QStylePainter,
-    QStyleOptionButton,
-    QStyle,
-)
+from PyQt5.QtWidgets import QLabel, QSizePolicy
 
 from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
@@ -43,25 +37,6 @@ class QIconLabel(ScalablePushButton):
         )
 
 
-class ElidedQIconLabel(QIconLabel):
-    def paintEvent(self, event):
-        self.setToolTip(self.text())
-        painter = QStylePainter(self)
-        option = QStyleOptionButton()
-        self.initStyleOption(option)
-        h = option.rect.height()
-        w = option.rect.width()
-        icon_size = max(min(h, w) - 2 * self.pad, self.minSize)
-        option.iconSize = QSize(icon_size, icon_size)
-        metrics = self.fontMetrics()
-        elided = metrics.elidedText(
-            self.text(), Qt.ElideRight, self.width() - icon_size
-        )
-        option.text = elided
-
-        painter.drawControl(QStyle.CE_PushButton, option)
-
-
 class MarqueeLabel(QLabel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -69,8 +44,11 @@ class MarqueeLabel(QLabel):
         self.py = 0
         self._speed = 1
         self._pauseDuration = 2e3
-        self._separatorWidth = 10
+        self._separatorWidth = 20
         self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update)
+        self.timer.setInterval(1000 // 60)  # 60 FPS
+        self.timer.singleShot(self._pauseDuration, self.timer.start)
         self.textLength = 0
         self.fontPointSize = 0
         self.setFixedHeight(self.fontMetrics().height())
@@ -81,35 +59,27 @@ class MarqueeLabel(QLabel):
 
     def setText(self, text):
         super().setText(text)
-        self.initScroll()
+        self.update_coordinates()
+        self.pause_animation()
 
-    def updateCoordinates(self):
+    def update_coordinates(self):
         self.px = 0
         self.py = self.height() / 2
         self.fontPointSize = self.font().pointSize() / 2
         self.textLength = self.fontMetrics().width(self.text())
 
     def resizeEvent(self, event):
-        self.updateCoordinates()
+        self.update_coordinates()
         super().resizeEvent(event)
 
-    def initScroll(self):
-        self.updateCoordinates()
-        self.timer.stop()
-        if self.textLength > self.width():
-            self.timer.timeout.connect(self.update)
-            self.timer.setInterval(1000 // 60)  # 60 FPS
-            self.timer.singleShot(self._pauseDuration, self.timer.start)
-
     def paintEvent(self, event):
-        if not self.timer.isActive():
+        if self.textLength <= self.width():
             return super().paintEvent(event)
         painter = QPainter(self)
         self.px -= self.speed()
         if self.px <= -self.textLength - self._separatorWidth:
             self.px = 0
-            self.timer.stop()
-            self.timer.singleShot(self._pauseDuration, self.timer.start)
+            self.pause_animation()
 
         painter.drawText(self.px, self.py + self.fontPointSize, self.text())
         painter.drawText(
@@ -119,11 +89,22 @@ class MarqueeLabel(QLabel):
         )
         painter.translate(self.px, 0)
 
+    def event(self, event):
+        if event.type() == QEvent.Enter:
+            self.timer.stop()
+        elif event.type() == QEvent.Leave:
+            self.timer.start()
+        return super().event(event)
+
     def speed(self):
         return self._speed
 
-    def setSpeed(self, speed):
+    def set_speed(self, speed):
         self._speed = speed
+
+    def pause_animation(self):
+        self.timer.stop()
+        self.timer.singleShot(self._pauseDuration, self.timer.start)
 
 
 class DurationLabel(QIconLabel):
@@ -143,7 +124,10 @@ class DurationLabel(QIconLabel):
         self.setCheckable(True)
         self.duration = duration
         self.display_mode = display_mode
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_title)
         self.update_title()
+        self.timer.start()
 
     def set_duration(self, duration: int):
         self.duration = duration
@@ -169,6 +153,7 @@ class DurationLabel(QIconLabel):
             text = format_duration(self.duration)
         self.setText(text)
         self.setToolTip(tooltip)
+        self.timer.setInterval(self.get_timer_interval())
 
     def _toggle_mode(self):
         if self.display_mode == self.DisplayMode.duration:
@@ -176,3 +161,7 @@ class DurationLabel(QIconLabel):
         else:
             self.display_mode = self.DisplayMode.duration
         self.update_title()
+
+    def get_timer_interval(self):
+        now = datetime.datetime.now()
+        return (60 - now.second) * 1000
