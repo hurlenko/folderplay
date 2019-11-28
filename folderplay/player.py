@@ -14,7 +14,12 @@ from PyQt5.QtWidgets import (
     QAbstractItemView,
 )
 
-from folderplay.constants import EXTENSIONS_MEDIA, NOT_AVAILABLE, FINISHED
+from folderplay.constants import (
+    EXTENSIONS_MEDIA,
+    NOT_AVAILABLE,
+    FINISHED,
+    EXIT_CODE_REBOOT,
+)
 from folderplay.gui.icons import IconSet
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
@@ -55,13 +60,17 @@ class Player(MainWindow):
             self.context_menu_media_info_box
         )
         self.lst_media.doubleClicked.connect(self.play_selected_item)
-
-        self.action_list = []
-
-    def init(self):
         self.setup_actions()
         self.load_media()
         self.read_settings()
+        self.settings_widget.cmb_style.currentTextChanged.connect(
+            self.restart_application
+        )
+        self.settings_widget.cmb_icon.currentTextChanged.connect(
+            self.restart_application
+        )
+
+        self.action_list = []
 
     def setup_actions(self):
         # Mark watched action
@@ -179,6 +188,12 @@ class Player(MainWindow):
         self.basic_view_widget.pbr_watched.set_direction(
             self.config.pbar_direction
         )
+        self.settings_widget.cmb_style.setCurrentText(
+            self.config.style.capitalize()
+        )
+        self.settings_widget.cmb_icon.setCurrentText(
+            self.config.iconset.capitalize()
+        )
         self.update_player_info()
 
     def closeEvent(self, event):
@@ -197,8 +212,26 @@ class Player(MainWindow):
         self.config.pbar_direction = (
             self.basic_view_widget.pbr_watched.direction.name
         )
+        self.config.iconset = (
+            self.settings_widget.cmb_icon.currentText().lower()
+        )
+        self.config.style = self.settings_widget.cmb_style.currentText().lower()
         self.config.save()
         return super().closeEvent(event)
+
+    def restart_application(self):
+        status = message_box(
+            title="Restart now?",
+            text=(
+                "To apply changes you need to restart the application\n\n"
+                "Restart now?"
+            ),
+            icon=QMessageBox.Warning,
+            buttons=QMessageBox.Yes | QMessageBox.No,
+        )
+        if status == QMessageBox.Yes:
+            self.close()
+            QApplication.exit(EXIT_CODE_REBOOT)
 
     def update_player_info(self):
         self.settings_widget.lbl_player_name.setText(self.local_player.name())

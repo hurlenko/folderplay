@@ -10,12 +10,15 @@ from PyQt5.QtWidgets import (
     QApplication,
     QVBoxLayout,
     QHBoxLayout,
+    QFrame,
+    QComboBox,
 )
 
 from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.icons import IconSet, main_icon
-from folderplay.gui.label import ElidedLabel
+from folderplay.gui.label import ElidedLabel, NameLabel
+from folderplay.gui.styles import Style
 from folderplay.utils import is_windows, is_macos, is_linux
 
 
@@ -26,20 +29,20 @@ class SettingsWidget(QWidget):
         self.txt_search_box = QLineEdit(self)
         self.setup_search_line_edit()
 
+        # Hide watched checkbox
         self.chk_hide_watched = QCheckBox(self)
         self.setup_hide_watched_checkbox()
 
+        # Regex checkbox
         self.chk_regex = QCheckBox(self)
         self.setup_regex_checkbox()
 
-        self.grp_filters = QGroupBox(self)
-        self.setup_filter_group_box()
+        # Settings groupbox
+        self.grp_settings = QGroupBox(self)
+        self.setup_settings_group_box()
 
-        # Local player box
-        self.grp_selected_player = QGroupBox(self)
-        self.setup_local_player_group_box()
-
-        self.lbl_player = ElidedLabel(self)
+        # Player settings
+        self.lbl_player = NameLabel(self)
         self.setup_player_label()
 
         self.lbl_player_name = ElidedLabel(self)
@@ -51,18 +54,33 @@ class SettingsWidget(QWidget):
         self.dlg_select_player = QFileDialog(self)
         self.setup_player_open_dialog()
 
+        # Style combobox
+        self.cmb_style = QComboBox(self)
+        self.lbl_combo_style = NameLabel(self)
+        self.setup_style_combobox()
+
+        self.cmb_icon = QComboBox(self)
+        self.lbl_combo_icon = NameLabel(self)
+        self.setup_icon_combobox()
+
         self.setLayout(self.get_layout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
-    def get_layout(self):
-        final_layout = QVBoxLayout()
-        filter_box_layout = QVBoxLayout()
-        player_box_layout = QHBoxLayout()
+    def create_line(self):
+        line = QFrame()
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Sunken)
+        return line
 
-        checkboxes_layout = QHBoxLayout()
+    def get_layout(self):
+        vl_final = QVBoxLayout()
+        vl_filter = QVBoxLayout()
+        hl_player = QHBoxLayout()
+
+        hl_checkboxes = QHBoxLayout()
         checkboxes = [self.chk_hide_watched, self.chk_regex]
         for w in checkboxes:
-            checkboxes_layout.addWidget(w)
+            hl_checkboxes.addWidget(w)
 
         player_labels = [
             self.lbl_player,
@@ -70,24 +88,30 @@ class SettingsWidget(QWidget):
             self.btn_change_player,
         ]
         for w in player_labels:
-            player_box_layout.addWidget(w)
+            hl_player.addWidget(w)
 
-        self.grp_selected_player.setLayout(player_box_layout)
+        hl_comboboxes = QHBoxLayout()
+        combos = [
+            self.lbl_combo_style,
+            self.cmb_style,
+            self.lbl_combo_icon,
+            self.cmb_icon,
+        ]
+        for w in combos:
+            hl_comboboxes.addWidget(w)
 
-        filter_box_layout.addLayout(checkboxes_layout)
-        filter_box_layout.addWidget(self.txt_search_box)
+        vl_filter.addLayout(hl_comboboxes)
+        vl_filter.addWidget(self.create_line())
+        vl_filter.addLayout(hl_player)
+        vl_filter.addWidget(self.create_line())
+        vl_filter.addLayout(hl_checkboxes)
+        vl_filter.addWidget(self.txt_search_box)
 
-        self.grp_filters.setLayout(filter_box_layout)
+        self.grp_settings.setLayout(vl_filter)
 
-        final_layout.addWidget(self.grp_selected_player)
-        final_layout.addWidget(self.grp_filters)
+        vl_final.addWidget(self.grp_settings)
 
-        return final_layout
-
-    def setup_local_player_group_box(self):
-        size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.grp_selected_player.setSizePolicy(size_policy)
-        self.grp_selected_player.setTitle("Player")
+        return vl_final
 
     def setup_search_line_edit(self):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -104,13 +128,13 @@ class SettingsWidget(QWidget):
         self.chk_regex.setSizePolicy(size_policy)
         self.chk_regex.setText("Regex")
 
-    def setup_filter_group_box(self):
+    def setup_settings_group_box(self):
         size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.grp_filters.setSizePolicy(size_policy)
-        self.grp_filters.setTitle("Filter")
+        self.grp_settings.setSizePolicy(size_policy)
+        self.grp_settings.setTitle("Settings")
 
     def setup_player_label(self):
-        self.lbl_player.setText("Name:")
+        self.lbl_player.setText("Player:")
 
     def setup_player_name_label(self):
         self.lbl_player_name.setText(NOT_AVAILABLE)
@@ -144,5 +168,14 @@ class SettingsWidget(QWidget):
             | QFileDialog.ReadOnly
             | QFileDialog.HideNameFilterDetails
         )
-        # self.dlg_select_player.setFilter(QDir.Executable)
         self.dlg_select_player.adjustSize()
+
+    def setup_style_combobox(self):
+        self.lbl_combo_style.setText("Style:")
+        styles = [x.capitalize() for x in Style.names()]
+        self.cmb_style.addItems(styles)
+
+    def setup_icon_combobox(self):
+        self.lbl_combo_icon.setText("Icons:")
+        for iconset in IconSet:
+            self.cmb_icon.addItem(iconset.value.play, iconset.name.capitalize())

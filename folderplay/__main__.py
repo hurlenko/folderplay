@@ -10,13 +10,13 @@ from PyQt5.QtWidgets import QApplication
 
 from config import Config
 from folderplay import __version__ as about
-from folderplay.constants import FONT_SIZE
+from folderplay.constants import FONT_SIZE, EXIT_CODE_REBOOT
 from folderplay.gui.icons import IconSet
+from folderplay.gui.label import DurationLabel
+from folderplay.gui.progressbar import BidirectionalProgressBar
 from folderplay.gui.styles import Style
 from folderplay.player import Player
 from folderplay.utils import resource_path, is_windows
-from gui.label import DurationLabel
-from gui.progressbar import BidirectionalProgressBar
 
 click.echo(click.style(about.__doc__, fg="blue"))
 
@@ -33,6 +33,24 @@ def setup_logging():
         datefmt="%d.%m.%Y %H:%M:%S",
         level=logging.DEBUG,
     )
+
+
+def run_application(config):
+    setup_logging()
+    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
+    app = QApplication(sys.argv)
+    QFontDatabase.addApplicationFont(
+        resource_path("fonts/Roboto/Roboto-Regular.ttf")
+    )
+
+    font = QFont("Roboto", FONT_SIZE)
+    QApplication.setFont(font)
+
+    player = Player(config)
+    player.show()
+    return app.exec_()
 
 
 def validate_player(ctx, param, value):
@@ -123,24 +141,11 @@ def validate_player(ctx, param, value):
 def main(
     ctx, workdir, player_path, style, icons, duration_type, pbar_direction
 ):
-    setup_logging()
-    config = Config(workdir, ctx.params)
-    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-
-    app = QApplication(sys.argv)
-    QFontDatabase.addApplicationFont(
-        resource_path("fonts/Roboto/Roboto-Regular.ttf")
-    )
-
-    font = QFont("Roboto", FONT_SIZE)
-    QApplication.setFont(font)
-
-    player = Player(config)
-    player.init()
-    player.show()
-
-    sys.exit(app.exec_())
+    exit_code = EXIT_CODE_REBOOT
+    while exit_code == EXIT_CODE_REBOOT:
+        config = Config(workdir, ctx.params)
+        exit_code = run_application(config)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":

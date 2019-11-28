@@ -20,6 +20,17 @@ class ElidedLabel(QLabel):
         painter.drawText(self.rect(), self.alignment(), elided)
 
 
+class NameLabel(QLabel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.setSizePolicy(size_policy)
+        font = self.font()
+        font.setBold(True)
+        # title_font.setUnderline(True)
+        self.setFont(font)
+
+
 class QIconLabel(ScalablePushButton):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

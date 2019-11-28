@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum, unique
 
 from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtWidgets import QApplication
 
 from folderplay.gui.icons import IconSet
 from folderplay.utils import resource_path
@@ -128,17 +129,27 @@ class LightStyle(DarkStyle):
         app.setPalette(lightPalette)
 
         self._apply_base_theme(app)
+        IconSet.current.set_color(QColor(0, 0, 0))
 
 
 class FusionStyle(AbstractStyle):
     def apply_style(self, app):
         app.setStyle("Fusion")
+        app.setStyleSheet(
+            """
+        QGroupBox {
+            border: 2px solid palette(midlight);
+            margin-top: 30px;
+        }
+        """
+        )
+        IconSet.current.set_color(QColor(0, 0, 0))
 
 
-class DummyStyle(AbstractStyle):
+class NativeStyle(AbstractStyle):
     def apply_style(self, app):
-        # Does not apply any style
-        return None
+        app.setStyleSheet("")
+        IconSet.current.set_color(QColor(0, 0, 0))
 
 
 @unique
@@ -146,7 +157,7 @@ class Style(Enum):
     dark = DarkStyle()
     light = LightStyle()
     fusion = FusionStyle()
-    native = DummyStyle()
+    native = NativeStyle()
 
     @classmethod
     def names(cls):
