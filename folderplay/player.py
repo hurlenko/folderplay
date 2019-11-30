@@ -24,7 +24,7 @@ from folderplay.gui.icons import IconSet
 from folderplay.gui.mainwindow import MainWindow
 from folderplay.localplayer import LocalPlayer
 from folderplay.media import MediaItem
-from folderplay.utils import message_box, normpath, format_size
+from folderplay.utils import message_box, normpath, format_size, win_short_path
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +60,7 @@ class Player(MainWindow):
             self.context_menu_media_info_box
         )
         self.lst_media.doubleClicked.connect(self.play_selected_item)
+        self.action_list = []
         self.setup_actions()
         self.load_media()
         self.read_settings()
@@ -69,8 +70,6 @@ class Player(MainWindow):
         self.settings_widget.cmb_icon.currentTextChanged.connect(
             self.restart_application
         )
-
-        self.action_list = []
 
     def setup_actions(self):
         # Mark watched action
@@ -384,7 +383,7 @@ class Player(MainWindow):
         logger.info("Opening file location for {} files".format(medias))
         for item in medias:
             media = self.lst_media.itemWidget(item)
-            click.launch(str(media.path), locate=True)
+            click.launch(win_short_path(media.path), locate=True)
 
     def copy_item_path(self):
         logger.info("Getting media path")
