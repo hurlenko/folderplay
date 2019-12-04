@@ -4,10 +4,10 @@ import os
 from pathlib import Path
 
 from folderplay import __version__ as about
-from gui.icons import IconSet
-from gui.label import DurationLabel
-from gui.progressbar import BidirectionalProgressBar
-from gui.styles import Style
+from folderplay.gui.icons import IconSet
+from folderplay.gui.label import DurationLabel
+from folderplay.gui.progressbar import BidirectionalProgressBar
+from folderplay.gui.styles import Style
 
 
 class Param:
@@ -70,7 +70,10 @@ class Config:
         )
 
     player = Param("player_path")
+    search_text = Param("search_text", "")
     hide_watched = Param("hide_watched", False)
+    regex = Param("regex", False)
+    rename = Param("rename", False)
     advanced = Param("advanced", False)
     style = Param("style", Style.light.name)
     iconset = Param("iconset", IconSet.material.name)
@@ -81,3 +84,4 @@ class Config:
     pbar_direction = Param(
         "pbar_direction", BidirectionalProgressBar.Direction.forward.name
     )
+

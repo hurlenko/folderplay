@@ -49,6 +49,7 @@ class Player(MainWindow):
             self.filter_media
         )
         self.settings_widget.chk_regex.stateChanged.connect(self.filter_media)
+        self.settings_widget.chk_rename.stateChanged.connect(self.filter_media)
         self.settings_widget.txt_search_box.textEdited.connect(
             self.filter_media
         )
@@ -173,9 +174,13 @@ class Player(MainWindow):
             logger.warning("Host player not found")
             self.local_player.not_found_warning()
 
+        self.settings_widget.txt_search_box.setText(self.config.search_text)
         self.settings_widget.chk_hide_watched.setChecked(
             self.config.hide_watched
         )
+        self.settings_widget.chk_regex.setChecked(self.config.regex)
+        self.settings_widget.chk_rename.setChecked(self.config.rename)
+
         if self.config.advanced:
             logger.info("Switching to advanced view")
             self.basic_view_widget.btn_advanced.click()
@@ -201,9 +206,12 @@ class Player(MainWindow):
                 "Saving player info: {}".format(self.local_player.player_path)
             )
             self.config.player = str(self.local_player.player_path)
+        self.config.search_text = self.settings_widget.txt_search_box.text()
         self.config.hide_watched = (
             self.settings_widget.chk_hide_watched.isChecked()
         )
+        self.config.regex = self.settings_widget.chk_regex.isChecked()
+        self.config.rename = self.settings_widget.chk_rename.isChecked()
         self.config.advanced = self.basic_view_widget.btn_advanced.isChecked()
         self.config.duration_type = (
             self.basic_view_widget.lbl_movie_info_time.display_mode.name
@@ -239,7 +247,14 @@ class Player(MainWindow):
         total = self.lst_media.count()
         items_hidden = 0
         logger.info("Filtering {} medias".format(total))
-
+        rename = self.settings_widget.chk_rename
+        regex = self.settings_widget.chk_regex
+        rename.setEnabled(regex.isChecked())
+        pattern = self.settings_widget.txt_search_box.text()
+        try:
+            pattern = re.compile(pattern, re.IGNORECASE)
+        except re.error:
+            pattern = None
         for i in range(total):
             item = self.lst_media.item(i)
 
@@ -250,6 +265,14 @@ class Player(MainWindow):
                     is_hidden = True
                     items_hidden += 1
                     break
+            if rename.isEnabled() and rename.isChecked() and pattern:
+                match = pattern.search(media.get_title())
+                if match and match.group(0):
+                    media.set_title(match.group(0))
+            else:
+                # Clears previous renaming
+                media.set_title(None)
+
             item.setHidden(is_hidden)
         logger.info("{} items were hidden".format(items_hidden))
         self.init_unwatched()
@@ -395,25 +418,22 @@ class Player(MainWindow):
             logger.info("{} copied to the clipboard".format(media))
 
     def load_media(self):
-        # https://stackoverflow.com/a/25188862/8014793
+        # https://stackoverflow.com/a/25188862/801
         self.lst_media.clear()
-        medias = []
         logger.info(
             "Loading media from filesystem: {}".format(self.config.workdir)
         )
         for f in Path(self.config.workdir).rglob("*"):
             f = normpath(f)
             if f.suffix.lower() in EXTENSIONS_MEDIA:
-                medias.append(MediaItem(f))
-        medias.sort()
-        logger.info("{} medias found ".format(len(medias)))
-        for m in medias:
-            item = QListWidgetItem(self.lst_media)
-            # Set size hint
-            item.setSizeHint(m.sizeHint())
-            # Add QListWidgetItem into QListWidget
-            self.lst_media.addItem(item)
-            self.lst_media.setItemWidget(item, m)
+                m = MediaItem(f)
+                item = QListWidgetItem(self.lst_media)
+                # Set size hint
+                item.setSizeHint(m.sizeHint())
+                # Add QListWidgetItem into QListWidget
+                self.lst_media.addItem(item)
+                self.lst_media.setItemWidget(item, m)
+        logger.info("{} medias found ".format(self.lst_media.count()))
         self.filter_media()
         self.highlight_first_unwatched()
 
@@ -424,7 +444,7 @@ class Player(MainWindow):
         for i in range(total):
             item = self.lst_media.item(i)
             media = self.lst_media.itemWidget(item)
-            if not media.is_watched():
+            if not item.isHidden() and not media.is_watched():
                 item.setSelected(True)
                 self.lst_media.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
@@ -446,7 +466,7 @@ class Player(MainWindow):
             media = self.lst_media.itemWidget(item)
             if media.is_watched():
                 watched += 1
-            elif not unwatched_initialized:
+            elif not item.isHidden() and not unwatched_initialized:
                 unwatched_initialized = True
                 media.parse_media_info()
                 logger.info("Setting current media to {}".format(media))

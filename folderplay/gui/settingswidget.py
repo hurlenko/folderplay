@@ -37,6 +37,9 @@ class SettingsWidget(QWidget):
         self.chk_regex = QCheckBox(self)
         self.setup_regex_checkbox()
 
+        self.chk_rename = QCheckBox(self)
+        self.setup_rename_checkbox()
+
         # Settings groupbox
         self.grp_settings = QGroupBox(self)
         self.setup_settings_group_box()
@@ -78,7 +81,7 @@ class SettingsWidget(QWidget):
         hl_player = QHBoxLayout()
 
         hl_checkboxes = QHBoxLayout()
-        checkboxes = [self.chk_hide_watched, self.chk_regex]
+        checkboxes = [self.chk_hide_watched, self.chk_regex, self.chk_rename]
         for w in checkboxes:
             hl_checkboxes.addWidget(w)
 
@@ -127,6 +130,12 @@ class SettingsWidget(QWidget):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.chk_regex.setSizePolicy(size_policy)
         self.chk_regex.setText("Regex")
+
+    def setup_rename_checkbox(self):
+        size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.chk_rename.setSizePolicy(size_policy)
+        self.chk_rename.setText("Rename")
+        self.chk_rename.setToolTip("Rename media titles according to regex")
 
     def setup_settings_group_box(self):
         size_policy = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)

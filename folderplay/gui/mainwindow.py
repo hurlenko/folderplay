@@ -140,5 +140,5 @@ class MainWindow(QMainWindow):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.lst_media.setSizePolicy(size_policy)
         self.lst_media.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        # self.lst_files.setSortingEnabled(True)
+        # self.lst_media.setSortingEnabled(True)
         self.lst_media.setContextMenuPolicy(Qt.CustomContextMenu)
