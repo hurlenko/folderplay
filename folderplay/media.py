@@ -107,7 +107,7 @@ class MediaItem(ListWidgetItem):
         self.title.setText(self.get_title())
 
     def __lt__(self, other):
-        return self.get_title().__gt__(other.get_title())
+        return self.get_title().__lt__(other.get_title())
 
     def __repr__(self):
         return '<MediaItem "{}" ({})>'.format(

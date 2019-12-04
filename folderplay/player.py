@@ -267,8 +267,12 @@ class Player(MainWindow):
                     break
             if rename.isEnabled() and rename.isChecked() and pattern:
                 match = pattern.search(media.get_title())
-                if match and match.group(0):
-                    media.set_title(match.group(0))
+                if match:
+                    index = 0
+                    if len(match.groups()) > 0:
+                        index = 1
+                    if match.group(index):
+                        media.set_title(match.group(index))
             else:
                 # Clears previous renaming
                 media.set_title(None)
@@ -418,22 +422,25 @@ class Player(MainWindow):
             logger.info("{} copied to the clipboard".format(media))
 
     def load_media(self):
-        # https://stackoverflow.com/a/25188862/801
+        # https://stackoverflow.com/a/25188862/8014793
         self.lst_media.clear()
+        medias = []
         logger.info(
             "Loading media from filesystem: {}".format(self.config.workdir)
         )
         for f in Path(self.config.workdir).rglob("*"):
             f = normpath(f)
             if f.suffix.lower() in EXTENSIONS_MEDIA:
-                m = MediaItem(f)
-                item = QListWidgetItem(self.lst_media)
-                # Set size hint
-                item.setSizeHint(m.sizeHint())
-                # Add QListWidgetItem into QListWidget
-                self.lst_media.addItem(item)
-                self.lst_media.setItemWidget(item, m)
-        logger.info("{} medias found ".format(self.lst_media.count()))
+                medias.append(MediaItem(f))
+        medias.sort()
+        logger.info("{} medias found ".format(len(medias)))
+        for m in medias:
+            item = QListWidgetItem(self.lst_media)
+            # Set size hint
+            item.setSizeHint(m.sizeHint())
+            # Add QListWidgetItem into QListWidget
+            self.lst_media.addItem(item)
+            self.lst_media.setItemWidget(item, m)
         self.filter_media()
         self.highlight_first_unwatched()
 
