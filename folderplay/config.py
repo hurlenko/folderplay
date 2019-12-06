@@ -66,7 +66,8 @@ class Config:
         ):
             config[member_object.name] = getattr(self, member_name)
         self._path.write_text(
-            json.dumps(config, indent=4, sort_keys=True, ensure_ascii=False)
+            json.dumps(config, indent=4, sort_keys=True, ensure_ascii=False),
+            encoding="utf-8",
         )
 
     player = Param("player_path")
@@ -84,4 +85,3 @@ class Config:
     pbar_direction = Param(
         "pbar_direction", BidirectionalProgressBar.Direction.forward.name
     )
-

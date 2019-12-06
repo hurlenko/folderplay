@@ -257,8 +257,9 @@ class Player(MainWindow):
             pattern = None
         for i in range(total):
             item = self.lst_media.item(i)
-
             media = self.lst_media.itemWidget(item)
+            # Clears previous renaming
+            media.set_title(None)
             is_hidden = False
             for f in self.filters:
                 if f(media) is True:
@@ -273,9 +274,6 @@ class Player(MainWindow):
                         index = 1
                     if match.group(index):
                         media.set_title(match.group(index))
-            else:
-                # Clears previous renaming
-                media.set_title(None)
 
             item.setHidden(is_hidden)
         logger.info("{} items were hidden".format(items_hidden))
