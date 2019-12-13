@@ -6,7 +6,7 @@ from folderplay.gui.button import ScalablePushButton
 from folderplay.gui.groupbox import NoTitleGroupBox
 from folderplay.gui.icons import IconSet
 from folderplay.gui.label import QIconLabel, DurationLabel, MarqueeLabel
-from gui.progressbar import BidirectionalProgressBar
+from folderplay.gui.progressbar import BidirectionalProgressBar
 
 
 class BasicViewWidget(QWidget):
