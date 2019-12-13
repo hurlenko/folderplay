@@ -9,14 +9,14 @@
 ## **folderplay** is a small tool that helps you remember watched tv episodes :sparkles:
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/18035960/64080320-5b2c5380-ccfb-11e9-808f-c370ca7951c2.png" />
+  <img src="https://user-images.githubusercontent.com/18035960/70795863-7e11dd80-1da9-11ea-8f6f-9c0ff2208a6d.gif" />
 </p>
 
 Its goal is to resume playback from the episode you left off with a single button press. It doesn't use any integrated players so you can still use your favourite one.
 
 ## Advaced view
 
-![image](https://user-images.githubusercontent.com/18035960/64080371-0e954800-ccfc-11e9-965f-7910966da277.png)
+![image](https://user-images.githubusercontent.com/18035960/70796312-9a624a00-1daa-11ea-94fe-6f0a805761a4.gif)
 
 ## 🚩 Table of Contents
 
@@ -38,7 +38,6 @@ Its goal is to resume playback from the episode you left off with a single butto
 - Minimalistic GUI
 - Supports multiple color styles
 - Supports multiple icon sets
-- No dependencies
 - No installation required - the whole program is a single executable file
 - Cross platform - supports all three major platforms (Windows, MacOS, Linux) thanks to `python` and `pyqt`
 
