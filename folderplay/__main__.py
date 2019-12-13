@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt, QFileInfo, QCoreApplication
 from PyQt5.QtGui import QFontDatabase, QFont
 from PyQt5.QtWidgets import QApplication
 
-from config import Config
+from folderplay.config import Config
 from folderplay import __version__ as about
 from folderplay.constants import FONT_SIZE, EXIT_CODE_REBOOT
 from folderplay.gui.icons import IconSet
