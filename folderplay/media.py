@@ -1,3 +1,4 @@
+import datetime
 import logging
 from pathlib import Path
 
@@ -16,7 +17,7 @@ class MediaItem(ListWidgetItem):
         super().__init__(*args, **kwargs)
 
         self.path = path
-
+        self._title_override = None
         self.icon_unwatched = IconSet.current.check_box_blank
         self.icon_watched = IconSet.current.check_box
         self.size = None
@@ -43,7 +44,13 @@ class MediaItem(ListWidgetItem):
     def get_short_info(self):
         res = []
         if self.duration is not None:
-            res.append(format_duration(self.duration))
+            now = datetime.datetime.now()
+            finishes = now + datetime.timedelta(seconds=self.duration)
+            res.append(
+                "{}/{}".format(
+                    format_duration(self.duration), finishes.strftime("%H:%M")
+                )
+            )
         if self.size is not None:
             res.append(format_size(self.size))
         if all((self.width, self.height)):
@@ -52,7 +59,6 @@ class MediaItem(ListWidgetItem):
 
     def setup_info(self):
         self.title.setText(self.get_title())
-        # self.info.setText(self.get_short_info())
         icon = self.icon_unwatched
         if self.is_watched():
             icon = self.icon_watched
@@ -64,7 +70,7 @@ class MediaItem(ListWidgetItem):
     def toggle_watched(self):
         if self.is_watched():
             new_path = self.path.with_name(
-                self.path.name[len(WATCHED_PREFIX) :]
+                self.path.name[len(WATCHED_PREFIX):]
             )
         else:
             new_path = self.path.with_name(WATCHED_PREFIX + self.path.name)
@@ -88,14 +94,20 @@ class MediaItem(ListWidgetItem):
         if self.is_watched():
             self.toggle_watched()
 
-    def get_title(self):
+    def get_title(self) -> str:
+        if self._title_override:
+            return self._title_override
         title = self.path.name
         if self.is_watched():
-            return title[len(WATCHED_PREFIX) :]
+            return title[len(WATCHED_PREFIX):]
         return title
 
+    def set_title(self, title: str):
+        self._title_override = title
+        self.title.setText(self.get_title())
+
     def __lt__(self, other):
-        return self.path.__lt__(other.path)
+        return self.get_title().__lt__(other.get_title())
 
     def __repr__(self):
         return '<MediaItem "{}" ({})>'.format(

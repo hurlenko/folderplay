@@ -1,18 +1,12 @@
 from PyQt5.QtCore import QSize, Qt
-from PyQt5.QtWidgets import (
-    QWidget,
-    QProgressBar,
-    QSizePolicy,
-    QVBoxLayout,
-    QHBoxLayout,
-    QFormLayout,
-)
+from PyQt5.QtWidgets import QWidget, QSizePolicy, QVBoxLayout, QHBoxLayout
 
-from folderplay.constants import NOT_AVAILABLE, FINISHED
+from folderplay.constants import NOT_AVAILABLE
 from folderplay.gui.button import ScalablePushButton
-from folderplay.gui.groupbox import ElidedGroupBox
+from folderplay.gui.groupbox import NoTitleGroupBox
 from folderplay.gui.icons import IconSet
-from folderplay.gui.label import ElidedLabel
+from folderplay.gui.label import QIconLabel, DurationLabel, MarqueeLabel
+from gui.progressbar import BidirectionalProgressBar
 
 
 class BasicViewWidget(QWidget):
@@ -30,19 +24,41 @@ class BasicViewWidget(QWidget):
         self.setup_refresh_button()
 
         # Progressbar
-        self.pbr_watched = QProgressBar(self)
+        self.pbr_watched = BidirectionalProgressBar(self)
         self.setup_progress_bar()
 
         # Media info groupbox
-        self.grp_current_media = ElidedGroupBox(self)
+        self.grp_current_media = NoTitleGroupBox(self)
         self.setup_current_media_group_box()
 
-        self.lbl_finishes_value = ElidedLabel(self)
-        self.setup_finishes_label()
+        self.lbl_movie_info_time = DurationLabel(
+            0,
+            DurationLabel.DisplayMode.endtime,
+            IconSet.current.clock,
+            NOT_AVAILABLE,
+            self,
+        )
+        self.lbl_movie_info_size = QIconLabel(
+            IconSet.current.size, NOT_AVAILABLE, self
+        )
+        self.lbl_movie_info_size.setToolTip("Media size")
 
-        self.lbl_movie_info_value = ElidedLabel(self)
-        self.setup_movie_info_label()
+        self.lbl_movie_info_res = QIconLabel(
+            IconSet.current.monitor, NOT_AVAILABLE, self
+        )
+        self.lbl_movie_info_res.setToolTip("Media resolution")
 
+        self.lbl_movie_info_title_icon = QIconLabel(self)
+        self.lbl_movie_info_title_icon.setIcon(IconSet.current.movie)
+        self.lbl_movie_info_title_icon.setSizePolicy(
+            QSizePolicy.Fixed, QSizePolicy.Fixed
+        )
+
+        self.lbl_movie_info_title = MarqueeLabel(NOT_AVAILABLE, self)
+        title_font = self.lbl_movie_info_title.font()
+        title_font.setBold(True)
+        # title_font.setUnderline(True)
+        self.lbl_movie_info_title.setFont(title_font)
         self.setLayout(self.get_layout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
@@ -52,15 +68,23 @@ class BasicViewWidget(QWidget):
 
         hlayout = QHBoxLayout()
 
-        mediainfo_layout = QFormLayout()
-        mediainfo_layout.addRow("Ends:", self.lbl_finishes_value)
-        mediainfo_layout.addRow("Info:", self.lbl_movie_info_value)
+        hlayout_info = QHBoxLayout()
+        hlayout_info.addWidget(self.lbl_movie_info_time)
+        hlayout_info.addWidget(self.lbl_movie_info_size)
+        hlayout_info.addWidget(self.lbl_movie_info_res)
+        hlayout_title = QHBoxLayout()
+        hlayout_title.addWidget(self.lbl_movie_info_title_icon)
+        hlayout_title.addWidget(self.lbl_movie_info_title)
+
+        mediainfo_layout_v = QVBoxLayout()
+        mediainfo_layout_v.addLayout(hlayout_title)
+        mediainfo_layout_v.addLayout(hlayout_info)
+        # lbl_movie_info_title
+        self.grp_current_media.setLayout(mediainfo_layout_v)
 
         widgets = [self.btn_advanced, self.btn_refresh]
         for w in widgets:
             vlayout_refresh_advanced.addWidget(w)
-
-        self.grp_current_media.setLayout(mediainfo_layout)
 
         hlayout.addWidget(self.pbr_watched)
         hlayout.addLayout(vlayout_refresh_advanced)
@@ -92,12 +116,10 @@ class BasicViewWidget(QWidget):
         self.btn_refresh.setIcon(IconSet.current.refresh)
 
     def setup_progress_bar(self):
-        self.pbr_watched.setValue(24)
         # Allow pbr_watched to expand to take up all space in layout
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.pbr_watched.setSizePolicy(size_policy)
         self.pbr_watched.setAlignment(Qt.AlignHCenter)
-        self.pbr_watched.setFormat("%v / %m")
         font = self.pbr_watched.font()
         font.setPointSize(25)
         font.setBold(True)
@@ -106,10 +128,4 @@ class BasicViewWidget(QWidget):
     def setup_current_media_group_box(self):
         size_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.grp_current_media.setSizePolicy(size_policy)
-        self.grp_current_media.setTitle(FINISHED)
-
-    def setup_finishes_label(self):
-        self.lbl_finishes_value.setText(NOT_AVAILABLE)
-
-    def setup_movie_info_label(self):
-        self.lbl_movie_info_value.setText(NOT_AVAILABLE)
+        self.grp_current_media.setContextMenuPolicy(Qt.CustomContextMenu)

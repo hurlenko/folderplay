@@ -159,6 +159,10 @@ class GenericIconSet:
     settings = icon("settings.svg")
     visibility = icon("visibility.svg")
     visibility_off = icon("visibility_off.svg")
+    clock = icon("clock.svg")
+    monitor = icon("monitor.svg")
+    size = icon("size.svg")
+    movie = icon("movie.svg")
 
 
 class Constant:
@@ -181,13 +185,6 @@ class IconSet(Enum):
     material = GenericIconSet(MaterialIcon, "material")
     feather = GenericIconSet(FeatherIcon, "feather")
     current = Constant(feather)
-
-    @classmethod
-    def get(cls, name):
-        for style in cls:
-            if style.name == name:
-                return style
-        raise ValueError("Icon set {} is not supported".format(name))
 
     @classmethod
     def names(cls):

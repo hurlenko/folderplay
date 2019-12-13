@@ -8,9 +8,12 @@ from PyQt5.QtCore import Qt, QFileInfo, QCoreApplication
 from PyQt5.QtGui import QFontDatabase, QFont
 from PyQt5.QtWidgets import QApplication
 
+from config import Config
 from folderplay import __version__ as about
-from folderplay.constants import FONT_SIZE
+from folderplay.constants import FONT_SIZE, EXIT_CODE_REBOOT
 from folderplay.gui.icons import IconSet
+from folderplay.gui.label import DurationLabel
+from folderplay.gui.progressbar import BidirectionalProgressBar
 from folderplay.gui.styles import Style
 from folderplay.player import Player
 from folderplay.utils import resource_path, is_windows
@@ -32,6 +35,24 @@ def setup_logging():
     )
 
 
+def run_application(config):
+    setup_logging()
+    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
+    app = QApplication(sys.argv)
+    QFontDatabase.addApplicationFont(
+        resource_path("fonts/Roboto/Roboto-Regular.ttf")
+    )
+
+    font = QFont("Roboto", FONT_SIZE)
+    QApplication.setFont(font)
+
+    player = Player(config)
+    player.show()
+    return app.exec_()
+
+
 def validate_player(ctx, param, value):
     if not value:
         return value
@@ -50,8 +71,8 @@ def validate_player(ctx, param, value):
         filename = Path(value.lower()).stem
 
         with suppress(WindowsError), winreg.OpenKey(
-                winreg.HKEY_LOCAL_MACHINE,
-                r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths",
+            winreg.HKEY_LOCAL_MACHINE,
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths",
         ) as k:
             for i in itertools.count():
                 subkey = winreg.EnumKey(k, i)
@@ -62,24 +83,6 @@ def validate_player(ctx, param, value):
                         if file_info and file_info.isExecutable():
                             return file_info.filePath()
     raise click.BadParameter("Player must an executable")
-
-
-def get_style_by_name(ctx, param, value):
-    if not value:
-        return value
-    try:
-        return Style.get(value)
-    except ValueError as e:
-        raise click.BadParameter(e)
-
-
-def get_icon_set_by_name(ctx, param, value):
-    if not value:
-        return value
-    try:
-        return IconSet.get(value)
-    except ValueError as e:
-        raise click.BadParameter(e)
 
 
 @click.command(short_help=about.__description__)
@@ -99,7 +102,24 @@ def get_icon_set_by_name(ctx, param, value):
     type=click.Choice(Style.names()),
     metavar="<name>",
     help="Color style: {}".format(", ".join(Style.names())),
-    callback=get_style_by_name,
+)
+@click.option(
+    "--duration_type",
+    "-d",
+    type=click.Choice(DurationLabel.DisplayMode.names()),
+    metavar="<name>",
+    help="Duration display mode: {}".format(
+        ", ".join(DurationLabel.DisplayMode.names())
+    ),
+)
+@click.option(
+    "--pbar_direction",
+    "-pd",
+    type=click.Choice(BidirectionalProgressBar.Direction.names()),
+    metavar="<name>",
+    help="Progressbar direction: {}".format(
+        ", ".join(BidirectionalProgressBar.Direction.names())
+    ),
 )
 @click.option(
     "--icons",
@@ -107,7 +127,6 @@ def get_icon_set_by_name(ctx, param, value):
     type=click.Choice(IconSet.names()),
     metavar="<name>",
     help="Icon set: {}".format(", ".join(IconSet.names())),
-    callback=get_icon_set_by_name,
 )
 @click.argument(
     "workdir",
@@ -118,27 +137,15 @@ def get_icon_set_by_name(ctx, param, value):
     default=os.getcwd(),
     nargs=1,
 )
-def main(workdir, player_path, style, icons):
-    setup_logging()
-
-    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-
-    app = QApplication(sys.argv)
-    QFontDatabase.addApplicationFont(
-        resource_path("fonts/Roboto/Roboto-Regular.ttf")
-    )
-
-    font = QFont("Roboto", FONT_SIZE)
-    QApplication.setFont(font)
-
-    player = Player(workdir, style, icons)
-    player.show()
-
-    if player_path:
-        player.local_player.set_player(player_path)
-        player.update_player_info()
-    sys.exit(app.exec_())
+@click.pass_context
+def main(
+    ctx, workdir, player_path, style, icons, duration_type, pbar_direction
+):
+    exit_code = EXIT_CODE_REBOOT
+    while exit_code == EXIT_CODE_REBOOT:
+        config = Config(workdir, ctx.params)
+        exit_code = run_application(config)
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
