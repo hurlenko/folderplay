@@ -1,6 +1,7 @@
 import logging
 import re
 from pathlib import Path
+from typing import Optional
 
 import click
 from PyQt5.QtCore import QFileInfo
@@ -442,7 +443,7 @@ class Player(MainWindow):
         self.filter_media()
         self.highlight_first_unwatched()
 
-    def highlight_first_unwatched(self):
+    def highlight_first_unwatched(self) -> Optional[MediaItem]:
         self.lst_media.clearSelection()
 
         total = self.lst_media.count()
@@ -454,7 +455,9 @@ class Player(MainWindow):
                 self.lst_media.scrollToItem(
                     item, QAbstractItemView.PositionAtCenter
                 )
-                return
+                return media
+
+        return None
 
     def init_unwatched(self):
         self.basic_view_widget.lbl_movie_info_time.set_duration(None)
@@ -510,18 +513,6 @@ class Player(MainWindow):
         self.filter_media()
         self.highlight_first_unwatched()
 
-    def get_first_unwatched(self) -> MediaItem:
-        logger.info("Getting first unwatched media")
-        total = self.lst_media.count()
-        for i in range(total):
-            item = self.lst_media.item(i)
-            media = self.lst_media.itemWidget(item)
-            if not media.is_watched():
-                logger.info("Found: {}".format(media))
-                return media
-        logger.warning("No unwatched media found")
-        return None
-
     def play_selected_item(self):
         logger.info("Getting media")
         medias = self.lst_media.selectedItems()
@@ -540,7 +531,7 @@ class Player(MainWindow):
             self.local_player.not_found_warning()
 
     def play_button_pressed(self):
-        media = self.get_first_unwatched()
+        media = self.highlight_first_unwatched()
         if not media:
             return
         self.play_media(media)
