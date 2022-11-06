@@ -35,7 +35,7 @@ class SvgEngine(QIconEngine):
         img.fill(qRgba(0, 0, 0, 0))
         pix = QPixmap.fromImage(img, Qt.NoFormatConversion)
         painter = QPainter(pix)
-        r = QRect(QPoint(0.0, 0.0), size)
+        r = QRect(QPoint(0, 0), size)
         self.paint(painter, r, mode, state)
         return pix
 

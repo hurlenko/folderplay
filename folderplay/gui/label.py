@@ -17,7 +17,7 @@ class ElidedLabel(QLabel):
         metrics = self.fontMetrics()
         elided = metrics.elidedText(self.text(), Qt.ElideRight, self.width())
 
-        painter.drawText(self.rect(), self.alignment(), elided)
+        painter.drawText(self.rect(), int(self.alignment()), elided)
 
 
 class NameLabel(QLabel):
@@ -54,7 +54,7 @@ class MarqueeLabel(QLabel):
         self.px = 0
         self.py = 0
         self._speed = 1
-        self._pauseDuration = 2e3
+        self._pauseDuration = int(2e3)
         self._separatorWidth = 20
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update)
@@ -75,8 +75,8 @@ class MarqueeLabel(QLabel):
 
     def update_coordinates(self):
         self.px = 0
-        self.py = self.height() / 2
-        self.fontPointSize = self.font().pointSize() / 2
+        self.py = self.height() // 2
+        self.fontPointSize = self.font().pointSize() // 2
         self.textLength = self.fontMetrics().width(self.text())
 
     def resizeEvent(self, event):
