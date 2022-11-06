@@ -57,6 +57,9 @@ jobs:
     # Release only when new tag is pushed
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
 
+    pool:
+      vmImage: 'ubuntu-latest'
+
     steps:
       - task: DownloadBuildArtifacts@0
         displayName: 'Download Build Artifacts'
